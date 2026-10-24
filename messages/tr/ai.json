@@ -1,1 +1,129 @@
-{}
+{
+  "assistant": {
+    "title": "Asistan",
+    "hello": "Merhaba, nasıl yardım edeyim?",
+    "intro": "Görevlerine, notlarına, toplantılarına, belgelerine ve ortaklarına bakabilirim. Bir şey değiştirmem gerekirse önce sana öneririm.",
+    "introRecord": "Şu an “{title}” açık; ona göre yardım edebilirim. Bir şey değiştirmem gerekirse önce sana öneririm.",
+    "tryThis": "Şunları deneyebilirsin",
+    "welcomeNote": "Önerilerim kart olarak gelir; kabul eder, düzenler ya da reddedersin. Gelen kutusunda da bekler.",
+    "welcomeReadOnly": "Proje arşivlendi: soruları yanıtlarım ama değişiklik önermem.",
+    "seesScreen": "Görüyor: {title}",
+    "selection": "Seçili metin",
+    "dropSelection": "Seçili metni çıkar",
+    "placeholder": "Claude'a bir şey sor ya da iste…",
+    "placeholderOff": "Yapay zekâ bağlanınca burada çalışır",
+    "send": "Gönder",
+    "stop": "Durdur",
+    "stopped": "Yanıtı durdurdun.",
+    "thinking": "Düşünüyor…",
+    "looked": "Baktığı kayıtlar",
+    "footer": "Claude yalnızca önerir; her değişikliği sen onaylarsın.",
+    "footerReadOnly": "Proje arşivlendi; Claude yalnızca okur ve yanıtlar.",
+    "newChat": "Yeni sohbet",
+    "backToChat": "Sohbete dön",
+    "proposal": {
+      "accepted": "Kabul edildi",
+      "rejected": "Reddedildi"
+    },
+    "history": {
+      "title": "Önceki sohbetler",
+      "empty": "Henüz kayıtlı sohbet yok.",
+      "delete": "Sohbeti sil",
+      "deleted": "Sohbet silindi."
+    },
+    "off": {
+      "title": "Asistan henüz bağlı değil",
+      "body": "ANTHROPIC_API_KEY eklenince Claude burada çalışır: ekrandakini görür, arar ve sana öneriler hazırlar.",
+      "memory": "Bu arada Hafıza'dan proje sözlüğünü doldurabilirsin."
+    },
+    "errors": {
+      "not_configured": "Yapay zekâ henüz bağlı değil. ANTHROPIC_API_KEY eklenince çalışır.",
+      "disabled": "Yapay zekâ Ayarlar'da kapalı.",
+      "cap_reached": "Bu ayın yapay zekâ bütçesi doldu. Ayarlar'dan sınırı değiştirebilirsin.",
+      "refused": "Claude bu isteği yanıtlamadı. İsteği biraz değiştirip tekrar dener misin?",
+      "failed": "Yapay zekâ şu an yanıt veremedi. Biraz sonra tekrar dener misin?",
+      "too_large": "Bu istek yapay zekâ için çok büyük. Daha küçük bir parça seçer misin?",
+      "ai_off": "Bu içerik yapay zekâya kapalı; Claude'a gönderilmez.",
+      "child_data": "Bu mesajda bir çocuğa ait kişisel bilgi olabilir; Claude'a gönderilmedi.",
+      "offline": "İnternet bağlantısı yok. Bağlantı gelince tekrar dener misin?"
+    },
+    "quick": {
+      "default": [
+        "Bu hafta neler var?",
+        "Ortaklardan neler bekliyorum?",
+        "Geciken işlerimi önceliğe göre sırala"
+      ],
+      "today": [
+        "Günümü planla",
+        "Bu hafta neler gecikti?",
+        "Yarınki toplantılara hazırlanmama yardım et"
+      ],
+      "tasks": [
+        "Gecikenleri listele ve hangisinden başlayacağımı öner",
+        "Ortakların bana borçlu olduklarını özetle",
+        "Bu haftanın en önemli üç işi ne?"
+      ],
+      "organisation": [
+        "Bu ortakla bir sonraki görüşmeye hazırla",
+        "Bu ortaktan neler bekliyoruz?",
+        "Bu ortakla son kararları özetle"
+      ],
+      "partners": [
+        "Hangi ortak raporu gecikti?",
+        "Ortaklardan neler bekliyorum?",
+        "Her ortak için bir sonraki adımı öner"
+      ],
+      "meeting": [
+        "Bu toplantı için gündem öner",
+        "Notlardan görevleri çıkar",
+        "Bu toplantıyı üç satırda özetle"
+      ],
+      "meetings": [
+        "Bu haftaki toplantılara hazırla",
+        "Notu girilmemiş toplantılar hangileri?",
+        "Son kararları özetle"
+      ],
+      "note": [
+        "Bu sayfayı özetle",
+        "Bu sayfadan görevler çıkar",
+        "Bu sayfayı İngilizceye çevir"
+      ],
+      "document": [
+        "Bu belgeyi özetle",
+        "Bu belgedeki son tarihler neler?",
+        "Bu belgeden görevler çıkar"
+      ],
+      "files": [
+        "Son yüklenen belgeleri özetle",
+        "Bu çeyreğin ortak raporlarını bul",
+        "Hangi belgelerde son tarih var?"
+      ],
+      "selection": [
+        "Seçili metni özetle",
+        "Seçili metni İngilizceye çevir",
+        "Seçili metinden görevler çıkar"
+      ]
+    },
+    "memory": {
+      "title": "Hafıza",
+      "pageTitle": "Asistanın hafızası",
+      "pageHint": "Claude bu sayfayı her istekte okur. Bağışçıyı, ortakların kısa adlarını, kısaltmaları, rapor kurallarını ve yazım tercihlerini buraya yaz.",
+      "pageEmpty": "Sayfa şimdilik boş.",
+      "pageAiOff": "Bu sayfa yapay zekâya kapalı; Claude şu an okumuyor.",
+      "openPage": "Sayfayı aç",
+      "glossary": "Sözlük",
+      "glossaryHint": "Türkçe ve İngilizce proje terimleri. Claude her çeviride ve taslakta bunları kullanır.",
+      "glossaryEmpty": "Sözlükte henüz terim yok.",
+      "noMatch": "Bu aramaya uyan terim yok.",
+      "filter": "Sözlükte ara",
+      "tr": "Türkçe terim",
+      "en": "İngilizce karşılığı",
+      "note": "Not (isteğe bağlı)",
+      "add": "Ekle",
+      "added": "Terim eklendi.",
+      "updated": "Terim güncellendi.",
+      "deleted": "Terim silindi."
+    },
+    "moreSources": "+{count} daha"
+  }
+}

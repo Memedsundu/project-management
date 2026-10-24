@@ -47,6 +47,14 @@
     "meeting_recap": "Toplantı özeti",
     "agenda": "Gündem önerisi",
     "classification": "Sınıflandırma",
-    "other": "Öneri"
+    "other": "Öneri",
+    "memory": "Hafıza önerisi"
+  },
+  "agenda": {
+    "add": "{count, plural, =0 {Gündeme ekle} other {# maddeyi gündeme ekle}}"
+  },
+  "memory": {
+    "add": "Hafızaya ekle",
+    "term": "Sözlük terimi"
   }
 }

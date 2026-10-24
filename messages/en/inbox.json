@@ -47,6 +47,14 @@
     "meeting_recap": "Meeting recap",
     "agenda": "Suggested agenda",
     "classification": "Filing",
-    "other": "Suggestion"
+    "other": "Suggestion",
+    "memory": "Memory suggestion"
+  },
+  "agenda": {
+    "add": "{count, plural, =0 {Add to agenda} one {Add # item to the agenda} other {Add # items to the agenda}}"
+  },
+  "memory": {
+    "add": "Add to memory",
+    "term": "Glossary term"
   }
 }

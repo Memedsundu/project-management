@@ -1,6 +1,6 @@
 import "server-only";
 import { and, desc, eq, gte, inArray, isNull, sql } from "drizzle-orm";
-import { addDaysStr, istanbulInstant, todayStr, weekRange } from "@/lib/dates";
+import { addDaysStr, formatTime, istanbulInstant, todayStr, weekRange } from "@/lib/dates";
 import { getDb } from "@/server/db/client";
 import { briefs, documents, indicatorValues, organisations, tasks } from "@/server/db/schema";
 import { listDocumentsToCheck, listKeyDates } from "./documents";
@@ -53,7 +53,7 @@ export async function attentionItems(today = todayStr()): Promise<Attention> {
     listGrouped({ ownerKind: "me" }, today),
     latePartnerReports(today),
     listDocumentsToCheck(),
-    listPendingSuggestions({ kinds: ["tasks", "key_dates", "meeting_recap", "link", "note", "agenda", "workplan", "organize", "indicator_values"], limit: 30 }),
+    listPendingSuggestions({ kinds: ["tasks", "key_dates", "meeting_recap", "link", "note", "agenda", "workplan", "organize", "indicator_values", "memory"], limit: 30 }),
     meetingsNeedingNotes(),
     db.select({ n: sql<number>`count(*)::int` }).from(indicatorValues).where(eq(indicatorValues.status, "proposed")),
   ]);
@@ -114,10 +114,13 @@ export async function todayData(day = todayStr()): Promise<TodayData> {
 }
 
 /** Plain-text digest of a day for Claude (brief, recipes, assistant). */
-export function digestText(d: TodayData) {
+export function digestText(d: TodayData, hidden: Set<string> = new Set()) {
   const lines: string[] = [`Date: ${d.day}`];
   lines.push(`Meetings today (${d.meetings.length}):`);
-  for (const m of d.meetings) lines.push(`- ${m.startsAt.toISOString().slice(11, 16)}Z ${m.title}${m.location ? ` @ ${m.location}` : ""}`);
+  for (const m of d.meetings) {
+    if (hidden.has(`meeting:${m.id}`)) lines.push(`- ${formatTime(m.startsAt)} (a meeting kept away from AI)`);
+    else lines.push(`- ${formatTime(m.startsAt)} ${m.title}${m.location ? ` @ ${m.location}` : ""}`);
+  }
   lines.push(`Her tasks for today (${d.tasks.length}):`);
   for (const t of d.tasks.slice(0, 25)) lines.push(`- ${t.title}${t.dueDate ? ` (due ${t.dueDate}${t.overdue ? ", OVERDUE" : ""})` : ""}${t.priority < 4 ? ` p${t.priority}` : ""}`);
   if (d.waitingThisWeek.length) {
@@ -130,11 +133,22 @@ export function digestText(d: TodayData) {
   }
   if (d.keyDates.length) {
     lines.push("Deadlines found in files (next 7 days):");
-    for (const k of d.keyDates) lines.push(`- ${k.date}: ${k.label} (${k.title})`);
+    for (const k of d.keyDates) if (!hidden.has(`document:${k.documentId}`)) lines.push(`- ${k.date}: ${k.label} (${k.title})`);
   }
   lines.push(`Files to check: ${d.attention.filesToCheck.length}. Suggestions waiting: ${d.attention.suggestions.length}. Meetings without notes: ${d.attention.meetingsNeedingNotes.length}.`);
   lines.push(`Planned time: ${d.plannedMinutes} min of ${d.workMinutes} working minutes.`);
   return lines.join("\n");
+}
+
+/** The day as Claude may read it: records kept away from AI lose their titles. */
+export async function aiDigest(day = todayStr()) {
+  const { aiOffKeys } = await import("@/server/ai/context");
+  const d = await todayData(day);
+  const hidden = await aiOffKeys([
+    ...d.meetings.map((m) => ({ type: "meeting" as const, id: m.id })),
+    ...d.keyDates.map((k) => ({ type: "document" as const, id: k.documentId })),
+  ]);
+  return digestText(d, hidden);
 }
 
 export async function latestBrief(kind: "daily" | "weekly" | "partner_check" | "recipe", opts: { day?: string } = {}) {

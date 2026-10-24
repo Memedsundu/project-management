@@ -152,7 +152,8 @@ export function systemBlocks(system?: string): Anthropic.TextBlockParam[] {
   return [{ type: "text", text: system ? `${BASE_RULES}\n\n${system}` : BASE_RULES, cache_control: { type: "ephemeral" } }];
 }
 
-function failure(err: unknown): AiError {
+/** Any error from a call as an AiError with a code the panels understand. */
+export function failure(err: unknown): AiError {
   if (err instanceof AiError) return err;
   if (err instanceof Anthropic.APIError) {
     if (err.status === 413) return new AiError("too_large", err.message);

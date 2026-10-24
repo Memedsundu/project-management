@@ -19,6 +19,22 @@ export async function folderAiOff(folderId: string | null | undefined) {
   return Boolean(res.rows?.[0]?.off);
 }
 
+/**
+ * Which of these records are kept away from AI. The search index folds in the
+ * record's own switch, its folders' switches and the child-data flag.
+ */
+export async function aiOffKeys(refs: EntityRef[]): Promise<Set<string>> {
+  if (!refs.length) return new Set();
+  const db = await getDb();
+  const res = (await db.execute(sql`
+    select entity_type, entity_id from search_index
+    where ai_off = true and (entity_type, entity_id) in (${sql.join(
+      refs.map((r) => sql`(${r.type}, ${r.id}::uuid)`),
+      sql`, `,
+    )})`)) as unknown as { rows: { entity_type: string; entity_id: string }[] };
+  return new Set((res.rows ?? []).map((r) => `${r.entity_type}:${r.entity_id}`));
+}
+
 export async function documentAiOff(doc: { aiOff: boolean; folderId: string | null; childDataFlag?: boolean }) {
   return doc.aiOff || Boolean(doc.childDataFlag) || (await folderAiOff(doc.folderId));
 }

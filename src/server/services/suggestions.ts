@@ -20,7 +20,8 @@ export type SuggestionKind =
   | "link"
   | "note"
   | "agenda"
-  | "workplan";
+  | "workplan"
+  | "memory";
 
 export type ProposedTask = {
   title: string;
@@ -97,6 +98,7 @@ const APPLIERS: Record<SuggestionKind, () => Promise<Applier>> = {
   meeting_recap: async () => (await import("./meetings")).applyMeetingRecap,
   agenda: async () => (await import("./meetings")).applyAgendaSuggestion,
   workplan: async () => applyTasks,
+  memory: async () => applyMemory,
 };
 
 /** Accept a suggestion. `decision` carries her edits (which items, changed fields). */
@@ -201,4 +203,28 @@ async function applyNote(payload: unknown, decision: unknown) {
   };
   const note = await createNote({ title: p.title, markdown: p.markdown, parentId: p.parentId ?? null }, "ai");
   return { status: "accepted" as const, result: note.id };
+}
+
+export type MemoryPayload = { lines: string[]; terms: { tr: string; en: string; note?: string | null }[] };
+
+/** Lines go to the end of "Asistanın hafızası"; terms join the glossary (same Turkish term: updated). */
+async function applyMemory(payload: unknown, decision: unknown) {
+  const { getMemoryNote, updateNote } = await import("./notes");
+  const { markdownToBlocks } = await import("@/lib/blocks");
+  const p = payload as MemoryPayload;
+  const d = (decision ?? {}) as { indexes?: number[] };
+  const all = [...p.lines.map((text) => ({ kind: "line" as const, text })), ...p.terms.map((term) => ({ kind: "term" as const, term }))];
+  const chosen = d.indexes ? d.indexes.map((i) => all[i]).filter(Boolean) : all;
+  const lines = chosen.flatMap((c) => (c?.kind === "line" ? [c.text] : []));
+  const terms = chosen.flatMap((c) => (c?.kind === "term" ? [c.term] : []));
+  if (lines.length) {
+    const note = await getMemoryNote();
+    const content = [...((note.content as unknown[]) ?? []), ...markdownToBlocks(lines.map((l) => `- ${l.replace(/^[-*•]\s*/, "")}`).join("\n"))];
+    await updateNote(note.id, { content }, "ai");
+  }
+  if (terms.length) {
+    const { saveGlossaryTerm } = await import("./glossary");
+    for (const t of terms) await saveGlossaryTerm({ tr: t.tr, en: t.en, note: t.note ?? null });
+  }
+  return { status: chosen.length === all.length ? ("accepted" as const) : ("partial" as const) };
 }

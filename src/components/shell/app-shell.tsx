@@ -168,26 +168,26 @@ export function AppShell({ data, children }: { data: ShellData; children: React.
             <button
               type="button"
               onClick={() => api.openCommand()}
-              className="flex h-12 flex-1 items-center gap-2.5 rounded-full border border-line-strong px-4 text-left text-[15px] text-faint transition-colors hover:border-ink"
+              className="flex h-12 min-w-0 flex-1 items-center gap-2.5 rounded-full border border-line-strong px-4 text-left text-[15px] text-faint transition-colors hover:border-ink"
               data-testid="open-search"
             >
               <Search size={18} className="text-muted" />
               <span className="flex-1 truncate">{t("askPlaceholder")}</span>
               <Kbd>⌘K</Kbd>
             </button>
-            <span className="hidden whitespace-nowrap text-[14px] text-muted xl:inline">
+            <span className={cn("hidden whitespace-nowrap text-[14px] text-muted", assistantOpen ? "min-[1680px]:inline" : "xl:inline")}>
               {formatLongDay(todayStr(), locale)}
             </span>
             {!data.readOnly ? (
               <button
                 type="button"
                 onClick={() => setQuickAdd({})}
-                className="inline-flex h-11 items-center gap-2 rounded-full bg-ink px-4 text-[15px] font-medium text-on-ink hover:bg-ink/85"
+                className="inline-flex h-11 shrink-0 items-center gap-2 whitespace-nowrap rounded-full bg-ink px-4 text-[15px] font-medium text-on-ink hover:bg-ink/85"
                 data-testid="quick-add-button"
               >
                 <Plus size={18} />
                 {t("quickAdd")}
-                <Kbd className="border-on-ink/30 bg-transparent text-on-ink/70">N</Kbd>
+                <Kbd className={cn("border-on-ink/30 bg-transparent text-on-ink/70", assistantOpen && "hidden 2xl:inline-flex")}>N</Kbd>
               </button>
             ) : null}
             <button
@@ -195,7 +195,7 @@ export function AppShell({ data, children }: { data: ShellData; children: React.
               onClick={() => setAssistantOpen((v) => !v)}
               aria-pressed={assistantOpen}
               className={cn(
-                "inline-flex h-11 items-center gap-2 rounded-full border px-4 text-[15px] font-medium transition-colors",
+                "inline-flex h-11 shrink-0 items-center gap-2 whitespace-nowrap rounded-full border px-4 text-[15px] font-medium transition-colors",
                 assistantOpen ? "border-ink bg-panel" : "border-line-strong hover:border-ink",
               )}
             >
@@ -214,17 +214,18 @@ export function AppShell({ data, children }: { data: ShellData; children: React.
             <main id="main" className="min-w-0 flex-1 px-4 pb-28 pt-5 md:px-8 lg:px-10 lg:pb-16 lg:pt-8">
               {children}
             </main>
-            {assistantOpen && wide ? (
-              <aside className="no-print sticky top-0 h-dvh w-[380px] shrink-0 border-l border-line">
-                <AssistantPanel
-                  onClose={() => setAssistantOpen(false)}
-                  initialPrompt={assistantPrompt}
-                  onPromptUsed={() => setAssistantPrompt(undefined)}
-                />
-              </aside>
-            ) : null}
           </div>
         </div>
+        {/* Laptop assistant: full height on the right, beside the page (Peni, Notion). */}
+        {assistantOpen && wide ? (
+          <aside className="no-print sticky top-0 h-dvh w-[380px] shrink-0 border-l border-line" aria-label={t("assistant")}>
+            <AssistantPanel
+              onClose={() => setAssistantOpen(false)}
+              initialPrompt={assistantPrompt}
+              onPromptUsed={() => setAssistantPrompt(undefined)}
+            />
+          </aside>
+        ) : null}
       </div>
 
       {/* Phone bottom bar with quick add in the centre */}

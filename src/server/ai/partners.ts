@@ -8,10 +8,10 @@ import { todayStr } from "@/lib/dates";
 import { aiText, asMaterial } from "./client";
 import { projectMemoryText } from "./memory";
 
-/** "Ortak brifi": five lines before a call: what is late, what was decided, what is open. */
-export async function writePartnerBrief(orgId: string, language: "tr" | "en") {
+/** What the app knows about a partner, as plain lines for Claude (brief and assistant). */
+export async function partnerFactsText(orgId: string, opts: { ids?: boolean } = {}) {
   const org = await getOrganisation(orgId);
-  if (!org) throw new UserError("Kurum bulunamadı.");
+  if (!org) return null;
   const today = todayStr();
   const [open, meetings, decs, docs] = await Promise.all([
     tasksLinkedTo({ type: "organisation", id: orgId }, { open: true }),
@@ -27,10 +27,18 @@ export async function writePartnerBrief(orgId: string, language: "tr" | "en") {
     `Reports: ${slots.map((s) => `${s.label} due ${s.due}: ${s.status}${s.daysLate ? ` (${s.daysLate} days late)` : ""}`).join("; ") || "no reporting rhythm"}`,
     `Owed by them: ${open.filter((t) => t.ownerKind !== "me").map((t) => `${t.title}${t.dueDate ? ` (due ${t.dueDate}${t.overdue ? ", OVERDUE" : ""})` : ""}`).join("; ") || "nothing"}`,
     `Her open tasks with them: ${open.filter((t) => t.ownerKind === "me").map((t) => `${t.title}${t.dueDate ? ` (due ${t.dueDate})` : ""}`).join("; ") || "none"}`,
-    `Meetings: ${meetings.map((m) => `${m.startsAt.toISOString().slice(0, 10)} ${m.title} (${m.status})`).join("; ") || "none"}`,
+    `Meetings: ${meetings.map((m) => `${m.startsAt.toISOString().slice(0, 10)} ${m.title} (${m.status}${opts.ids ? `, id ${m.id}` : ""})`).join("; ") || "none"}`,
     `Recent decisions: ${decs.map((d) => `${d.decidedOn}: ${d.text}`).join("; ") || "none"}`,
   ].filter(Boolean);
-  const facts = lines.join("\n");
+  return { org, facts: lines.join("\n") };
+}
+
+/** "Ortak brifi": five lines before a call: what is late, what was decided, what is open. */
+export async function writePartnerBrief(orgId: string, language: "tr" | "en") {
+  const found = await partnerFactsText(orgId);
+  if (!found) throw new UserError("Kurum bulunamadı.");
+  const { org, facts } = found;
+  const today = todayStr();
   if (checkForChildData({ text: facts }).flag) throw new UserError("Bu kayıtlarda bir çocuğa ait kişisel bilgi olabilir; yapay zekâya gönderilmedi.");
   const memory = await projectMemoryText({ glossary: true, max: 2000 });
   const { text } = await aiText({

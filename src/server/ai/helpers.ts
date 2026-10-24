@@ -60,7 +60,7 @@ function plainBrief(d: Awaited<ReturnType<typeof import("@/server/services/today
 
 export async function dailyBriefJob(payload: Record<string, unknown> = {}) {
   const day = typeof payload.day === "string" ? payload.day : todayStr();
-  const { todayData, digestText } = await import("@/server/services/today");
+  const { todayData, aiDigest } = await import("@/server/services/today");
   const d = await todayData(day);
   let lines = plainBrief(d);
   let model: string | null = null;
@@ -73,7 +73,7 @@ export async function dailyBriefJob(payload: Record<string, unknown> = {}) {
         maxTokens: 800,
         schema: BriefSchema,
         system: `${await projectMemoryText({ glossary: false, max: 2000 })}\n\nWrite her morning brief for ${formatLongDay(day, "tr")}. Use only the facts given. No greetings, no emoji.`,
-        messages: [{ role: "user", content: asMaterial("source", { kind: "today" }, digestText(d)) }],
+        messages: [{ role: "user", content: asMaterial("source", { kind: "today" }, await aiDigest(day)) }],
       });
       const clean = out.lines.map((l) => l.trim()).filter(Boolean).slice(0, 3);
       if (clean.length) {
@@ -256,12 +256,16 @@ export async function runRecipe(recipeId: string, entity?: { type: string; id: s
   const db = await getDb();
   const [r] = await db.select().from(recipes).where(eq(recipes.id, recipeId)).limit(1);
   if (!r) throw new PermanentJobError("recipe missing");
-  const { todayData, digestText } = await import("@/server/services/today");
-  const parts: string[] = [asMaterial("source", { kind: "today" }, digestText(await todayData()))];
+  const { aiDigest } = await import("@/server/services/today");
+  const parts: string[] = [asMaterial("source", { kind: "today" }, await aiDigest())];
   if (entity && isEntityType(entity.type)) {
     const t = await loadEntityText({ type: entity.type, id: entity.id }, { max: 30_000 });
     if (t && !t.aiOff) parts.push(asMaterial(entity.type === "meeting" ? "meeting" : entity.type === "note" ? "note" : "source", { kind: entity.type, title: t.title }, t.text));
-    if (entity.type === "organisation") parts.push(asMaterial("source", { kind: "partner_context" }, await partnerContext(entity.id)));
+    if (entity.type === "organisation") {
+      const { partnerFactsText } = await import("./partners");
+      const found = await partnerFactsText(entity.id);
+      if (found) parts.push(asMaterial("source", { kind: "partner_context" }, found.facts));
+    }
   }
   const { text } = await aiText({
     helper: "recipe",
@@ -284,24 +288,6 @@ export async function runRecipeJob(payload: Record<string, unknown>) {
 }
 
 /** Open tasks, waiting items, last meetings and decisions for one partner. */
-async function partnerContext(orgId: string) {
-  const { tasksLinkedTo } = await import("@/server/services/tasks");
-  const { meetingsWith, waitingFrom } = await import("@/server/services/partners");
-  const { listDecisions } = await import("@/server/services/meetings");
-  const [open, waiting, meetings, decs] = await Promise.all([
-    tasksLinkedTo({ type: "organisation", id: orgId }, { open: true }),
-    waitingFrom(orgId),
-    meetingsWith(orgId, { limit: 5 }),
-    listDecisions({ orgId, limit: 10 }),
-  ]);
-  return [
-    `Open tasks: ${open.map((t) => `${t.title}${t.dueDate ? ` (due ${t.dueDate})` : ""}`).join("; ") || "none"}`,
-    `Waiting from them: ${waiting.map((t) => `${t.title}${t.dueDate ? ` (due ${t.dueDate})` : ""}`).join("; ") || "none"}`,
-    `Recent meetings: ${meetings.map((m) => `${m.startsAt.toISOString().slice(0, 10)} ${m.title}`).join("; ") || "none"}`,
-    `Decisions: ${decs.map((d) => `${d.decidedOn}: ${d.text}`).join("; ") || "none"}`,
-  ].join("\n");
-}
-
 /* --------------------------------- Scheduling --------------------------------- */
 
 /** Days the brief and helpers run: her working days, skipping public holidays. */

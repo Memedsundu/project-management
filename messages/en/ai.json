@@ -1,1 +1,129 @@
-{}
+{
+  "assistant": {
+    "title": "Assistant",
+    "hello": "Hello, how can I help?",
+    "intro": "I can look through your tasks, notes, meetings, files and partners. If something should change, I propose it to you first.",
+    "introRecord": "“{title}” is open, so I can help with it. If something should change, I propose it to you first.",
+    "tryThis": "Try one of these",
+    "welcomeNote": "My proposals arrive as cards you accept, edit or reject. They also wait in the Inbox.",
+    "welcomeReadOnly": "The project is archived: I answer questions but propose no changes.",
+    "seesScreen": "Sees: {title}",
+    "selection": "Selected text",
+    "dropSelection": "Remove the selected text",
+    "placeholder": "Ask Claude something or ask for help…",
+    "placeholderOff": "Works here once AI is connected",
+    "send": "Send",
+    "stop": "Stop",
+    "stopped": "You stopped this answer.",
+    "thinking": "Thinking…",
+    "looked": "Records it looked at",
+    "footer": "Claude only proposes; you approve every change.",
+    "footerReadOnly": "The project is archived; Claude only reads and answers.",
+    "newChat": "New chat",
+    "backToChat": "Back to the chat",
+    "proposal": {
+      "accepted": "Accepted",
+      "rejected": "Rejected"
+    },
+    "history": {
+      "title": "Earlier chats",
+      "empty": "No saved chats yet.",
+      "delete": "Delete chat",
+      "deleted": "Chat deleted."
+    },
+    "off": {
+      "title": "The assistant is not connected yet",
+      "body": "Once ANTHROPIC_API_KEY is added, Claude works here: it sees your screen, searches, and prepares proposals for you.",
+      "memory": "Meanwhile you can fill in the project glossary under Memory."
+    },
+    "errors": {
+      "not_configured": "AI is not connected yet. It works once ANTHROPIC_API_KEY is added.",
+      "disabled": "AI is switched off in Settings.",
+      "cap_reached": "This month's AI budget is used up. You can change the cap in Settings.",
+      "refused": "Claude declined this request. Could you rephrase it and try again?",
+      "failed": "AI could not answer right now. Could you try again in a moment?",
+      "too_large": "This request is too large for AI. Could you pick a smaller part?",
+      "ai_off": "This item is kept away from AI; it is never sent to Claude.",
+      "child_data": "This message may contain personal data about a child, so it was not sent to Claude.",
+      "offline": "You are offline. Could you try again once you are connected?"
+    },
+    "quick": {
+      "default": [
+        "What is on this week?",
+        "What am I waiting for from partners?",
+        "Sort my overdue work by priority"
+      ],
+      "today": [
+        "Plan my day",
+        "What slipped this week?",
+        "Help me prepare for tomorrow's meetings"
+      ],
+      "tasks": [
+        "List what is overdue and suggest where to start",
+        "Summarise what partners owe me",
+        "What are the three most important things this week?"
+      ],
+      "organisation": [
+        "Prepare for my next call with this partner",
+        "What are we waiting for from this partner?",
+        "Summarise recent decisions with this partner"
+      ],
+      "partners": [
+        "Which partner report is late?",
+        "What am I waiting for from partners?",
+        "Suggest a next step for each partner"
+      ],
+      "meeting": [
+        "Suggest an agenda for this meeting",
+        "Pull tasks out of the notes",
+        "Summarise this meeting in three lines"
+      ],
+      "meetings": [
+        "Help me prepare for this week's meetings",
+        "Which meetings have no notes yet?",
+        "Summarise the latest decisions"
+      ],
+      "note": [
+        "Summarise this page",
+        "Pull tasks out of this page",
+        "Translate this page into Turkish"
+      ],
+      "document": [
+        "Summarise this file",
+        "What deadlines are in this file?",
+        "Pull tasks out of this file"
+      ],
+      "files": [
+        "Summarise the files uploaded lately",
+        "Find this quarter's partner reports",
+        "Which files mention a deadline?"
+      ],
+      "selection": [
+        "Summarise the selected text",
+        "Translate the selected text into Turkish",
+        "Pull tasks out of the selected text"
+      ]
+    },
+    "memory": {
+      "title": "Memory",
+      "pageTitle": "The assistant's memory",
+      "pageHint": "Claude reads this page on every request. Write down the donor, partners' short names, acronyms, reporting rules and writing preferences.",
+      "pageEmpty": "The page is empty for now.",
+      "pageAiOff": "This page is kept away from AI; Claude is not reading it now.",
+      "openPage": "Open the page",
+      "glossary": "Glossary",
+      "glossaryHint": "Turkish and English project terms. Claude uses them in every translation and draft.",
+      "glossaryEmpty": "No terms in the glossary yet.",
+      "noMatch": "No term matches this search.",
+      "filter": "Search the glossary",
+      "tr": "Turkish term",
+      "en": "English term",
+      "note": "Note (optional)",
+      "add": "Add",
+      "added": "Term added.",
+      "updated": "Term updated.",
+      "deleted": "Term deleted."
+    },
+    "moreSources": "+{count} more"
+  }
+}

@@ -34,8 +34,21 @@ type OrganizePayload = {
 };
 type IndicatorPayload = { values: { indicatorLabel: string; periodLabel: string; value: number; disaggregation: Record<string, string> | null; page: number | null; quote: string }[]; notes: string; documentId: string };
 
+type MemoryPayload = { lines: string[]; terms: { tr: string; en: string; note?: string | null }[] };
+
 /** One Claude proposal in Gelen kutusu. Nothing changes until she accepts. */
-export function SuggestionCard({ s, readOnly, folderNames }: { s: InboxSuggestion; readOnly: boolean; folderNames: Record<string, string> }) {
+export function SuggestionCard({
+  s,
+  readOnly,
+  folderNames,
+  onDone,
+}: {
+  s: InboxSuggestion;
+  readOnly: boolean;
+  folderNames: Record<string, string>;
+  /** Called after she accepts or rejects (the assistant panel keeps a short note in place). */
+  onDone?: (status: "accepted" | "rejected") => void;
+}) {
   const t = useTranslations("inbox");
   const tc = useTranslations("common");
   const locale = useLocale();
@@ -50,14 +63,20 @@ export function SuggestionCard({ s, readOnly, folderNames }: { s: InboxSuggestio
     setBusy(true);
     const res = await runAction(acceptSuggestionAction(s.id, decision), { success: t("accepted") });
     setBusy(false);
-    if (res) setGone(true);
+    if (res) {
+      setGone(true);
+      onDone?.("accepted");
+    }
     return Boolean(res);
   };
   const reject = async () => {
     setBusy(true);
     const res = await runAction(rejectSuggestionAction(s.id));
     setBusy(false);
-    if (res !== undefined) setGone(true);
+    if (res !== undefined) {
+      setGone(true);
+      onDone?.("rejected");
+    }
   };
   const toggle = (i: number, v: boolean) =>
     setPicked((p) => {
@@ -204,7 +223,47 @@ export function SuggestionCard({ s, readOnly, folderNames }: { s: InboxSuggestio
     body = <p className="line-clamp-4 whitespace-pre-line text-[14px] text-ink-2">{p.markdown}</p>;
   } else if (s.kind === "link") {
     body = s.display ? <p className="text-[14px] text-ink-2">{s.display}</p> : null;
-  } else if ((s.kind === "meeting_recap" || s.kind === "agenda") && s.source) {
+  } else if (s.kind === "agenda") {
+    const items = (s.payload as { items?: string[] }).items ?? [];
+    body = (
+      <ul className="flex flex-col gap-1.5">
+        {items.map((item, i) => (
+          <li key={i} className="flex items-start gap-3">
+            <Checkbox checked={picked.has(i)} onCheckedChange={(v) => toggle(i, v === true)} disabled={readOnly} aria-label={item} className="mt-0.5" />
+            <span className="text-[15px]">{item}</span>
+          </li>
+        ))}
+      </ul>
+    );
+    primary = (
+      <Button size="sm" onClick={() => accept({ items: items.filter((_, i) => picked.has(i)) })} disabled={busy || readOnly || picked.size === 0}>
+        <Check size={14} />
+        {t("agenda.add", { count: picked.size })}
+      </Button>
+    );
+  } else if (s.kind === "memory") {
+    const p = s.payload as MemoryPayload;
+    const rows = [...(p.lines ?? []).map((l) => ({ main: l, sub: null as string | null })), ...(p.terms ?? []).map((term) => ({ main: `${term.tr} = ${term.en}`, sub: term.note ?? t("memory.term") }))];
+    body = (
+      <ul className="flex flex-col gap-1.5">
+        {rows.map((r, i) => (
+          <li key={i} className="flex items-start gap-3">
+            <Checkbox checked={picked.has(i)} onCheckedChange={(v) => toggle(i, v === true)} disabled={readOnly} aria-label={r.main} className="mt-0.5" />
+            <span className="flex min-w-0 flex-col">
+              <span className="text-[15px]">{r.main}</span>
+              {r.sub ? <span className="text-[13px] text-muted">{r.sub}</span> : null}
+            </span>
+          </li>
+        ))}
+      </ul>
+    );
+    primary = (
+      <Button size="sm" onClick={() => accept({ indexes: [...picked].sort((a, b) => a - b) })} disabled={busy || readOnly || picked.size === 0}>
+        <Check size={14} />
+        {t("memory.add")}
+      </Button>
+    );
+  } else if (s.kind === "meeting_recap" && s.source) {
     primary = (
       <Button size="sm" asChild>
         <Link href={s.source.href}>{t("reviewInMeeting")}</Link>
@@ -256,11 +315,11 @@ export function SuggestionCard({ s, readOnly, folderNames }: { s: InboxSuggestio
 }
 
 function allIndexes(s: InboxSuggestion) {
-  const p = s.payload as { tasks?: unknown[]; items?: unknown[]; values?: unknown[] };
-  const n = p?.tasks?.length ?? p?.items?.length ?? p?.values?.length ?? 0;
+  const p = s.payload as { tasks?: unknown[]; items?: unknown[]; values?: unknown[]; lines?: unknown[]; terms?: unknown[] };
+  const n = s.kind === "memory" ? (p?.lines?.length ?? 0) + (p?.terms?.length ?? 0) : (p?.tasks?.length ?? p?.items?.length ?? p?.values?.length ?? 0);
   return Array.from({ length: n }, (_, i) => i);
 }
 
 function kindKey(kind: string) {
-  return ["tasks", "key_dates", "workplan", "organize", "indicator_values", "note", "link", "meeting_recap", "agenda", "classification"].includes(kind) ? kind : "other";
+  return ["tasks", "key_dates", "workplan", "organize", "indicator_values", "note", "link", "meeting_recap", "agenda", "classification", "memory"].includes(kind) ? kind : "other";
 }

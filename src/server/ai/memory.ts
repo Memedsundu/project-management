@@ -1,7 +1,4 @@
 import "server-only";
-import { asc } from "drizzle-orm";
-import { getDb } from "@/server/db/client";
-import { glossaryTerms } from "@/server/db/schema";
 import { getSetting } from "@/server/services/settings";
 
 /**
@@ -25,6 +22,6 @@ export async function projectMemoryText(opts: { glossary?: boolean; max?: number
 }
 
 export async function glossary() {
-  const db = await getDb();
-  return db.select().from(glossaryTerms).orderBy(asc(glossaryTerms.tr)).limit(400);
+  const { listGlossary } = await import("@/server/services/glossary");
+  return listGlossary();
 }
