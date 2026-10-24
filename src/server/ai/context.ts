@@ -103,6 +103,11 @@ export async function loadEntityText(ref: EntityRef, opts: { max?: number } = {}
     const a = await activityFactsText(ref.id);
     return a ? { title: a.title, text: a.text.slice(0, max), aiOff: false, kind: "activity", date: a.date } : null;
   }
+  if (ref.type === "indicator") {
+    const { indicatorFactsText } = await import("@/server/services/indicators");
+    const i = await indicatorFactsText(ref.id);
+    return i ? { title: i.title, text: i.text.slice(0, max), aiOff: false, kind: "indicator", date: null } : null;
+  }
   if (ref.type === "organisation") {
     const [o] = await db.select().from(organisations).where(eq(organisations.id, ref.id)).limit(1);
     if (!o || o.deletedAt) return null;

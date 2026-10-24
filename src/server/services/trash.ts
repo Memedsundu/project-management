@@ -1,6 +1,8 @@
 import "server-only";
-import { and, desc, eq, isNotNull, lt } from "drizzle-orm";
+import { and, desc, eq, isNotNull, isNull, lt } from "drizzle-orm";
+import { UserError } from "@/server/action";
 import { getDb } from "@/server/db/client";
+import { logframeNodes } from "@/server/db/schema";
 import { ENTITIES, type EntityType } from "@/server/entities";
 import { unindexRecord } from "@/server/search/index-service";
 import { logActivity } from "./activity";
@@ -12,6 +14,11 @@ export const TRASH_DAYS = 30;
 export async function moveToTrash(type: EntityType, id: string) {
   const def = ENTITIES[type];
   const db = await getDb();
+  if (type === "logframe") {
+    // A logframe item leaves only when nothing sits under it; its indicators and activities stay and show as not linked.
+    const kids = await db.select({ id: logframeNodes.id }).from(logframeNodes).where(and(eq(logframeNodes.parentId, id), isNull(logframeNodes.deletedAt))).limit(1);
+    if (kids.length) throw new UserError("Altında başka öğeler var; önce onları sil ya da taşı.");
+  }
   const [row] = (await db
     .update(def.table)
     .set({ deletedAt: new Date() })

@@ -158,7 +158,9 @@
     "flag": "Çocuk verisi uyarısı",
     "value": "Değer girildi",
     "merge_transcript": "Döküm notlarla birleştirildi",
-    "suggest": "Yapay zekâ önerdi"
+    "suggest": "Yapay zekâ önerdi",
+    "add_value": "Değer eklendi",
+    "delete_value": "Değer silindi"
   },
   "fields": {
     "title": "başlık",
@@ -222,7 +224,24 @@
     "website": "web sitesi",
     "role": "görev",
     "email": "e-posta",
-    "phone": "telefon"
+    "phone": "telefon",
+    "code": "kod",
+    "definition": "tanım",
+    "unit": "birim",
+    "disaggregation": "ayrıştırma",
+    "baseline": "başlangıç değeri",
+    "baselineDate": "başlangıç tarihi",
+    "lopTarget": "proje hedefi",
+    "dataSource": "veri kaynağı",
+    "frequency": "sıklık",
+    "responsibleOrgId": "sorumlu ortak",
+    "meansOfVerification": "doğrulama kaynağı",
+    "direction": "yön",
+    "cumulative": "kümülatif",
+    "logframeNodeId": "mantıksal çerçeve",
+    "sort": "sıra",
+    "level": "düzey",
+    "description": "açıklama"
   },
   "kindsPlural": {
     "task": "Görevler",
@@ -242,5 +261,6 @@
     "passage": "Belge bölümleri",
     "visual": "Görseller",
     "logframe": "Logframe düzeyleri"
-  }
+  },
+  "remove": "Kaldır"
 }

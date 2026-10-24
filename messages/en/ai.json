@@ -112,6 +112,21 @@
         "Suggest preparation tasks for this activity",
         "Where does this activity stand and what is it waiting for?",
         "Draft a ToR for this activity"
+      ],
+      "indicators": [
+        "Which indicators are behind target, and why?",
+        "Which values do I expect from which partner this quarter?",
+        "Summarise indicator progress for the donor in three sentences"
+      ],
+      "indicator": [
+        "Why is this indicator behind? Explain with sources",
+        "Where did this indicator's values come from?",
+        "Write the questions to ask the partner about this indicator"
+      ],
+      "logframe": [
+        "Which outputs lack an indicator or an activity?",
+        "Summarise the logframe in one paragraph",
+        "Do the outcomes and their indicators fit together?"
       ]
     },
     "memory": {

@@ -2,6 +2,7 @@ import "server-only";
 import { and, asc, desc, eq, inArray, isNull, sql } from "drizzle-orm";
 import { z } from "zod";
 import { todayStr } from "@/lib/dates";
+import { onlyGiven } from "@/lib/patch";
 import { UserError } from "@/server/action";
 import { getDb } from "@/server/db/client";
 import { activities, documents, indicators, indicatorTargets, indicatorValues, logframeNodes, organisations, periods } from "@/server/db/schema";
@@ -134,22 +135,53 @@ export async function listPeriods() {
 
 export type PeriodRow = typeof periods.$inferSelect;
 
-/** Quarters for every project year, made once so indicators have columns from day one. */
+/**
+ * Quarters for every project year. A January start gives calendar quarters
+ * ("2026 Q1"); any other month gives project quarters ("Y1 Q1" = Sep–Nov).
+ */
+export function quarterRows(startYear: number, endYear: number, startMonth = 1) {
+  const years = Math.max(1, endYear - startYear + (startMonth === 1 ? 1 : 0));
+  const rows: { label: string; kind: string; startDate: string; endDate: string }[] = [];
+  for (let y = 0; y < years; y++) {
+    for (let q = 0; q < 4; q++) {
+      const first = new Date(Date.UTC(startYear + y, startMonth - 1 + q * 3, 1));
+      const last = new Date(Date.UTC(first.getUTCFullYear(), first.getUTCMonth() + 3, 0));
+      const label = startMonth === 1 ? `${startYear + y} Q${q + 1}` : `Y${y + 1} Q${q + 1}`;
+      rows.push({ label, kind: "quarter", startDate: first.toISOString().slice(0, 10), endDate: last.toISOString().slice(0, 10) });
+    }
+  }
+  return rows;
+}
+
+/** Quarters made once, so indicators have columns from day one. */
 export async function ensureProjectPeriods() {
   const db = await getDb();
   const existing = await db.select({ id: periods.id }).from(periods).limit(1);
   if (existing.length) return 0;
   const profile = await getSetting("profile");
-  const rows: { label: string; kind: string; startDate: string; endDate: string }[] = [];
-  for (let y = profile.startYear; y <= Math.max(profile.startYear, profile.endYear); y++) {
-    for (let q = 1; q <= 4; q++) {
-      const startM = (q - 1) * 3 + 1;
-      const start = `${y}-${String(startM).padStart(2, "0")}-01`;
-      const end = new Date(Date.UTC(y, startM + 2, 0)).toISOString().slice(0, 10);
-      rows.push({ label: `${y} Q${q}`, kind: "quarter", startDate: start, endDate: end });
-    }
-  }
+  const rows = quarterRows(profile.startYear, profile.endYear);
   if (rows.length) await db.insert(periods).values(rows);
+  return rows.length;
+}
+
+/** The IPTT's columns: the quarters (every period when there are none). Months, halves and years stay for reports. */
+export function columnPeriods<T extends { kind: string }>(all: T[]) {
+  return all.filter((p) => p.kind === "quarter" || all.every((q) => q.kind !== "quarter"));
+}
+
+/** A new quarter layout, for a project whose year starts in another month. Only while no quarter holds a value; their targets go. */
+export async function rebuildQuarters(startMonth: number) {
+  const month = z.number().int().min(1).max(12).parse(startMonth);
+  const db = await getDb();
+  const quarterIds = (await listPeriods()).filter((p) => p.kind === "quarter").map((p) => p.id);
+  if (quarterIds.length) {
+    const [used] = await db.select({ n: sql<number>`count(*)::int` }).from(indicatorValues).where(inArray(indicatorValues.periodId, quarterIds));
+    if (Number(used?.n ?? 0) > 0) throw new UserError("Çeyreklere girilmiş değerler var. Düzen yalnızca hiç değer yokken değişir.");
+    await db.delete(periods).where(inArray(periods.id, quarterIds));
+  }
+  const profile = await getSetting("profile");
+  const rows = quarterRows(profile.startYear, profile.endYear, month);
+  await db.insert(periods).values(rows);
   return rows.length;
 }
 
@@ -231,7 +263,7 @@ export async function createIndicator(raw: IndicatorInput, actor: Actor = "user"
 }
 
 export async function updateIndicator(id: string, raw: Partial<IndicatorInput> & { sort?: number }) {
-  const patch = indicatorInputSchema.partial().extend({ sort: z.number().int().optional() }).parse(raw);
+  const patch = onlyGiven(raw, indicatorInputSchema.partial().extend({ sort: z.number().int().optional() }).parse(raw));
   const db = await getDb();
   const values: Record<string, unknown> = { ...patch, updatedAt: new Date() };
   if ("baseline" in patch) values.baseline = numText(patch.baseline);
@@ -500,7 +532,7 @@ export async function ipttTable(opts: { periodIds?: string[]; today?: string } =
   const today = opts.today ?? todayStr();
   const db = await getDb();
   const allPeriods = await listPeriods();
-  const shown = opts.periodIds?.length ? allPeriods.filter((p) => opts.periodIds!.includes(p.id)) : allPeriods.filter((p) => p.kind === "quarter" || allPeriods.every((q) => q.kind !== "quarter"));
+  const shown = opts.periodIds?.length ? allPeriods.filter((p) => opts.periodIds!.includes(p.id)) : columnPeriods(allPeriods);
   const list = await listIndicators();
   const ids = list.map((r) => r.i.id);
   const [targets, values] = ids.length
@@ -654,4 +686,40 @@ export async function ipttText(periodId?: string | null) {
       return `${r.code} ${r.name} [${r.unit}] baseline ${r.baseline ?? "-"}, LoP target ${r.lopTarget ?? "-"}, to date ${r.toDateActual ?? "-"} of ${r.toDateTarget ?? "-"} (${r.status}). ${cells}`;
     })
     .join("\n");
+}
+
+/** One indicator as plain text for Claude: definition, numbers per period and where each value came from. */
+export async function indicatorFactsText(id: string) {
+  const ind = await getIndicator(id);
+  if (!ind || ind.deletedAt) return null;
+  const { periods: ps, rows } = await ipttTable();
+  const row = rows.find((r) => r.id === id);
+  const label = new Map(ps.map((p) => [p.id, p.label]));
+  const groups = (d: Record<string, string> | null) => (d ? ` (${Object.entries(d).map(([k, g]) => `${k}: ${g}`).join(", ")})` : "");
+  const lines = [
+    `${ind.code} ${ind.name}`,
+    ind.nodeCode ? `Under ${ind.nodeCode} ${ind.nodeTitle ?? ""}`.trim() : null,
+    ind.definition ? `Definition: ${ind.definition}` : null,
+    `Unit: ${ind.unit}; ${ind.cumulative ? "cumulative (period values add up)" : "not cumulative (the latest value counts)"}; ${ind.direction === "decrease" ? "lower is better" : "higher is better"}`,
+    ind.disaggregation.length ? `Disaggregation: ${ind.disaggregation.join(", ")}` : null,
+    `Baseline: ${ind.baseline ?? "-"}${ind.baselineDate ? ` (${ind.baselineDate})` : ""}; life-of-project target: ${ind.lopTarget ?? "-"}`,
+    ind.dataSource ? `Data source: ${ind.dataSource}` : null,
+    ind.frequency ? `Frequency: ${ind.frequency}` : null,
+    ind.meansOfVerification ? `Means of verification: ${ind.meansOfVerification}` : null,
+    row ? `To date: ${row.toDateActual ?? "-"} of a target of ${row.toDateTarget ?? "-"} so far (${row.status.replace("_", " ")})` : null,
+    row
+      ? `Per period: ${
+          row.cells
+            .filter((c) => c.target !== null || c.actual !== null)
+            .map((c) => `${label.get(c.periodId)} target ${c.target ?? "-"}, actual ${c.actual ?? "-"}`)
+            .join("; ") || "nothing yet"
+        }`
+      : null,
+    ind.values.length ? "Values:" : "No values yet.",
+    ...ind.values.map(
+      (v) =>
+        `- ${v.periodLabel}: ${Number(v.value)}${groups(v.disaggregation)}${v.orgName ? ` from ${v.orgName}` : ""}${v.sourceTitle ? `, source "${v.sourceTitle}"${v.sourcePage ? ` p. ${v.sourcePage}` : ""}` : ""}${v.sourceNote ? `: "${v.sourceNote}"` : ""}${v.status === "proposed" ? " (proposed, not approved yet)" : ""}`,
+    ),
+  ];
+  return { title: `${ind.code} ${ind.name}`, text: lines.filter(Boolean).join("\n"), date: null as string | null, nodeId: ind.logframeNodeId };
 }

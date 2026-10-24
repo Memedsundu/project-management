@@ -28,9 +28,11 @@ export type IndicatorValuesPayload = { documentId: string; organisationId: strin
 
 export async function readIndicators(documentId: string, opts: { periodId?: string | null; organisationId?: string | null } = {}) {
   const material = await requireAiText({ type: "document", id: documentId }, { max: 120_000 });
-  const { listIndicators, listPeriods } = await import("@/server/services/indicators");
+  const { columnPeriods, listIndicators, listPeriods } = await import("@/server/services/indicators");
   const { listOrganisationsLite } = await import("@/server/services/partners-lite");
-  const [inds, periods, partners] = await Promise.all([listIndicators(), listPeriods(), listOrganisationsLite()]);
+  const [inds, allPeriods, partners] = await Promise.all([listIndicators(), listPeriods(), listOrganisationsLite()]);
+  // Only the IPTT's columns, so every approved value shows in the table.
+  const periods = columnPeriods(allPeriods);
   const numeric = inds.filter((r) => r.i.unit !== "text");
   if (!numeric.length) throw new PermanentJobError("no indicators yet");
   if (!periods.length) throw new PermanentJobError("no periods yet");
@@ -67,7 +69,7 @@ export async function readIndicators(documentId: string, opts: { periodId?: stri
       "Read the partner report and list the indicator totals it reports. Only use numbers that are written in the report; never compute or estimate a number that is not there. Totals only: never copy names or details of individual children.",
       opts.periodId ? `The report covers period id ${opts.periodId} unless a number is clearly for another period.` : "",
       `Indicators (id: code name):\n${indicatorList}`,
-      `Periods (id: label):\n${periodList}`,
+      `Periods (id: label):\n${periodList}\nUse only these periods. When a number covers a longer stretch (a half year, a year), use the last period inside it and say so in notes.`,
       `Partners (id: name):\n${partnerList || "(none)"}`,
     ]
       .filter(Boolean)

@@ -1,6 +1,7 @@
 import "server-only";
 import { and, asc, desc, eq, isNull, sql } from "drizzle-orm";
 import { z } from "zod";
+import { onlyGiven } from "@/lib/patch";
 import { UserError } from "@/server/action";
 import { getDb } from "@/server/db/client";
 import { periods, reports, reportSections, visuals, type Citation, type SourceRef } from "@/server/db/schema";
@@ -57,7 +58,7 @@ export async function createReport(raw: ReportInput, actor: Actor = "user") {
 }
 
 export async function updateReport(id: string, raw: Partial<ReportInput> & { status?: "draft" | "final" }) {
-  const patch = reportInputSchema.partial().extend({ status: z.enum(["draft", "final"]).optional() }).parse(raw);
+  const patch = onlyGiven(raw, reportInputSchema.partial().extend({ status: z.enum(["draft", "final"]).optional() }).parse(raw));
   const db = await getDb();
   const values: Record<string, unknown> = { ...patch, updatedAt: new Date() };
   if ("templateId" in patch) values.templateId = patch.templateId && /^[0-9a-f-]{36}$/i.test(patch.templateId) ? patch.templateId : null;
@@ -247,7 +248,7 @@ export async function createVisual(raw: z.input<typeof visualInputSchema>, actor
 }
 
 export async function updateVisual(id: string, raw: Partial<z.input<typeof visualInputSchema>>) {
-  const patch = visualInputSchema.partial().parse(raw);
+  const patch = onlyGiven(raw, visualInputSchema.partial().parse(raw));
   const db = await getDb();
   const [row] = await db.update(visuals).set({ ...patch, updatedAt: new Date() }).where(eq(visuals.id, id)).returning();
   if (row) await indexVisual(id);

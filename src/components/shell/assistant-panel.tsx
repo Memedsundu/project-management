@@ -59,8 +59,8 @@ type Item =
 type AssistantItem = Extract<Item, { kind: "assistant" }>;
 
 const STORE_KEY = "assistant:conversation";
-const RECORD_KINDS = new Set(["organisation", "meeting", "note", "document", "series", "activity"]);
-const QUICK_KINDS = ["organisation", "meeting", "note", "document", "today", "tasks", "partners", "files", "meetings", "workplan", "activity"] as const;
+const RECORD_KINDS = new Set(["organisation", "meeting", "note", "document", "series", "activity", "indicator"]);
+const QUICK_KINDS = ["organisation", "meeting", "note", "document", "today", "tasks", "partners", "files", "meetings", "workplan", "activity", "indicators", "indicator", "logframe"] as const;
 
 /** The box grows with what she writes, up to about six lines. */
 function grow(el: HTMLTextAreaElement) {

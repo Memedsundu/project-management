@@ -158,7 +158,9 @@
     "flag": "Child data warning",
     "value": "Value entered",
     "merge_transcript": "Transcript merged into notes",
-    "suggest": "AI proposed"
+    "suggest": "AI proposed",
+    "add_value": "Value added",
+    "delete_value": "Value deleted"
   },
   "fields": {
     "title": "title",
@@ -222,7 +224,24 @@
     "website": "website",
     "role": "role",
     "email": "email",
-    "phone": "phone"
+    "phone": "phone",
+    "code": "code",
+    "definition": "definition",
+    "unit": "unit",
+    "disaggregation": "disaggregation",
+    "baseline": "baseline",
+    "baselineDate": "baseline date",
+    "lopTarget": "LoP target",
+    "dataSource": "data source",
+    "frequency": "frequency",
+    "responsibleOrgId": "responsible partner",
+    "meansOfVerification": "means of verification",
+    "direction": "direction",
+    "cumulative": "cumulative",
+    "logframeNodeId": "logframe",
+    "sort": "order",
+    "level": "level",
+    "description": "description"
   },
   "kindsPlural": {
     "task": "Tasks",
@@ -242,5 +261,6 @@
     "passage": "File passages",
     "visual": "Visuals",
     "logframe": "Logframe levels"
-  }
+  },
+  "remove": "Remove"
 }

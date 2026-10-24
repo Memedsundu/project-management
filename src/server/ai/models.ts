@@ -33,6 +33,7 @@ export const HELPERS = {
   followupEmail: { model: MODELS.sonnet, labelTr: "Takip e-postası", labelEn: "Follow-up email" },
   compareVersions: { model: MODELS.sonnet, labelTr: "Ne değişti?", labelEn: "What changed?" },
   indicatorReader: { model: MODELS.sonnet, labelTr: "Gösterge okuyucu", labelEn: "Indicator reader" },
+  varianceNote: { model: MODELS.sonnet, labelTr: "Hedef sapması açıklaması", labelEn: "Variance explanations" },
   numberCheck: { model: MODELS.sonnet, labelTr: "Sayı kontrolü", labelEn: "Number check" },
   visuals: { model: MODELS.sonnet, labelTr: "Görseller", labelEn: "Visuals" },
   studio: { model: MODELS.sonnet, labelTr: "Koleksiyon çıktıları", labelEn: "Collection outputs" },

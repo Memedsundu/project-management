@@ -67,9 +67,9 @@ type Locale = "tr" | "en";
 
 const day = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
 const uuid = z.string().uuid();
-const SEARCH_TYPES = ["task", "note", "meeting", "decision", "document", "organisation", "contact", "series", "activity"] as const;
-const READ_TYPES = ["note", "meeting", "document", "task", "organisation", "activity"] as const;
-const ABOUT_TYPES = ["meeting", "organisation", "note", "document", "activity"] as const;
+const SEARCH_TYPES = ["task", "note", "meeting", "decision", "document", "organisation", "contact", "series", "activity", "indicator"] as const;
+const READ_TYPES = ["note", "meeting", "document", "task", "organisation", "activity", "indicator"] as const;
+const ABOUT_TYPES = ["meeting", "organisation", "note", "document", "activity", "indicator"] as const;
 const about = z.object({ type: z.enum(ABOUT_TYPES), id: uuid }).nullish();
 
 const INPUTS = {
@@ -89,6 +89,7 @@ const INPUTS = {
     text: z.string().max(200).nullish(),
   }),
   partner_overview: z.object({ orgId: uuid }),
+  list_indicators: z.object({ status: z.enum(["behind", "on_track", "ahead", "no_data", "any"]).nullish(), text: z.string().max(200).nullish() }),
   propose_tasks: z.object({
     title: z.string().trim().min(1).max(200),
     summary: z.string().max(500).nullish(),
@@ -124,7 +125,7 @@ const PROPOSE: ToolName[] = ["propose_tasks", "propose_note", "propose_agenda", 
 const str = (description: string) => ({ type: "string", description });
 const aboutSchema = {
   type: "object",
-  description: "The record this comes from or belongs to, if any (a meeting, partner, note, file or workplan activity). Defaults to the record on her screen.",
+  description: "The record this comes from or belongs to, if any (a meeting, partner, note, file, workplan activity or indicator). Defaults to the record on her screen.",
   properties: { type: { type: "string", enum: [...ABOUT_TYPES] }, id: str("Record id.") },
   required: ["type", "id"],
 };
@@ -136,7 +137,7 @@ function toolDefs(readOnly: boolean): Anthropic.Tool[] {
     {
       name: "search_workspace",
       description:
-        "Search her whole workspace by keyword and meaning: tasks, note pages, meetings, decisions, files (the words inside them, with pages), partners and contacts. Returns the best matches with short passages, each with its type, id and href. Use a few specific words; Turkish or English both work. Search again with other words if the first try finds nothing.",
+        "Search her whole workspace by keyword and meaning: tasks, note pages, meetings, decisions, files (the words inside them, with pages), partners, contacts, workplan activities and indicators. Returns the best matches with short passages, each with its type, id and href. Use a few specific words; Turkish or English both work. Search again with other words if the first try finds nothing.",
       input_schema: {
         type: "object",
         properties: {
@@ -150,7 +151,7 @@ function toolDefs(readOnly: boolean): Anthropic.Tool[] {
     {
       name: "read_record",
       description:
-        "Read one record in full: a note page, a meeting (agenda, notes, decisions, transcript), a file (its text with [page n] markers), a task or an organisation. Use the type and id from search results, lists or the screen.",
+        "Read one record in full: a note page, a meeting (agenda, notes, decisions, transcript), a file (its text with [page n] markers), a task, an organisation, a workplan activity or an indicator (definition, targets per period and every value with its source). Use the type and id from search results, lists or the screen.",
       input_schema: {
         type: "object",
         properties: { type: { type: "string", enum: [...READ_TYPES] }, id: str("Record id.") },
@@ -191,6 +192,19 @@ function toolDefs(readOnly: boolean): Anthropic.Tool[] {
           startsWithinDays: { type: "integer", minimum: 1, maximum: 365 },
           orgId: str("Organisation id from the organisation list."),
           text: str("Words in the activity code or title."),
+        },
+      },
+      ...eager,
+    },
+    {
+      name: "list_indicators",
+      description:
+        "The IPTT: every indicator with its code, unit, baseline, life-of-project target, the total so far against the target so far, status (behind is under 90%), the latest period's numbers, the responsible partner and values waiting for approval. status keeps one status; text keeps indicators whose code or name has these words. Use read_record with type indicator for one indicator's values and sources.",
+      input_schema: {
+        type: "object",
+        properties: {
+          status: { type: "string", enum: ["behind", "on_track", "ahead", "no_data", "any"] },
+          text: str("Words in the indicator code or name."),
         },
       },
       ...eager,
@@ -295,7 +309,7 @@ function assistantSystem(memory: string, orgs: OrgLite[], readOnly: boolean) {
 Organisations in her workspace (use these ids):
 ${orgLines}
 
-You are the assistant panel inside her workspace app. She is the project manager; the app holds her tasks, notes, meetings, files and partners.
+You are the assistant panel inside her workspace app. She is the project manager; the app holds her tasks, notes, meetings, files, partners, workplan and indicators.
 How you work:
 - Look things up with the tools instead of guessing. A few targeted calls beat many. Each message starts with a <context> block saying what is on her screen; the screen's record is often attached already.
 ${
@@ -346,6 +360,22 @@ async function screenContext(screen: ScreenInfo | null | undefined, locale: Loca
     } else {
       lines.push(`She is on the "${screen.title}" screen (${screen.kind})${screen.detail ? `, showing ${screen.detail}` : ""}.`);
       if (screen.kind === "today") material.push(asMaterial("source", { title: "Her day" }, await aiDigest(today)));
+      if (screen.kind === "indicators") {
+        const { ipttText } = await import("@/server/services/indicators");
+        const text = await ipttText();
+        if (text && !checkForChildData({ text }).flag) material.push(asMaterial("source", { title: "The IPTT on her screen" }, text.slice(0, SCREEN_TEXT_MAX)));
+      }
+      if (screen.kind === "logframe") {
+        const { listLogframe } = await import("@/server/services/indicators");
+        const out: string[] = [];
+        const walk = (n: Awaited<ReturnType<typeof listLogframe>>[number], depth: number) => {
+          out.push(`${"  ".repeat(depth)}- ${n.level} ${n.code}: ${n.title} · indicators: ${n.indicators.map((i) => `${i.code} ${i.name}`).join("; ") || "none"} · activities: ${n.activities.map((a) => a.code).join(", ") || "none"}`);
+          n.children.forEach((c) => walk(c, depth + 1));
+        };
+        (await listLogframe()).forEach((n) => walk(n, 0));
+        const text = out.join("\n");
+        if (text && !checkForChildData({ text }).flag) material.push(asMaterial("source", { title: "The logframe on her screen" }, text.slice(0, SCREEN_TEXT_MAX)));
+      }
     }
     if (screen.selection?.trim()) {
       lines.push("She has selected some text on the screen; it is attached as \"Selected text\". Questions like \"this\" usually mean the selection.");
@@ -413,6 +443,8 @@ function statusLabel(name: ToolName, input: Record<string, unknown>, locale: Loc
       return tr ? "İş planına bakıyor" : "Checking the workplan";
     case "partner_overview":
       return tr ? `Ortak kaydına bakıyor: ${extra ?? ""}`.trim() : `Checking the partner record: ${extra ?? ""}`.trim();
+    case "list_indicators":
+      return tr ? "Göstergelere bakıyor" : "Checking the indicators";
     default:
       return tr ? "Öneri hazırlıyor" : "Preparing a proposal";
   }
@@ -584,6 +616,26 @@ async function runTool(name: ToolName, raw: unknown, ctx: RunCtx): Promise<ToolO
     const active = seasons.filter((x) => x.active);
     if (active.length) lines.push("", "Harvest seasons:", ...active.map((x) => `- ${x.name}: ${x.startDay}.${x.startMonth} to ${x.endDay}.${x.endMonth}${x.provinces.length ? ` (${x.provinces.join(", ")})` : ""}`));
     return { content: list.length ? withheldIfChildData(lines.join("\n")) : `No activities match.${active.length ? `\n${lines.join("\n")}` : ""}` };
+  }
+
+  if (name === "list_indicators") {
+    const f = INPUTS.list_indicators.parse(input);
+    ctx.emit({ type: "status", label: statusLabel(name, input, ctx.locale) });
+    const { ipttTable } = await import("@/server/services/indicators");
+    const today = todayStr();
+    const { periods, rows } = await ipttTable({ today });
+    const label = new Map(periods.map((p) => [p.id, p.label]));
+    const words = f.text?.trim().toLocaleLowerCase("tr");
+    const list = rows.filter((r) => (!f.status || f.status === "any" || r.status === f.status) && (!words || `${r.code} ${r.name}`.toLocaleLowerCase("tr").includes(words)));
+    if (!list.length) return { content: rows.length ? "No indicators match." : "No indicators are set up yet." };
+    const orgName = (id: string | null) => (id ? ctx.orgs.find((o) => o.id === id)?.shortName || ctx.orgs.find((o) => o.id === id)?.name || "?" : null);
+    const pct = (v: number | null) => (v === null ? "-" : `${Math.round(v * 100)}%`);
+    const lines = list.slice(0, 60).map((r) => {
+      const last = [...r.cells].reverse().find((c) => c.actual !== null);
+      return `- ${r.code} ${r.name} [${r.unit}${r.cumulative ? ", cumulative" : ", latest value"}] · baseline ${r.baseline ?? "-"} · LoP target ${r.lopTarget ?? "-"} · to date ${r.toDateActual ?? "-"} of ${r.toDateTarget ?? "-"} (${pct(r.percentToDate)}, ${r.status.replace("_", " ")})${last ? ` · last reported ${label.get(last.periodId)}: ${last.actual} of ${last.target ?? "-"}` : ""}${orgName(r.responsibleOrgId) ? ` · ${orgName(r.responsibleOrgId)}` : ""}${r.proposedCount ? ` · ${r.proposedCount} values waiting for approval` : ""} · id ${r.id} · href /indicators/${r.id}`;
+    });
+    if (list.length > 60) lines.push(`(and ${list.length - 60} more)`);
+    return { content: withheldIfChildData(lines.join("\n")) };
   }
 
   if (name === "partner_overview") {

@@ -112,6 +112,21 @@
         "Bu faaliyet için hazırlık görevleri öner",
         "Bu faaliyetin durumu ne, ne bekliyor?",
         "Bu faaliyet için bir ToR taslağı yaz"
+      ],
+      "indicators": [
+        "Hangi göstergeler hedefin gerisinde, neden?",
+        "Bu çeyrekte hangi ortaktan hangi değerleri bekliyorum?",
+        "Göstergelerin durumunu bağışçı için üç cümlede özetle"
+      ],
+      "indicator": [
+        "Bu gösterge neden geride? Kaynaklarla açıkla",
+        "Bu göstergenin değerleri nereden geldi?",
+        "Bu gösterge için ortağa soracağım soruları yaz"
+      ],
+      "logframe": [
+        "Hangi çıktıların göstergesi ya da faaliyeti eksik?",
+        "Mantıksal çerçeveyi bir paragrafta özetle",
+        "Sonuçlarla göstergeler arasında bir uyumsuzluk var mı?"
       ]
     },
     "memory": {
