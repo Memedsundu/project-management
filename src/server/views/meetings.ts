@@ -111,12 +111,12 @@ export async function loadMeetingsScreen(sp: SP) {
 export type MeetingsScreenData = Awaited<ReturnType<typeof loadMeetingsScreen>>;
 
 /** "Kararlar": every decision, newest first, with its meeting and partners. */
-export async function loadDecisionsScreen(sp: SP) {
+export async function loadDecisionsScreen(sp: SP, opts: { limit?: number } = {}) {
   const orgParam = str(sp.org);
   const org = orgParam && UUID.test(orgParam) ? orgParam : null;
   const q = str(sp.q)?.trim().slice(0, 200) || null;
   const db = await getDb();
-  const [orgs, list] = await Promise.all([listOrganisationsLite(), listDecisions({ orgId: org ?? undefined, q: q ?? undefined, limit: 500 })]);
+  const [orgs, list] = await Promise.all([listOrganisationsLite(), listDecisions({ orgId: org ?? undefined, q: q ?? undefined, limit: opts.limit ?? 500 })]);
   const meetingIds = [...new Set(list.map((d) => d.meetingId).filter(Boolean) as string[])];
   const linkRows = meetingIds.length
     ? ((await db.execute(sql`

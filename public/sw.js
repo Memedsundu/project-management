@@ -118,7 +118,8 @@ async function navigate(event) {
   const network = (async () => {
     const res = (await event.preloadResponse) || (await fetch(event.request));
     // Saved in the background, so the page still streams in as it renders.
-    event.waitUntil(remember(url, res.clone()).catch(() => {}));
+    // Downloads (/api/) pass straight through: a copy of a large ZIP would sit in memory.
+    if (keepable(url) || url.pathname === "/sign-in") event.waitUntil(remember(url, res.clone()).catch(() => {}));
     return res;
   })();
   event.waitUntil(network.catch(() => {}));

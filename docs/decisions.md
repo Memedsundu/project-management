@@ -254,3 +254,46 @@ follows.
 - Any group of tasks becomes a set: select them in Görevler and choose "Görev
   seti olarak kaydet". The latest date among them becomes the set's day and
   the others are kept as days before it; tasks without a date stay undated.
+
+## Dışa aktarım, kapanış ve geri yükleme (export, closing the project and restore)
+
+- The export follows Google Takeout and Notion's "export all workspace
+  content": one ZIP, named in her language, that opens without the app or the
+  internet. Inside: Belgeler/ in the app's folders (earlier versions under
+  Belgeler/_Önceki sürümler), Notlar/, Toplantılar/, Raporlar/ and Özetler/ as
+  Markdown and Word, five Excel workbooks (Görevler, Göstergeler (IPTT), İş
+  planı, Kararlar, Ortaklar ve kişiler), Dizin.html (an index page in the
+  app's look) and BENİOKU.txt. Links between pages, meetings and files are
+  relative, so they keep working once the ZIP is unzipped into a folder.
+- veri/proje-verisi.json is the restorable data file. It lists every table
+  of her project and how the tables point at each other, so a restore can
+  check it before writing anything.
+- Left out: the trash, and files the child-data check holds (only their
+  names leave, in BENİOKU, so she can clean or delete them). Whatever pointed
+  at them is repaired the way the database would. Passkeys, sign-ins, phone
+  notifications, the job queue and the search index belong to one
+  installation and are made again.
+- The ZIP is streamed as it is written; nothing is built in memory or on
+  disk. Big projects come in parts of about 1 GB, current files first, so
+  each download ends well inside the 800 seconds Vercel allows a function
+  (Fluid compute). PDFs, Office files and pictures are stored as they are,
+  text is compressed; ZIP64 above 4 GB, and UTF-8 names so Turkish letters
+  survive on Windows and macOS.
+- Text read from files (including OCR) travels in the data file, so a
+  restore does not pay Claude to read every file again. The search index is
+  rebuilt during the restore; search by meaning catches up in the background.
+- Restore opens only on an empty workspace, such as a new installation (Ayarlar
+  › Veri › Yedekten geri yükle). The browser reads the ZIP, so a large export
+  never passes through the server: files go straight to storage after a
+  SHA-256 check, rows follow in batches under Vercel's 4.5 MB request limit.
+  A restore that stops halfway is run again with the same ZIPs; it starts
+  clean and does not send files already in storage. A document whose file is
+  in none of the chosen ZIPs (and not in storage) is left out, and she is
+  told how many.
+- Closing the project follows Basecamp's archive and Asana's "mark complete":
+  a dialog shows what is still open (tasks, Gelen kutusu, files waiting for a
+  check, held files) with links, then two steps: download the archive, then
+  close. A closed workspace is read-only; reminders, scheduled helpers and the
+  30-day trash emptying stop; reading, search, asking Claude and export go on.
+  Every page shows since when it is closed, with a link to the archive. She
+  can reopen it from Ayarlar › Veri.

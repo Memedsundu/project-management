@@ -80,6 +80,11 @@ export const SETTINGS = {
     .object({ publicKey: z.string(), privateKey: z.string() })
     .nullable()
     .default(null),
+  /** A restore from a backup that started and has not finished (it can be run again). */
+  restore: z
+    .object({ startedAt: z.string(), exportedAt: z.string(), projectName: z.string() })
+    .nullable()
+    .default(null),
 } as const;
 
 export type SettingKey = keyof typeof SETTINGS;
@@ -108,6 +113,11 @@ export async function getSettings<K extends SettingKey>(keys: K[]): Promise<{ [P
 export async function setSetting<K extends SettingKey>(key: K, value: SettingValue<K>) {
   const parsed = SETTINGS[key].parse(value);
   const db = await getDb();
+  // The column cannot hold null: a cleared setting is a missing row, which reads back as null.
+  if (parsed === null) {
+    await db.delete(appSettings).where(eq(appSettings.key, key));
+    return parsed as SettingValue<K>;
+  }
   await db
     .insert(appSettings)
     .values({ key, value: parsed as object })

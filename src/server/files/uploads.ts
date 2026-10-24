@@ -26,7 +26,11 @@ export async function reserveUpload(input: PrepareInput) {
   if (!storageReady()) throw new Error("STORAGE_NOT_READY");
   const archive = await getSetting("archive");
   if (archive.readOnly) throw new Error("READ_ONLY");
-  const key = newStorageKey(input.name);
+  return reserveUploadKey(input, newStorageKey(input.name));
+}
+
+/** The reservation itself, for a key chosen by the caller (a restore keeps the backup's keys). */
+export async function reserveUploadKey(input: PrepareInput, key: string) {
   const db = await getDb();
   const [row] = await db
     .insert(authChallenges)

@@ -60,7 +60,8 @@ function runsOf(content: Block["content"], base: { bold?: boolean; italics?: boo
     } else if (c.type === "link") {
       const l = c as InlineLink;
       const text = l.content.map((x) => x.text).join("");
-      const href = /^https?:\/\//.test(l.href) ? l.href : l.href.startsWith("/") && origin ? origin + l.href : null;
+      // Web links, links into the app, and (in the full export) links to a file beside this one.
+      const href = /^https?:\/\//.test(l.href) || /^\.\.?\//.test(l.href) ? l.href : l.href.startsWith("/") && origin ? origin + l.href : null;
       if (href) out.push(new ExternalHyperlink({ link: href, children: [new TextRun({ text, style: "Hyperlink" })] }));
       else out.push(new TextRun({ text, ...base }));
     } else if (c.type === "mention") {
@@ -154,7 +155,10 @@ function walk(blocks: Block[], depth: number, out: (Paragraph | Table)[], origin
       case "video":
       case "audio": {
         const name = String(b.props?.caption || b.props?.name || "");
-        out.push(new Paragraph({ children: [new TextRun({ text: `[${b.type === "image" ? "Görsel" : "Dosya"}${name ? `: ${name}` : ""}]`, italics: true, color: "666666" })] }));
+        const label = new TextRun({ text: `[${b.type === "image" ? "Görsel" : "Dosya"}${name ? `: ${name}` : ""}]`, italics: true, color: "666666" });
+        // In the full export the picture sits beside the page, so the placeholder opens it.
+        const url = String(b.props?.url ?? "");
+        out.push(new Paragraph({ children: [/^\.\.?\//.test(url) ? new ExternalHyperlink({ link: url, children: [label] }) : label] }));
         break;
       }
       default: {

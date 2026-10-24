@@ -12,6 +12,9 @@ import { enqueue } from "./queue";
  * day (or month) because the brief it writes is checked first.
  */
 export async function scheduleDue(now = nowTz()) {
+  // A closed project stays as it was: no briefs, reminders or other scheduled work.
+  const { projectClosed } = await import("@/server/services/closure");
+  if (await projectClosed()) return [];
   const day = todayStr(now);
   const minutes = now.getHours() * 60 + now.getMinutes();
   const dow = now.getDay(); // 0 Sunday … 6 Saturday, Istanbul time
@@ -80,11 +83,12 @@ export async function scheduleDue(now = nowTz()) {
   return queued;
 }
 
-/** Nightly: empty the 30-day trash and drop old housekeeping rows. */
+/** Nightly: empty the 30-day trash and drop old housekeeping rows. A closed project keeps its trash as it was. */
 export async function nightly() {
   const db = await getDb();
   const { purgeExpired } = await import("@/server/services/trash");
-  const purged = await purgeExpired();
+  const { projectClosed } = await import("@/server/services/closure");
+  const purged = (await projectClosed()) ? 0 : await purgeExpired();
   const monthAgo = new Date(Date.now() - 30 * 86_400_000);
   await db.delete(jobs).where(and(eq(jobs.status, "done"), lt(jobs.updatedAt, monthAgo)));
   await db.delete(sentNotifications).where(lt(sentNotifications.sentAt, new Date(Date.now() - 90 * 86_400_000)));

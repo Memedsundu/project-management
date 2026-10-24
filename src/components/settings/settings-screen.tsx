@@ -1,21 +1,18 @@
 "use client";
 
-import { ArrowUpRight, Trash2 } from "lucide-react";
-import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { useScreenContext } from "@/components/shell/shell-context";
-import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import type { SettingsData } from "@/server/views/settings";
 import { AccountSection } from "./account-section";
 import { AiSection } from "./ai-section";
+import { DataSection } from "./data-section";
 import { HoursSection, LookSection } from "./general-sections";
 import { HelpersSection } from "./helpers-section";
 import { ListsSection } from "./lists-section";
 import { InstallSection, NotificationsSection } from "./notifications-section";
-import { Row, SettingsSection } from "./parts";
 import { ProjectSection } from "./project-section";
 
 const SECTIONS = ["project", "look", "hours", "notifications", "install", "ai", "helpers", "lists", "account", "data"] as const;
@@ -98,23 +95,5 @@ export function SettingsScreen({ data }: { data: SettingsData }) {
         </div>
       </div>
     </div>
-  );
-}
-
-/** Veri: the trash now; export and closing the project come with the archive. */
-function DataSection({ data }: { data: SettingsData }) {
-  const t = useTranslations("settings.data");
-  return (
-    <SettingsSection id="data" title={t("title")} hint={t("hint")}>
-      <Row label={t("trash")} hint={t("trashHint", { count: data.trash })}>
-        <Button variant="outline" size="sm" asChild>
-          <Link href="/trash" data-testid="s-trash">
-            <Trash2 size={15} />
-            {t("openTrash")}
-            <ArrowUpRight size={15} />
-          </Link>
-        </Button>
-      </Row>
-    </SettingsSection>
   );
 }

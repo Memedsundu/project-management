@@ -8,11 +8,14 @@ import { listPasskeys, listSessions } from "@/server/auth/account";
 import { remainingRecoveryCodes } from "@/server/auth/webauthn";
 import type { CurrentUser } from "@/server/auth/session";
 import { getDb } from "@/server/db/client";
+import { exportSummary } from "@/server/export/archive";
+import { restoreState } from "@/server/export/restore";
 import { aiRuns, documents, folders } from "@/server/db/schema";
 import { countSubscriptions } from "@/server/notifications/push";
 import { lastBriefDays } from "@/server/services/briefs";
 import { listDocTypes } from "@/server/services/documents";
 import { ensureProjectPeriods, ipttTable, listPeriods } from "@/server/services/indicators";
+import { closureSummary } from "@/server/services/closure";
 import { getSettings } from "@/server/services/settings";
 import { listTags } from "@/server/services/tags";
 import { listTemplates } from "@/server/services/templates";
@@ -56,7 +59,7 @@ export async function loadSettings(user: CurrentUser) {
   const settings = await getSettings(["profile", "workingHours", "notifications", "ai", "files", "archive", "scheduledHelpers"]);
   const from = `${settings.profile.startYear}-01-01`;
   const to = `${settings.profile.endYear}-12-31`;
-  const [ai, spend, docTypes, usage, tags, seasons, holidays, periods, table, templates, aiOff, passkeys, sessions, recoveryLeft, devices, trash, recipes, lastBriefs] = await Promise.all([
+  const [ai, spend, docTypes, usage, tags, seasons, holidays, periods, table, templates, aiOff, passkeys, sessions, recoveryLeft, devices, trash, recipes, lastBriefs, exportInfo, closure, restore] = await Promise.all([
     aiStatus(),
     aiSpendByHelper(),
     listDocTypes(),
@@ -75,6 +78,9 @@ export async function loadSettings(user: CurrentUser) {
     listTrash().then((items) => items.length),
     listRecipes(),
     lastBriefDays(),
+    exportSummary(),
+    closureSummary(),
+    restoreState(),
   ]);
   return {
     today,
@@ -124,6 +130,10 @@ export async function loadSettings(user: CurrentUser) {
     templates: templates.map((t) => ({ id: t.id, kind: t.kind, name: t.name, description: t.description ?? null, builtin: t.builtin, taskCount: t.content.tasks?.length ?? null })),
     account: { passkeys, sessions, recoveryLeft },
     trash,
+    archive: settings.archive,
+    exportInfo,
+    closure,
+    restore: { allowed: restore.allowed, inProgress: restore.inProgress },
   };
 }
 

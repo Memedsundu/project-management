@@ -8,7 +8,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Dialog, SheetContent } from "@/components/ui/overlay";
 import { Kbd } from "@/components/ui/card";
-import { formatLongDay, todayStr } from "@/lib/dates";
+import { dayOf, formatDay, formatLongDay, todayStr } from "@/lib/dates";
 import { cn } from "@/lib/utils";
 import type { ShellData } from "@/server/services/shell";
 import { ALL_NAV_ITEMS, activeNavKey } from "./nav-items";
@@ -223,8 +223,11 @@ export function AppShell({ data, children }: { data: ShellData; children: React.
           </div>
 
           {data.readOnly ? (
-            <div className="mx-4 mt-4 rounded-xl bg-accent-soft px-4 py-2.5 text-[14px] text-accent-ink lg:mx-10">
-              {tc("readOnly")}
+            <div className="mx-4 mt-4 flex flex-wrap items-center gap-x-3 gap-y-1 rounded-xl bg-accent-soft px-4 py-2.5 text-[14px] text-accent-ink lg:mx-10" data-testid="read-only-banner">
+              <span className="min-w-0 flex-1">{data.archivedAt ? tc("readOnlySince", { date: formatDay(dayOf(data.archivedAt), locale, true) }) : tc("readOnly")}</span>
+              <Link href="/settings?export=1#data" className="shrink-0 font-medium underline underline-offset-4">
+                {tc("downloadArchive")}
+              </Link>
             </div>
           ) : null}
           <OfflineSupport preload={loadQuickAdd} />

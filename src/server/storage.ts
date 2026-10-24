@@ -78,6 +78,23 @@ export async function objectExists(key: string) {
   }
 }
 
+/** The stored size of a file, or null when there is none. */
+export async function objectSize(key: string): Promise<number | null> {
+  if (storageMode() === "blob") {
+    const { head } = await import("@vercel/blob");
+    try {
+      return (await head(key)).size;
+    } catch {
+      return null;
+    }
+  }
+  try {
+    return (await stat(localPath(key))).size;
+  } catch {
+    return null;
+  }
+}
+
 export async function getObjectBuffer(key: string): Promise<Buffer | null> {
   if (storageMode() === "blob") {
     const { get } = await import("@vercel/blob");

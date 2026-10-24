@@ -10,6 +10,8 @@ export type ShellData = {
   projectName: string;
   years: string;
   readOnly: boolean;
+  /** When the project was closed, for the read-only banner. */
+  archivedAt: string | null;
   counts: { inbox: number; today: number; filesToCheck: number };
   pinned: { label: string; href: string; kind: "view" | "collection" | "note" }[];
   aiConfigured: boolean;
@@ -74,6 +76,7 @@ export async function getShellData(): Promise<ShellData> {
     projectName: profile.projectName,
     years: `${profile.startYear}–${profile.endYear}`,
     readOnly: archive.readOnly,
+    archivedAt: archive.readOnly ? archive.archivedAt : null,
     counts: { inbox, today: todayRow?.n ?? 0, filesToCheck: filesRow?.n ?? 0 },
     pinned: [
       ...views.map((v) => ({ label: v.name, href: viewHref(v.kind, v.id), kind: "view" as const })),

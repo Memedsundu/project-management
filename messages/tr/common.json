@@ -285,5 +285,7 @@
     "refused": "“{title}” kaydedilemedi: {error}",
     "signOutOffline": "Çıkış yapmak için bağlantı gerekiyor.",
     "signOutPending": "Bekleyen kayıtlar gönderilemedi. Bağlantını kontrol edip yeniden dene."
-  }
+  },
+  "readOnlySince": "Proje {date} tarihinde kapatıldı; bu çalışma alanı salt okunur.",
+  "downloadArchive": "Arşivi indir"
 }
