@@ -53,6 +53,7 @@ import {
 } from "@/components/ui/overlay";
 import { openChecklistItems, type Block } from "@/lib/blocks";
 import { formatDateTime, formatLongDay } from "@/lib/dates";
+import { downloadFrom } from "@/lib/client/download";
 import { runAction } from "@/lib/client/run-action";
 import type { PartnerRef } from "@/lib/parse-task";
 import { cn } from "@/lib/utils";
@@ -243,7 +244,7 @@ export function NotePage({ data }: { data: NotePageData }) {
                     {t("export")}
                   </DropdownMenuSubTrigger>
                   <DropdownMenuSubContent>
-                    <DropdownMenuItem onSelect={() => (window.location.href = `/api/notes/${note.id}/export?format=docx`)}>
+                    <DropdownMenuItem onSelect={() => downloadFrom(`/api/notes/${note.id}/export?format=docx`)}>
                       <FileText size={15} />
                       Word (.docx)
                     </DropdownMenuItem>
@@ -251,7 +252,7 @@ export function NotePage({ data }: { data: NotePageData }) {
                       <FileDown size={15} />
                       PDF
                     </DropdownMenuItem>
-                    <DropdownMenuItem onSelect={() => (window.location.href = `/api/notes/${note.id}/export?format=md`)}>
+                    <DropdownMenuItem onSelect={() => downloadFrom(`/api/notes/${note.id}/export?format=md`)}>
                       <NotebookPen size={15} />
                       Markdown (.md)
                     </DropdownMenuItem>

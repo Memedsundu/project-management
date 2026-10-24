@@ -26,7 +26,7 @@ Set these in Vercel › Project › Settings › Environment Variables. Copy
 | Variable | Needed | What it is |
 | --- | --- | --- |
 | `DATABASE_URL` | Production | Neon connection string (the pooled one). Scope it to **Production** only; see "Preview deployments" below. |
-| `BLOB_READ_WRITE_TOKEN` | Production | Added automatically when you connect the Blob store to the project. Without it, uploads say "Dosya deposu hazır değil". |
+| `BLOB_READ_WRITE_TOKEN` | Production | Added automatically when you connect the Blob store to the project. Without it, uploads say "Dosya deposu henüz bağlı değil". |
 | `APP_ORIGIN` | Production | The address she uses, for example `https://proje.example.org`. Passkeys are tied to this host name, and phone notifications and export links use it. Decide the final domain **before** she creates her passkey. |
 | `SETUP_TOKEN` | First sign-in | A long random string (`openssl rand -base64 32`). It opens `/setup` once; after the first account exists, `/setup` is closed whatever the token. |
 | `CRON_SECRET` | Production | A long random string. Vercel Cron sends it; the cron routes refuse calls without it. |
@@ -53,7 +53,7 @@ API keys stay on the server; the browser never sees them.
 5. **Deploy**, then open `APP_ORIGIN/setup` on her laptop. She enters the
    setup token and her name, creates a passkey and saves the ten recovery
    codes (download or copy; they are shown once).
-6. **Her phone.** Ayarlar › Hesap › "Başka bir cihaz ekle" shows a six-digit
+6. **Her phone.** Ayarlar › Hesap › "Yeni cihaz ekle" shows a six-digit
    code; on the phone she opens `/pair`, types it and creates a passkey
    there. Ayarlar › Telefona yükle explains adding the app to the home
    screen, which notifications need on an iPhone.
@@ -143,7 +143,7 @@ store can be deleted; keep the export ZIP(s).
 
 | What happens | Look at |
 | --- | --- |
-| Upload fails with "Dosya deposu hazır değil" | `BLOB_READ_WRITE_TOKEN` missing in Production, or the store is not connected. |
+| Upload fails with "Dosya deposu henüz bağlı değil" | `BLOB_READ_WRITE_TOKEN` missing in Production, or the store is not connected. |
 | Her passkey is refused | Was `APP_ORIGIN` or the domain changed? Passkeys belong to one host name. She signs in with a recovery code, then adds a passkey in Ayarlar › Hesap. |
 | She lost every passkey and every recovery code | In the Neon SQL editor run `DELETE FROM sessions; DELETE FROM passkeys; DELETE FROM recovery_codes; DELETE FROM users;`. No project table points at the user, so her data stays. `/setup` opens again with the setup token. |
 | No daily summary or reminders | Vercel › Settings › Cron Jobs: are the two jobs there and green? Is `CRON_SECRET` set? Is the project closed (Ayarlar › Veri)? |
@@ -161,9 +161,15 @@ store can be deleted; keep the export ZIP(s).
   cloud account is needed. With `E2E_LOGIN=1`, `POST /api/test/login` signs
   in without a passkey (refused in production).
 - Checks: `npm run typecheck`, `npm run lint`, `npm test` (unit tests,
-  including a full export and restore round trip), `npm run test:e2e`
-  (Playwright, starts its own dev server). GitHub Actions runs the same on
-  every pull request.
+  including a full export and restore round trip and both languages having
+  every message), `npm run test:e2e` (Playwright on a laptop and a phone
+  screen, with an accessibility check of every screen in both themes).
+  The browser tests start their own dev server on an empty workspace in a
+  temporary folder, so stop `npm run dev` first; the first time, run
+  `npx playwright install chromium`.
+- GitHub Actions (`.github/workflows/ci.yml`) runs all of these, and a
+  production build, on every pull request and on `main`. On a private
+  repository a run uses about ten minutes of the account's Actions minutes.
 - Map of the code:
   - `src/app/`: pages and API routes. Each screen's server actions sit
     beside it in `actions.ts`.
@@ -181,5 +187,5 @@ store can be deleted; keep the export ZIP(s).
     approves.
   - Text inside uploaded files is data, never instructions to Claude.
   - No data about individual children: the guard in
-    `src/server/ai/child-guard.ts` checks uploads, imports and anything sent
-    to Claude.
+    `src/server/files/child-guard.ts` checks uploads, imports and anything
+    sent to Claude.

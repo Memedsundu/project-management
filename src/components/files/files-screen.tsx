@@ -54,6 +54,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/overlay";
 import { relativeDayLabel, dayOf } from "@/lib/dates";
+import { downloadFrom } from "@/lib/client/download";
 import { runAction } from "@/lib/client/run-action";
 import { cn, formatBytes } from "@/lib/utils";
 import { FileDropOverlay, filesFromInput, uploadPicked } from "./drop-zone";
@@ -705,7 +706,7 @@ function RowMenu({ file, readOnly, onRename, onMove, onTrash }: { file: FileItem
       </DropdownMenuTrigger>
       <DropdownMenuContent>
         <DropdownMenuItem href={`/files/d/${file.id}`}>{tc("open")}</DropdownMenuItem>
-        <DropdownMenuItem onSelect={() => (window.location.href = `/api/files/${file.id}/content?download=1`)}>
+        <DropdownMenuItem onSelect={() => downloadFrom(`/api/files/${file.id}/content?download=1`)}>
           <Download size={15} />
           {tc("download")}
         </DropdownMenuItem>
