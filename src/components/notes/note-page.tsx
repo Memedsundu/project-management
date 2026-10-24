@@ -106,7 +106,10 @@ export function NotePage({ data }: { data: NotePageData }) {
 
   const [title, setTitle] = useState(note.title);
   const [icon, setIcon] = useState(note.icon);
-  const [save, setSave] = useState<SaveState>("saved");
+  // The title and the text save on their own timers; the page is saved only when both are.
+  const [titleSave, setTitleSave] = useState<SaveState>("saved");
+  const [bodySave, setBodySave] = useState<SaveState>("saved");
+  const save: SaveState = titleSave === "saving" || bodySave === "saving" ? "saving" : titleSave === "error" || bodySave === "error" ? "error" : "saved";
   const [editorKey, setEditorKey] = useState(0);
   const [content, setContent] = useState<Block[]>(note.content);
   const [historyOpen, setHistoryOpen] = useState(false);
@@ -129,12 +132,12 @@ export function NotePage({ data }: { data: NotePageData }) {
     if (value === null) return false;
     pendingTitle.current = null;
     const res = await runAction(saveNoteAction(note.id, { title: value }), { silent: true });
-    setSave(res === undefined ? "error" : "saved");
+    setTitleSave(res === undefined ? "error" : "saved");
     return true;
   };
   const saveTitle = (value: string) => {
     setTitle(value);
-    setSave("saving");
+    setTitleSave("saving");
     pendingTitle.current = value;
     if (titleTimer.current) window.clearTimeout(titleTimer.current);
     titleTimer.current = window.setTimeout(() => void flushTitle(), 600);
@@ -337,7 +340,7 @@ export function NotePage({ data }: { data: NotePageData }) {
         today={data.today}
         partners={data.partners}
         taskStates={data.taskStates}
-        onSaveState={setSave}
+        onSaveState={setBodySave}
         onSubPage={() => router.refresh()}
         onReady={onReady}
       />
