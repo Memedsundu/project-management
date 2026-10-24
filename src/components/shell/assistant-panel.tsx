@@ -112,13 +112,34 @@ function useMainSelection() {
 }
 
 /** Peni's right-hand panel with Notion Agent's habits: knows the screen, proposes, never acts alone. */
-export function AssistantPanel({ onClose, initialPrompt, onPromptUsed }: { onClose: () => void; initialPrompt?: string; onPromptUsed?: () => void }) {
+export function AssistantPanel({
+  onClose,
+  initialPrompt,
+  onPromptUsed,
+  initialView,
+  onViewUsed,
+}: {
+  onClose: () => void;
+  initialPrompt?: string;
+  onPromptUsed?: () => void;
+  /** A page (Ayarlar) asked for the memory view; consumed once like the prompt. */
+  initialView?: "memory";
+  onViewUsed?: () => void;
+}) {
   const t = useTranslations("ai.assistant");
   const tc = useTranslations("common");
   const locale = useLocale();
   const shell = useShell();
   const wide = useMediaQuery("(min-width: 1024px)");
-  const [view, setView] = useState<"chat" | "memory">("chat");
+  const [view, setView] = useState<"chat" | "memory">(initialView ?? "chat");
+  const [seenView, setSeenView] = useState(initialView);
+  if (initialView !== seenView) {
+    setSeenView(initialView);
+    if (initialView) setView(initialView);
+  }
+  useEffect(() => {
+    if (initialView) onViewUsed?.();
+  }, [initialView, onViewUsed]);
   const [items, setItems] = useState<Item[]>([]);
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [input, setInput] = useState("");

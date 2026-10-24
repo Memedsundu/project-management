@@ -130,3 +130,36 @@ follows.
 - The service worker runs only in the built app, never in development.
 - On Android the keyboard shrinks the page (`interactive-widget`), so inputs
   stay above it; the bottom bar steps aside while she types.
+
+## Ayarlar ve Çöp kutusu (settings and trash)
+
+- Ayarlar is one page with a section list beside it (Linear, Stripe): Proje,
+  Görünüm ve dil, Çalışma saatleri, Bildirimler, Telefona yükle, Yapay zekâ,
+  Listeler, Hesap, Veri. On a phone the list is a row of chips. Switches save
+  the moment she flips them; forms with several fields (Proje, Çalışma
+  saatleri) have a Kaydet button that appears once something changed.
+- Settings that are not project data (look, notifications, account) still
+  change when the project is archived; everything else turns read-only.
+- Yapay zekâ shows this month's spend against the cap, a meter that turns
+  amber at 80%, spend by job, the folders and files closed to AI, and a button
+  into Claude's memory. Models per job sit behind "Göster"; a choice equal to
+  the default is not stored, so a later default change reaches it.
+- Listeler opens each list in its own window, and the window starts from what
+  is saved each time. File types: a removed type with files asks where those
+  files go (Paperless). Tags: renaming a tag to the name of another merges
+  them (Bear). Templates: hers can be renamed or deleted, the built-in ones
+  stay. Seasons, holidays and reporting periods reuse the windows from the
+  workplan and indicators pages.
+- Hesap: passkeys with rename and remove (the last one cannot go), "Bu cihaza
+  passkey ekle", "Yeni cihaz ekle" with a six-digit code valid for ten minutes
+  (the code the sign-in page asks for), new recovery codes shown once with copy
+  and download, and the devices signed in with sign-out per device or for all
+  others. Adding a passkey on a device that already has one says so plainly.
+- The trash follows Google Drive and Notion: deleting a folder takes its files
+  and subfolders with it, deleting a page takes its subpages. The trash lists
+  the folder or page once, with how many items are inside; restoring brings
+  them all back, and deleting forever removes them all. A file restored while
+  its folder is still in the trash comes back at the top of Belgeler. Things
+  deleted separately before stay separate rows. Items go for good after 30
+  days; each row shows the days left.
+- Çöp kutusu is in the menu under Ayarlar, and in Ayarlar › Veri.

@@ -1,1 +1,27 @@
-{}
+{
+  "title": "Trash",
+  "subtitle": "What you delete stays here for 30 days, then goes for good. A folder comes back with what is in it, a page with its subpages.",
+  "empty": "The trash is empty",
+  "emptyBody": "Anything you delete waits here for 30 days, and you can bring it back in that time.",
+  "all": "All",
+  "filter": "Search the trash",
+  "count": "{count, plural, one {# item} other {# items}}",
+  "deletedOn": "deleted {date}",
+  "daysLeft": "{count, plural, one {# day left} other {# days left}}",
+  "lastDay": "goes today",
+  "inside": "{count, plural, one {# item inside} other {# items inside}}",
+  "restore": "Restore",
+  "restored": "“{title}” restored",
+  "open": "Open",
+  "purge": "Delete forever",
+  "purgeNamed": "Delete “{title}” forever",
+  "purgeTitle": "Delete forever?",
+  "purgeBody": "“{title}” will be deleted for good. This cannot be undone.",
+  "purgeInside": "{count, plural, one {The # item inside goes too.} other {The # items inside go too.}}",
+  "purged": "Deleted for good",
+  "emptyTrash": "Empty trash",
+  "emptyTitle": "Empty the trash?",
+  "emptyConfirmBody": "{count, plural, one {# item will be deleted for good.} other {# items will be deleted for good.}} This cannot be undone.",
+  "emptied": "The trash is empty now",
+  "noMatch": "Nothing in the trash matches."
+}

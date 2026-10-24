@@ -49,7 +49,7 @@ export function NewPageMenu({
           </>
         ) : null}
         <DropdownMenuSeparator />
-        <DropdownMenuItem href="/settings/templates">
+        <DropdownMenuItem href="/settings#lists">
           <Settings2 size={15} />
           {t("manage")}
         </DropdownMenuItem>

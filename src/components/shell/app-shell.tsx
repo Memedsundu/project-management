@@ -44,11 +44,13 @@ export function AppShell({ data, children }: { data: ShellData; children: React.
   const [quickAdd, setQuickAdd] = useState<QuickAddPrefill | null>(null);
   const [assistantOpen, setAssistantOpen] = useState(false);
   const [assistantPrompt, setAssistantPrompt] = useState<string | undefined>();
+  const [assistantView, setAssistantView] = useState<"memory" | undefined>();
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [screen, setScreen] = useState<ScreenContext | null>(null);
   const goPending = useRef<number | null>(null);
 
+  const clearAssistantView = useCallback(() => setAssistantView(undefined), []);
   const api = useMemo(
     () => ({
       openCommand: (q?: string) => {
@@ -56,10 +58,12 @@ export function AppShell({ data, children }: { data: ShellData; children: React.
         setCommandOpen(true);
       },
       openQuickAdd: (prefill?: QuickAddPrefill) => setQuickAdd(prefill ?? {}),
-      openAssistant: (prompt?: string) => {
+      openAssistant: (prompt?: string, opts?: { view?: "memory" }) => {
         setAssistantPrompt(prompt);
+        setAssistantView(opts?.view);
         setAssistantOpen(true);
       },
+      openShortcuts: () => setShortcutsOpen(true),
       toggleAssistant: () => setAssistantOpen((v) => !v),
       assistantOpen,
       setScreen,
@@ -238,6 +242,8 @@ export function AppShell({ data, children }: { data: ShellData; children: React.
               onClose={() => setAssistantOpen(false)}
               initialPrompt={assistantPrompt}
               onPromptUsed={() => setAssistantPrompt(undefined)}
+              initialView={assistantView}
+              onViewUsed={clearAssistantView}
             />
           </aside>
         ) : null}
@@ -322,6 +328,8 @@ export function AppShell({ data, children }: { data: ShellData; children: React.
               onClose={() => setAssistantOpen(false)}
               initialPrompt={assistantPrompt}
               onPromptUsed={() => setAssistantPrompt(undefined)}
+              initialView={assistantView}
+              onViewUsed={clearAssistantView}
             />
           </SheetContent>
         ) : null}

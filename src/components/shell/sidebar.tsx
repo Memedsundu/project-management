@@ -109,7 +109,7 @@ export function Sidebar({ data }: { data: ShellData }) {
  * Sign out. What she added offline is sent first, then the pages kept for
  * offline reading are dropped from this device.
  */
-export function SignOutButton({ withLabel }: { withLabel?: boolean }) {
+export function SignOutButton({ withLabel, inline }: { withLabel?: boolean; inline?: boolean }) {
   const t = useTranslations("nav");
   const to = useTranslations("common.offline");
   return (
@@ -131,15 +131,15 @@ export function SignOutButton({ withLabel }: { withLabel?: boolean }) {
       <button
         type="submit"
         title={t("signOut")}
-        aria-label={withLabel ? undefined : t("signOut")}
+        aria-label={withLabel || inline ? undefined : t("signOut")}
         className={cn(
           "inline-flex items-center rounded-full text-muted hover:bg-panel-2 hover:text-ink",
-          withLabel ? "h-11 w-full gap-3 px-3 text-[15px]" : "h-9 w-9 justify-center",
+          inline ? "h-9 gap-2 px-3 text-[14px] font-medium text-ink hover:bg-panel" : withLabel ? "h-11 w-full gap-3 px-3 text-[15px]" : "h-9 w-9 justify-center",
         )}
         data-testid="sign-out"
       >
-        <LogOut size={16} />
-        {withLabel ? t("signOut") : null}
+        <LogOut size={inline ? 15 : 16} />
+        {withLabel || inline ? t("signOut") : null}
       </button>
     </form>
   );

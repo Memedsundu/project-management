@@ -10,6 +10,7 @@ import {
   NotebookPen,
   Settings,
   Sun,
+  Trash2,
   Users,
   type LucideIcon,
 } from "lucide-react";
@@ -25,7 +26,7 @@ export type NavItem = {
 
 export type NavGroup = { labelKey?: string; items: NavItem[] };
 
-/** Bugün · Gelen kutusu · İŞ · PROJE · BELGELER · Raporlar · Ayarlar */
+/** Bugün · Gelen kutusu · İŞ · PROJE · BELGELER · Raporlar · Ayarlar · Çöp kutusu */
 export const NAV: NavGroup[] = [
   {
     items: [
@@ -60,6 +61,7 @@ export const NAV: NavGroup[] = [
     items: [
       { key: "reports", href: "/reports", labelKey: "reports", icon: FileText, shortcut: "r" },
       { key: "settings", href: "/settings", labelKey: "settings", icon: Settings, shortcut: "a" },
+      { key: "trash", href: "/trash", labelKey: "trash", icon: Trash2 },
     ],
   },
 ];

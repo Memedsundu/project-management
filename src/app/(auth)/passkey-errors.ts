@@ -3,6 +3,7 @@ export function browserErrorCode(e: unknown): string {
   const name = (e as { name?: string })?.name;
   if (name === "NotAllowedError" || name === "AbortError") return "cancelled";
   if (name === "NotSupportedError" || name === "SecurityError") return "unsupported";
-  if (name === "InvalidStateError") return "verify";
+  // The authenticator already holds a passkey for this workspace.
+  if (name === "InvalidStateError") return "exists";
   return "verify";
 }

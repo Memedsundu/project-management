@@ -54,7 +54,8 @@ export async function act<T>(
       if (archive.readOnly) return { ok: false, error: READ_ONLY[locale], code: "read_only" };
     }
     const data = await fn(user);
-    if (write && opts.refresh !== false) {
+    // Changes refresh the screen; `refresh: true` asks for it on an action that skips the archive check.
+    if (opts.refresh ?? write) {
       try {
         refresh();
       } catch {

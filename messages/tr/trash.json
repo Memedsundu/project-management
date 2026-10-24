@@ -1,1 +1,27 @@
-{}
+{
+  "title": "Çöp kutusu",
+  "subtitle": "Sildiklerin 30 gün burada kalır, sonra kendiliğinden silinir. Bir klasör içindekilerle, bir sayfa alt sayfalarıyla birlikte gelir.",
+  "empty": "Çöp kutusu boş",
+  "emptyBody": "Sildiğin her şey 30 gün burada bekler; bu sürede geri getirebilirsin.",
+  "all": "Tümü",
+  "filter": "Çöp kutusunda ara",
+  "count": "{count} öğe",
+  "deletedOn": "silindi: {date}",
+  "daysLeft": "{count} gün kaldı",
+  "lastDay": "bugün silinecek",
+  "inside": "içinde {count} öğe",
+  "restore": "Geri yükle",
+  "restored": "“{title}” geri yüklendi",
+  "open": "Aç",
+  "purge": "Kalıcı olarak sil",
+  "purgeNamed": "“{title}” kalıcı olarak sil",
+  "purgeTitle": "Kalıcı olarak silinsin mi?",
+  "purgeBody": "“{title}” kalıcı olarak silinir. Bu geri alınamaz.",
+  "purgeInside": "İçindeki {count} öğe de silinir.",
+  "purged": "Kalıcı olarak silindi",
+  "emptyTrash": "Çöp kutusunu boşalt",
+  "emptyTitle": "Çöp kutusu boşaltılsın mı?",
+  "emptyConfirmBody": "{count} öğe kalıcı olarak silinir. Bu geri alınamaz.",
+  "emptied": "Çöp kutusu boşaltıldı",
+  "noMatch": "Bu aramaya uyan öğe yok."
+}

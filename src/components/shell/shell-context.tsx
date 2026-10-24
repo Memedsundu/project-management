@@ -16,7 +16,8 @@ export type QuickAddPrefill = { text?: string; mode?: "task" | "note" | "file"; 
 type ShellApi = {
   openCommand: (query?: string) => void;
   openQuickAdd: (prefill?: QuickAddPrefill) => void;
-  openAssistant: (prompt?: string) => void;
+  openAssistant: (prompt?: string, opts?: { view?: "memory" }) => void;
+  openShortcuts: () => void;
   toggleAssistant: () => void;
   assistantOpen: boolean;
   setScreen: (ctx: ScreenContext | null) => void;

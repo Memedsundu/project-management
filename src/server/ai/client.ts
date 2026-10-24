@@ -40,7 +40,7 @@ export function anthropic() {
 }
 
 /** Start of the current month in Istanbul time. */
-function monthStart() {
+export function monthStart() {
   const now = nowTz();
   return new Date(Date.UTC(now.getFullYear(), now.getMonth(), 1, -3, 0, 0));
 }

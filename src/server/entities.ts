@@ -65,7 +65,7 @@ export const ENTITIES: Record<EntityType, Def> = {
   logframe: { table: s.logframeNodes, title: "title", trash: true, href: () => `/indicators/logframe` },
   report: { table: s.reports, title: "title", trash: true, href: (id) => `/reports/${id}` },
   collection: { table: s.collections, title: "name", trash: true, href: (id) => `/collections/${id}` },
-  template: { table: s.templates, title: "name", trash: true, href: () => `/settings/templates` },
+  template: { table: s.templates, title: "name", trash: true, href: () => `/settings#lists` },
   visual: { table: s.visuals, title: "title", trash: true, href: (id) => `/reports/visuals/${id}` },
 };
 

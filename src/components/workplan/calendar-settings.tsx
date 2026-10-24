@@ -102,7 +102,7 @@ function SeasonForm({ season, onDone }: { season: SeasonItem | null; onDone: () 
 }
 
 /** "Mevsimler": the harvest bands behind the timeline, with ready-made ones for the main crops. */
-export function SeasonsDialog({ open, onOpenChange, data, readOnly }: { open: boolean; onOpenChange: (v: boolean) => void; data: WorkplanData; readOnly: boolean }) {
+export function SeasonsDialog({ open, onOpenChange, data, readOnly }: { open: boolean; onOpenChange: (v: boolean) => void; data: Pick<WorkplanData, "seasons">; readOnly: boolean }) {
   const t = useTranslations("workplan.seasonsDialog");
   const tc = useTranslations("common");
   const locale = useLocale();
@@ -175,7 +175,7 @@ export function SeasonsDialog({ open, onOpenChange, data, readOnly }: { open: bo
 }
 
 /** "Tatiller": public and religious holidays, which move field work and skip working days. */
-export function HolidaysDialog({ open, onOpenChange, data, readOnly }: { open: boolean; onOpenChange: (v: boolean) => void; data: WorkplanData; readOnly: boolean }) {
+export function HolidaysDialog({ open, onOpenChange, data, readOnly }: { open: boolean; onOpenChange: (v: boolean) => void; data: Pick<WorkplanData, "holidays" | "today">; readOnly: boolean }) {
   const t = useTranslations("workplan.holidaysDialog");
   const tc = useTranslations("common");
   const locale = useLocale();
