@@ -82,6 +82,7 @@ export async function attentionItems(today = todayStr()): Promise<Attention> {
 export type TodayData = {
   day: string;
   tasks: TaskView[];
+  weekTasks: TaskView[];
   meetings: MeetingListItem[];
   waitingThisWeek: TaskView[];
   keyDates: { documentId: string; title: string; date: string; label: string }[];
@@ -114,6 +115,7 @@ export async function todayData(day = todayStr()): Promise<TodayData> {
   return {
     day,
     tasks: groups.today,
+    weekTasks: groups.week,
     meetings,
     waitingThisWeek,
     keyDates,

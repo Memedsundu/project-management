@@ -33,6 +33,7 @@ export const taskInputSchema = z.object({
   recurrenceLabel: z.string().max(200).nullish(),
   reminderAt: z.coerce.date().nullish(),
   planDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullish(),
+  planOrder: z.number().int().min(0).max(10000).nullish(),
   inbox: z.boolean().optional(),
   sourceType: z.string().max(40).nullish(),
   sourceId: z.string().uuid().nullish(),
@@ -129,6 +130,7 @@ export async function updateTask(id: string, raw: TaskPatch, actor: Actor = "use
   if (patch.estimateMin !== undefined) assign("estimateMin", patch.estimateMin ?? null);
   if (patch.reminderAt !== undefined) assign("reminderAt", patch.reminderAt ?? null);
   if (patch.planDate !== undefined) assign("planDate", patch.planDate ?? null);
+  if (patch.planOrder !== undefined) assign("planOrder", patch.planOrder ?? null);
   if (patch.parentId !== undefined && patch.parentId !== id) assign("parentId", patch.parentId ?? null);
   if (patch.inbox !== undefined) assign("inbox", patch.inbox);
   if (patch.recurrence !== undefined) {

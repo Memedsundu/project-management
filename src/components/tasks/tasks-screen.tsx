@@ -3,21 +3,18 @@
 import { Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useMemo } from "react";
-import type { LinkItem } from "@/components/common/links-panel";
 import { useScreenContext, useShell } from "@/components/shell/shell-context";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/ui/card";
 import { SegmentedLinks } from "@/components/ui/controls";
-import { Dialog, SheetContent } from "@/components/ui/overlay";
 import { TaskBoard } from "./board";
 import { FilterBar, type SavedViewItem, type TaskFilterState } from "./filter-bar";
 import { InlineAdd } from "./inline-add";
 import { LogbookView } from "./logbook";
-import { TaskDetail, type HistoryRow } from "./task-detail";
 import { TaskList } from "./task-list";
+import { TaskSheet, type TaskSheetData } from "./task-sheet";
 import type { ContactOption, OrgOption, TaskItem } from "./types";
 import { UpcomingView, type UpcomingDay } from "./upcoming";
-import { useTaskOps } from "./use-task-ops";
 import { WaitingView, type WaitingGroup } from "./waiting";
 
 export type TasksTab = "list" | "upcoming" | "board" | "logbook" | "waiting";
@@ -37,13 +34,12 @@ export type TasksScreenProps = {
   board?: { todo: TaskItem[]; doing: TaskItem[]; waiting: TaskItem[]; done: TaskItem[] };
   logbook?: { items: TaskItem[]; month: string };
   waiting?: WaitingGroup[];
-  detail: { task: TaskItem; links: LinkItem[]; history: HistoryRow[]; source: { title: string; href: string; type: string } | null } | null;
+  detail: TaskSheetData | null;
 };
 
 export function TasksScreen(props: TasksScreenProps) {
   const t = useTranslations("tasks");
   const shell = useShell();
-  const ops = useTaskOps();
   const readOnly = shell.readOnly;
   const partnerNames = useMemo(() => new Map(props.orgs.map((o) => [o.id, o.shortName || o.name])), [props.orgs]);
   const partners = useMemo(() => props.orgs.map((o) => ({ id: o.id, name: o.name, shortName: o.shortName })), [props.orgs]);
@@ -122,23 +118,7 @@ export function TasksScreen(props: TasksScreenProps) {
 
       {props.tab === "waiting" && props.waiting ? <WaitingView groups={props.waiting} readOnly={readOnly} /> : null}
 
-      <Dialog open={Boolean(props.detail)} onOpenChange={(v) => !v && ops.close()}>
-        {props.detail ? (
-          <SheetContent title={props.detail.task.title} className="w-[min(500px,100vw)]">
-            <TaskDetail
-              key={props.detail.task.id}
-              task={props.detail.task}
-              orgs={props.orgs}
-              contacts={props.contacts}
-              links={props.detail.links}
-              history={props.detail.history}
-              source={props.detail.source}
-              readOnly={readOnly}
-              onClose={ops.close}
-            />
-          </SheetContent>
-        ) : null}
-      </Dialog>
+      <TaskSheet detail={props.detail} orgs={props.orgs} contacts={props.contacts} />
     </div>
   );
 }

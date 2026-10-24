@@ -1,1 +1,95 @@
-{}
+{
+  "title": "Bugün",
+  "greeting": {
+    "morning": "Günaydın",
+    "day": "İyi günler",
+    "evening": "İyi akşamlar"
+  },
+  "brief": {
+    "label": "Günün özeti",
+    "info": "Her iş günü 08:00'de Claude bugünkü görevlerinden, toplantılarından ve yaklaşan tarihlerden üç satırlık bir özet yazar. Yapay zekâ kapalıysa aynı bilgiler sade bir özet olarak gelir.",
+    "ask": "Bugünkü özetim neye dayanıyor?",
+    "refresh": "Yeniden yaz",
+    "makeNow": "Şimdi hazırla",
+    "none": "Özet her iş günü 08:00'de hazırlanır. İstersen şimdi hazırlatabilirsin.",
+    "plain": "Bu özet yapay zekâ olmadan, yalnızca kayıtlardan hazırlandı."
+  },
+  "overbooked": {
+    "title": "Bugün için fazla iş var.",
+    "body": "Planlanan {planned}, çalışma süren {work}. Birkaç görevi yarına kaydırabilirsin."
+  },
+  "stats": {
+    "tasks": "Bugünkü görevler",
+    "planned": "Planlanan süre {time}",
+    "noEstimate": "Süre tahmini yok",
+    "meetings": "Toplantılar",
+    "nextMeeting": "Sıradaki {time}",
+    "noMoreMeetings": "Bugün başka toplantı yok",
+    "overdue": "Gecikmiş",
+    "overdueNote": "Önce bunlara bak",
+    "overdueNone": "Gecikmiş görev yok",
+    "waiting": "Beklediklerim",
+    "waitingNote": "Bu hafta teslim edilecek"
+  },
+  "flow": {
+    "title": "Günün akışı",
+    "noMeetings": "Bugün toplantı yok."
+  },
+  "todo": {
+    "title": "Görevler",
+    "all": "Tüm görevler",
+    "add": "Bugün için görev ekle",
+    "empty": "Bugün için görev yok. Günü planla ile haftanın işlerinden seçebilirsin."
+  },
+  "attention": {
+    "title": "Dikkat isteyenler",
+    "none": "Şu an dikkat isteyen bir şey yok.",
+    "overdue": "{count, plural, one {# gecikmiş görev} other {# gecikmiş görev}}",
+    "lateReport": "{org}: {label} raporu gecikti",
+    "daysLate": "{days} gündür bekleniyor",
+    "filesToCheck": "{count, plural, one {# belge kontrol bekliyor} other {# belge kontrol bekliyor}}",
+    "meetingNotes": "{title} için notlar eksik",
+    "review": "İncele",
+    "accepted": "Eklendi",
+    "toInbox": "Tüm öneriler Gelen kutusunda"
+  },
+  "waiting": {
+    "title": "Bu hafta beklediklerin"
+  },
+  "dates": {
+    "title": "Belgelerdeki yaklaşan tarihler"
+  },
+  "recent": {
+    "title": "Kaldığın yerden devam",
+    "none": "Açtığın belgeler, notlar ve toplantılar burada görünür."
+  },
+  "plan": {
+    "open": "Günü planla",
+    "title": "Günü planla",
+    "description": "Bugün yapacaklarını seç, sıraya koy ve ne kadar süreceğini yaz.",
+    "empty": "Bu hafta için açık görev yok.",
+    "noDate": "Tarihsiz",
+    "estimate": "Tahmini süre (dakika)",
+    "minutes": "dk",
+    "up": "Yukarı taşı",
+    "down": "Aşağı taşı",
+    "over": "Bugün için fazla iş var.",
+    "total": "Toplam {total} (toplantılar {meetings} dahil), çalışma süren {work}.",
+    "save": "Planı kaydet",
+    "saved": "Günün planı kaydedildi"
+  },
+  "wrap": {
+    "open": "Günü kapat",
+    "title": "Günü kapat",
+    "description": "Bugün bitenlere bak, kalanları yarına taşı, istersen bir satır not bırak.",
+    "done": "Bugün biten ({count})",
+    "noneDone": "Bugün tamamlanan görev yok.",
+    "leftovers": "Kalanlar",
+    "noLeftovers": "Kalan iş yok. Güzel bir gün!",
+    "moveHint": "Seçili olanlar bir sonraki iş gününe taşınır.",
+    "reflection": "Günün notu",
+    "reflectionHint": "Günlük notuna eklenir.",
+    "reflectionPlaceholder": "Bugün ne iyi gitti, ne zorladı?",
+    "save": "Günü kapat"
+  }
+}

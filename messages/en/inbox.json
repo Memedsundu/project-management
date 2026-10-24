@@ -1,1 +1,52 @@
-{}
+{
+  "title": "Inbox",
+  "subtitle": "What you captured quickly and what the AI suggests. Nothing here changes until you approve it.",
+  "empty": {
+    "title": "Your inbox is empty",
+    "body": "Tasks and notes you capture with quick add, and AI suggestions, collect here."
+  },
+  "flagged": {
+    "title": "{count, plural, one {# file may contain child data} other {# files may contain child data}}",
+    "body": "These files are closed to AI. Check them and delete or fix them if needed."
+  },
+  "filesToCheck": "{count, plural, one {# file waiting for you to confirm its filing} other {# files waiting for you to confirm their filing}}",
+  "suggestions": "Suggestions ({count})",
+  "tasks": "Captured tasks ({count})",
+  "tasksHint": "Add a date or an owner and the task moves to your list.",
+  "notes": "Captured notes ({count})",
+  "keepNote": "Keep as note",
+  "noteKept": "Moved to notes",
+  "accepted": "Added",
+  "addTasks": "{count, plural, =0 {Pick tasks} one {Add # task} other {Add # tasks}}",
+  "editFirst": "Edit first",
+  "organize": {
+    "newFolders": "New folders",
+    "moveTo": "Move to:",
+    "root": "Top folder",
+    "duplicates": "Possible duplicates:",
+    "apply": "{count, plural, =0 {Pick items} one {Apply # change} other {Apply # changes}}"
+  },
+  "values": {
+    "indicator": "Indicator",
+    "period": "Period",
+    "value": "Value",
+    "source": "Source",
+    "page": "Page {page}",
+    "approve": "{count, plural, =0 {Pick values} one {Approve # value} other {Approve # values}}"
+  },
+  "reviewInMeeting": "Review in the meeting",
+  "from": "From: {title}",
+  "kinds": {
+    "tasks": "Suggested tasks",
+    "key_dates": "Key dates",
+    "workplan": "Workplan",
+    "organize": "Tidy-up suggestion",
+    "indicator_values": "Indicator values",
+    "note": "Suggested note",
+    "link": "Suggested link",
+    "meeting_recap": "Meeting recap",
+    "agenda": "Suggested agenda",
+    "classification": "Filing",
+    "other": "Suggestion"
+  }
+}

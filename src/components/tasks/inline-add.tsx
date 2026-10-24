@@ -22,7 +22,7 @@ export function InlineAdd({
 }: {
   today: string;
   partners: PartnerRef[];
-  defaults?: { dueDate?: string; ownerOrgId?: string; orgIds?: string[]; links?: { type: string; id: string }[]; parentId?: string };
+  defaults?: { dueDate?: string; startDate?: string; ownerOrgId?: string; orgIds?: string[]; links?: { type: string; id: string }[]; parentId?: string };
   placeholder?: string;
   className?: string;
   autoFocus?: boolean;
@@ -42,6 +42,7 @@ export function InlineAdd({
       createTaskAction({
         ...input,
         dueDate: input.dueDate ?? defaults?.dueDate ?? null,
+        startDate: input.startDate ?? defaults?.startDate ?? null,
         ownerOrgId: input.ownerOrgId ?? defaults?.ownerOrgId ?? null,
         orgIds: [...(input.orgIds ?? []), ...(defaults?.orgIds ?? [])],
         links: defaults?.links,

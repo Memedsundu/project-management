@@ -1,1 +1,52 @@
-{}
+{
+  "title": "Gelen kutusu",
+  "subtitle": "Hızlıca yakaladıkların ve yapay zekânın önerileri. Burada hiçbir şey sen onaylamadan değişmez.",
+  "empty": {
+    "title": "Gelen kutun boş",
+    "body": "Hızlı ekle ile yakaladığın görevler, notlar ve yapay zekâ önerileri burada toplanır."
+  },
+  "flagged": {
+    "title": "{count, plural, one {# belgede çocuk bilgisi olabilir} other {# belgede çocuk bilgisi olabilir}}",
+    "body": "Bu belgeler yapay zekâya kapatıldı. Kontrol edip gerekirse sil ya da düzelt."
+  },
+  "filesToCheck": "{count, plural, one {# belge sınıflandırma onayı bekliyor} other {# belge sınıflandırma onayı bekliyor}}",
+  "suggestions": "Öneriler ({count})",
+  "tasks": "Yakalanan görevler ({count})",
+  "tasksHint": "Tarih ya da sorumlu eklediğinde görev listene geçer.",
+  "notes": "Yakalanan notlar ({count})",
+  "keepNote": "Not olarak sakla",
+  "noteKept": "Notlara taşındı",
+  "accepted": "Eklendi",
+  "addTasks": "{count, plural, =0 {Görev seç} one {# görevi ekle} other {# görevi ekle}}",
+  "editFirst": "Önce düzenle",
+  "organize": {
+    "newFolders": "Yeni klasörler",
+    "moveTo": "Taşı:",
+    "root": "Ana klasör",
+    "duplicates": "Olası kopyalar:",
+    "apply": "{count, plural, =0 {Öğe seç} one {# değişikliği uygula} other {# değişikliği uygula}}"
+  },
+  "values": {
+    "indicator": "Gösterge",
+    "period": "Dönem",
+    "value": "Değer",
+    "source": "Kaynak",
+    "page": "Sayfa {page}",
+    "approve": "{count, plural, =0 {Değer seç} one {# değeri onayla} other {# değeri onayla}}"
+  },
+  "reviewInMeeting": "Toplantıda incele",
+  "from": "Kaynak: {title}",
+  "kinds": {
+    "tasks": "Görev önerisi",
+    "key_dates": "Önemli tarihler",
+    "workplan": "İş planı",
+    "organize": "Düzenleme önerisi",
+    "indicator_values": "Gösterge değerleri",
+    "note": "Not önerisi",
+    "link": "Bağlantı önerisi",
+    "meeting_recap": "Toplantı özeti",
+    "agenda": "Gündem önerisi",
+    "classification": "Sınıflandırma",
+    "other": "Öneri"
+  }
+}

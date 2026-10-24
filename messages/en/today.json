@@ -1,1 +1,95 @@
-{}
+{
+  "title": "Today",
+  "greeting": {
+    "morning": "Good morning",
+    "day": "Good afternoon",
+    "evening": "Good evening"
+  },
+  "brief": {
+    "label": "Today's brief",
+    "info": "At 08:00 on every working day Claude writes a three-line brief from today's tasks, meetings and coming dates. With AI switched off, the same facts arrive as a plain summary.",
+    "ask": "What is today's brief based on?",
+    "refresh": "Rewrite",
+    "makeNow": "Write it now",
+    "none": "The brief is written at 08:00 on working days. You can have it written now.",
+    "plain": "This brief was made from your records without AI."
+  },
+  "overbooked": {
+    "title": "Too much for today.",
+    "body": "Planned {planned}, working time {work}. You could move a few tasks to tomorrow."
+  },
+  "stats": {
+    "tasks": "Today's tasks",
+    "planned": "Planned time {time}",
+    "noEstimate": "No time estimates",
+    "meetings": "Meetings",
+    "nextMeeting": "Next at {time}",
+    "noMoreMeetings": "No more meetings today",
+    "overdue": "Overdue",
+    "overdueNote": "Look at these first",
+    "overdueNone": "Nothing overdue",
+    "waiting": "Waiting on",
+    "waitingNote": "Due this week"
+  },
+  "flow": {
+    "title": "Today's flow",
+    "noMeetings": "No meetings today."
+  },
+  "todo": {
+    "title": "Tasks",
+    "all": "All tasks",
+    "add": "Add a task for today",
+    "empty": "No tasks for today. Use Plan the day to pick from this week's work."
+  },
+  "attention": {
+    "title": "Needs attention",
+    "none": "Nothing needs your attention right now.",
+    "overdue": "{count, plural, one {# overdue task} other {# overdue tasks}}",
+    "lateReport": "{org}: {label} report is late",
+    "daysLate": "Expected {days} days ago",
+    "filesToCheck": "{count, plural, one {# file to check} other {# files to check}}",
+    "meetingNotes": "Notes missing for {title}",
+    "review": "Review",
+    "accepted": "Added",
+    "toInbox": "All suggestions are in the Inbox"
+  },
+  "waiting": {
+    "title": "Waiting on this week"
+  },
+  "dates": {
+    "title": "Coming dates in files"
+  },
+  "recent": {
+    "title": "Pick up where you left off",
+    "none": "Files, notes and meetings you open appear here."
+  },
+  "plan": {
+    "open": "Plan the day",
+    "title": "Plan the day",
+    "description": "Pick what you will do today, put it in order and add how long it takes.",
+    "empty": "No open tasks this week.",
+    "noDate": "No date",
+    "estimate": "Estimate (minutes)",
+    "minutes": "min",
+    "up": "Move up",
+    "down": "Move down",
+    "over": "Too much for today.",
+    "total": "Total {total} (including {meetings} of meetings), working time {work}.",
+    "save": "Save plan",
+    "saved": "Today's plan saved"
+  },
+  "wrap": {
+    "open": "Wrap up",
+    "title": "Wrap up the day",
+    "description": "See what got done, move the rest to tomorrow and leave a line in your daily note.",
+    "done": "Done today ({count})",
+    "noneDone": "Nothing finished today.",
+    "leftovers": "Left over",
+    "noLeftovers": "Nothing left. A good day!",
+    "moveHint": "Ticked tasks move to the next working day.",
+    "reflection": "Note for the day",
+    "reflectionHint": "Added to your daily note.",
+    "reflectionPlaceholder": "What went well, what was hard?",
+    "save": "Wrap up"
+  }
+}

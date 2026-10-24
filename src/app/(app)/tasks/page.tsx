@@ -5,14 +5,11 @@ import { TasksScreen, type TasksTab } from "@/components/tasks/tasks-screen";
 import type { UpcomingDay } from "@/components/tasks/upcoming";
 import { addDaysStr, dayOf, istanbulInstant, todayStr } from "@/lib/dates";
 import { getDb } from "@/server/db/client";
+import { loadTaskDetail } from "@/server/views/task-detail";
 import { meetings, savedViews, tasks } from "@/server/db/schema";
-import { resolveEntity, type EntityType } from "@/server/entities";
-import { listActivity } from "@/server/services/activity";
-import { listLinks } from "@/server/services/links";
 import { listContactsLite, listOrganisationsLite } from "@/server/services/partners-lite";
 import { listTags } from "@/server/services/tags";
 import {
-  getTask,
   listBoard,
   listGrouped,
   listLogbook,
@@ -97,27 +94,7 @@ export default async function TasksPage({ searchParams }: { searchParams: SP }) 
     data.waiting = await listWaiting(today);
   }
 
-  let detail: React.ComponentProps<typeof TasksScreen>["detail"] = null;
-  const openId = one("open");
-  if (openId && UUID.test(openId)) {
-    const task = await getTask(openId);
-    if (task && !task.deletedAt) {
-      const ref = { type: "task" as const, id: task.id };
-      const [links, history, source] = await Promise.all([
-        listLinks(ref),
-        listActivity({ entityType: "task", entityId: task.id, limit: 30 }),
-        task.sourceType && task.sourceId ? resolveEntity({ type: task.sourceType as EntityType, id: task.sourceId }) : Promise.resolve(null),
-      ]);
-      detail = {
-        task,
-        links: links
-          .filter((l) => l.kind !== "source")
-          .map((l) => ({ type: l.type, id: l.id, title: l.title, href: l.href, kind: l.kind, direction: l.direction, createdBy: l.createdBy })),
-        history: history.map((h) => ({ id: h.id, at: h.at.toISOString(), action: h.action, actor: h.actor, summary: h.summary })),
-        source: source && !source.deleted ? { title: source.title, href: source.href, type: source.type } : null,
-      };
-    }
-  }
+  const detail = await loadTaskDetail(one("open"));
 
   return (
     <TasksScreen
