@@ -2,7 +2,7 @@
 
 import { CalendarDays, CheckCheck, Flag, ListChecks, Trash2, X } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useId, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { restoreManyAction, trashManyAction } from "@/app/actions/common";
 import { bulkUpdateTasksAction, updateTaskAction } from "@/app/(app)/tasks/actions";
@@ -123,7 +123,8 @@ export function TaskList({
           }
           break;
         case "Enter":
-          if (current) {
+          // Enter on a button or link inside the list is that control's own.
+          if (current && !(e.target as HTMLElement | null)?.closest?.("button, a, [role=checkbox]")) {
             e.preventDefault();
             ops.open(current);
           }
@@ -165,15 +166,16 @@ export function TaskList({
   }, [keyboard, flat, focus, ops, readOnly, select, toggleDone, doneLocal, targets, setPriority]);
 
   const selIds = [...selected];
+  const uid = useId();
 
   return (
-    <div className="flex flex-col gap-7" role="grid" aria-multiselectable>
+    <div className="flex flex-col gap-7">
       {groups.map((g) => {
         if (hideEmptyGroups && g.items.length === 0) return null;
         return (
-          <section key={g.key} className="flex flex-col gap-1" aria-label={typeof g.label === "string" ? g.label : undefined}>
+          <section key={g.key} className="flex flex-col gap-1" aria-labelledby={`${uid}-${g.key}`}>
             <div className="flex items-baseline justify-between gap-3 px-3 pb-1">
-              <h2 className="text-[17px] font-semibold">
+              <h2 id={`${uid}-${g.key}`} className="text-[17px] font-semibold">
                 {g.label}
                 {g.items.length ? <span className="ml-2 text-[13px] font-normal text-muted">{g.items.length}</span> : null}
               </h2>
@@ -182,7 +184,7 @@ export function TaskList({
             {g.items.length === 0 ? (
               g.empty ? <p className="px-3 py-2 text-[14px] text-muted">{g.empty}</p> : null
             ) : (
-              <div className="flex flex-col">
+              <div className="flex flex-col" role="grid" aria-multiselectable aria-labelledby={`${uid}-${g.key}`}>
                 {g.items.map((task) => {
                   const localDone = doneLocal[task.id];
                   const item = localDone === undefined ? task : { ...task, status: localDone ? "done" : task.status === "done" ? "todo" : task.status };
@@ -201,6 +203,7 @@ export function TaskList({
                       showOwner={showOwner}
                       partnerNames={partnerNames}
                       readOnly={readOnly}
+                      inGrid
                     />
                   );
                 })}

@@ -91,7 +91,9 @@
       "ai": "Yapay zekâya sor",
       "aiHint": "Devam ettir ya da ne istediğini yaz",
       "aiGroup": "Yapay zekâ"
-    }
+    },
+    "ariaPage": "Sayfa içeriği",
+    "ariaMeeting": "Toplantı notları"
   },
   "blocks": {
     "taskPlaceholder": "Görev yaz: \"yarın Ortak A'yı ara #rapor\"",

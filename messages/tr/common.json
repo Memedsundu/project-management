@@ -287,5 +287,7 @@
     "signOutPending": "Bekleyen kayıtlar gönderilemedi. Bağlantını kontrol edip yeniden dene."
   },
   "readOnlySince": "Proje {date} tarihinde kapatıldı; bu çalışma alanı salt okunur.",
-  "downloadArchive": "Arşivi indir"
+  "downloadArchive": "Arşivi indir",
+  "previousMonth": "Önceki ay",
+  "nextMonth": "Sonraki ay"
 }

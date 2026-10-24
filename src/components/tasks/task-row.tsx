@@ -98,6 +98,7 @@ export function TaskRow({
   draggable,
   onDragStart,
   readOnly,
+  inGrid,
 }: {
   task: TaskItem;
   selected?: boolean;
@@ -110,13 +111,15 @@ export function TaskRow({
   draggable?: boolean;
   onDragStart?: (e: React.DragEvent, task: TaskItem) => void;
   readOnly?: boolean;
+  /** A row of the keyboard list (a grid for screen readers); on the board it is a plain card. */
+  inGrid?: boolean;
 }) {
   const t = useTranslations("tasks");
   const done = task.status === "done";
   return (
     <div
-      role="row"
-      aria-selected={selected}
+      role={inGrid ? "row" : undefined}
+      aria-selected={inGrid ? Boolean(selected) : undefined}
       data-task-id={task.id}
       draggable={draggable}
       onDragStart={(e) => onDragStart?.(e, task)}
@@ -134,7 +137,7 @@ export function TaskRow({
         focused && "ring-1 ring-line-strong",
       )}
     >
-      <span className="pt-0.5" onClick={(e) => e.stopPropagation()}>
+      <span role={inGrid ? "gridcell" : undefined} className="pt-0.5" onClick={(e) => e.stopPropagation()}>
         <Checkbox
           round
           checked={done}
@@ -144,11 +147,12 @@ export function TaskRow({
           className={cn(task.priority === 1 && !done && "border-accent")}
         />
       </span>
-      <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-        <span className={cn("text-[15px] leading-snug", done && "text-muted line-through")}>
+      <div role={inGrid ? "gridcell" : undefined} className="flex min-w-0 flex-1 flex-col gap-0.5">
+        {/* A button, so the keyboard and screen readers can open the task too; the click reaches the row. */}
+        <button type="button" className={cn("w-fit rounded-md text-left text-[15px] leading-snug", done && "text-muted line-through")}>
           {task.title}
           {task.priority < 4 && !done ? <Flag size={12} className={cn("ml-1.5 inline -translate-y-px", priorityTone(task.priority))} aria-label={`p${task.priority}`} /> : null}
-        </span>
+        </button>
         <TaskMeta task={task} showOwner={showOwner} partnerNames={partnerNames} />
       </div>
     </div>

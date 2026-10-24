@@ -287,5 +287,7 @@
     "signOutPending": "Waiting items couldn't be sent. Check your connection and try again."
   },
   "readOnlySince": "The project was closed on {date}; this workspace is read-only.",
-  "downloadArchive": "Download the archive"
+  "downloadArchive": "Download the archive",
+  "previousMonth": "Previous month",
+  "nextMonth": "Next month"
 }

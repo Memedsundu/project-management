@@ -91,7 +91,9 @@
       "ai": "Ask AI",
       "aiHint": "Continue the page or say what you need",
       "aiGroup": "AI"
-    }
+    },
+    "ariaPage": "Page content",
+    "ariaMeeting": "Meeting notes"
   },
   "blocks": {
     "taskPlaceholder": "Type a task: \"call Partner A tomorrow #report\"",

@@ -3,6 +3,7 @@
 import { Dialog as D, DropdownMenu as DM, Popover as P, Tooltip as T } from "radix-ui";
 import { X } from "lucide-react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import * as React from "react";
 import { cn } from "@/lib/utils";
 
@@ -26,6 +27,7 @@ export function DialogContent({
   hideTitle?: boolean;
   wide?: boolean;
 }) {
+  const tc = useTranslations("common");
   return (
     <D.Portal>
       <D.Overlay className="fixed inset-0 z-50 bg-black/30 backdrop-blur-[1px]" />
@@ -44,7 +46,7 @@ export function DialogContent({
           </div>
           <D.Close
             className="-mr-2 -mt-1 inline-flex h-10 w-10 items-center justify-center rounded-full text-muted hover:bg-panel hover:text-ink"
-            aria-label="Kapat"
+            aria-label={tc("close")}
           >
             <X size={18} />
           </D.Close>

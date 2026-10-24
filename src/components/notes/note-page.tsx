@@ -486,7 +486,7 @@ function IconPicker({ icon, disabled, onChange }: { icon: string | null; disable
             "self-start rounded-xl",
             icon ? "px-1 text-[44px] leading-none hover:bg-panel" : "flex h-8 items-center gap-1.5 px-2 text-[13px] text-muted hover:bg-panel hover:text-ink",
           )}
-          aria-label={t("icon")}
+          aria-label={icon ? t("icon") : undefined}
         >
           {icon ?? (
             <>

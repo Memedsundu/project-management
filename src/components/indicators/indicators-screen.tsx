@@ -215,7 +215,7 @@ function IpttCards({ data }: { data: IndicatorsData }) {
                 </span>
                 <span className="text-[13px] tabular-nums text-muted">{fmtRatio(r.percentToDate, locale)}</span>
               </span>
-              <Meter ratio={r.percentToDate} behind={r.status === "behind"} />
+              <Meter ratio={r.percentToDate} behind={r.status === "behind"} label={`${r.code} ${fmtRatio(r.percentToDate, locale)}`} />
             </Link>
           ))}
         </section>

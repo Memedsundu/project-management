@@ -18,6 +18,7 @@ function shiftMonth(month: string, d: number) {
 /** Tamamlananlar: finished work by day, a month at a time, exportable to Excel. */
 export function LogbookView({ items, month, partnerNames }: { items: TaskItem[]; month: string; partnerNames?: Map<string, string> }) {
   const t = useTranslations("tasks");
+  const tc = useTranslations("common");
   const locale = useLocale();
   const ops = useTaskOps();
   const byDay = new Map<string, TaskItem[]>();
@@ -33,11 +34,11 @@ export function LogbookView({ items, month, partnerNames }: { items: TaskItem[];
     <div className="flex flex-col gap-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-1">
-          <Link href={ops.hrefWith({ month: shiftMonth(month, -1) })} className={buttonVariants({ variant: "ghost", size: "icon-sm" })} aria-label="‹">
+          <Link href={ops.hrefWith({ month: shiftMonth(month, -1) })} className={buttonVariants({ variant: "ghost", size: "icon-sm" })} aria-label={tc("previousMonth")}>
             <ChevronLeft size={18} />
           </Link>
           <span className="min-w-[140px] text-center text-[16px] font-medium capitalize">{label}</span>
-          <Link href={ops.hrefWith({ month: shiftMonth(month, 1) })} className={buttonVariants({ variant: "ghost", size: "icon-sm" })} aria-label="›">
+          <Link href={ops.hrefWith({ month: shiftMonth(month, 1) })} className={buttonVariants({ variant: "ghost", size: "icon-sm" })} aria-label={tc("nextMonth")}>
             <ChevronRight size={18} />
           </Link>
           <span className="ml-3 text-[14px] text-muted">{t("logbook.count", { count: items.length })}</span>

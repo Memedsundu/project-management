@@ -18,7 +18,7 @@
   --ink: #111111;
   --ink-2: #444444;
   --muted: #5c5c5c;
-  --faint: #8a8a85;
+  --faint: #6e6e69; /* 4.5:1 or more on bg and both panels (WCAG AA) */
   --accent: #b45309;
   --accent-soft: #fdf3e1;
   --accent-ink: #8a4b08;
@@ -41,7 +41,7 @@
   --ink: #f2f2f0;
   --ink-2: #d4d4cf;
   --muted: #a8a8a3;
-  --faint: #7c7c77;
+  --faint: #8f8f8a;
   --accent: #f0b35a;
   --accent-soft: #3a2a12;
   --accent-ink: #f5c67a;

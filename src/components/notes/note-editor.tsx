@@ -79,6 +79,8 @@ export function NoteEditor({
     {
       schema: noteSchema,
       dictionary: locale === "en" ? en : trDictionary,
+      // The editable area needs a name for screen readers.
+      domAttributes: { editor: { "aria-label": owner.type === "meeting" ? t("ariaMeeting") : t("ariaPage") } },
       initialContent: initialContent.length ? (initialContent as never) : undefined,
       uploadFile: async (file: File) => {
         const out = await uploadOne(file, { folderId: null });
