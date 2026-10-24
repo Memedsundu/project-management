@@ -34,6 +34,7 @@ export type AskThreadView = {
   saved: boolean;
   createdAt: string;
   scopeType: string;
+  scopeId: string | null;
 };
 
 const MAX_SOURCES = 12;
@@ -191,7 +192,7 @@ export function answerWithMarkers(content: Anthropic.ContentBlock[], sources: Ma
 }
 
 function toView(r: typeof askThreads.$inferSelect): AskThreadView {
-  return { id: r.id, question: r.question, answer: r.answer, citations: r.citations, saved: r.saved, createdAt: r.createdAt.toISOString(), scopeType: r.scopeType };
+  return { id: r.id, question: r.question, answer: r.answer, citations: r.citations, saved: r.saved, createdAt: r.createdAt.toISOString(), scopeType: r.scopeType, scopeId: r.scopeId };
 }
 
 /** The checked question and the material Claude may read for it. */

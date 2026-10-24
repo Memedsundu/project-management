@@ -2,7 +2,7 @@ import "server-only";
 import { and, desc, eq, isNotNull, isNull, lt } from "drizzle-orm";
 import { UserError } from "@/server/action";
 import { getDb } from "@/server/db/client";
-import { logframeNodes } from "@/server/db/schema";
+import { askThreads, logframeNodes, studioOutputs } from "@/server/db/schema";
 import { ENTITIES, type EntityType } from "@/server/entities";
 import { unindexRecord } from "@/server/search/index-service";
 import { logActivity } from "./activity";
@@ -76,6 +76,11 @@ export async function purge(type: EntityType, id: string) {
   if (type === "document") {
     const { purgeDocumentFiles } = await import("./documents-search-hooks");
     await purgeDocumentFiles(id);
+  }
+  if (type === "collection") {
+    // Its chat and Studio outputs go with it; notes saved from them stay.
+    await db.delete(askThreads).where(and(eq(askThreads.scopeType, "collection"), eq(askThreads.scopeId, id)));
+    await db.delete(studioOutputs).where(and(eq(studioOutputs.scopeType, "collection"), eq(studioOutputs.scopeId, id)));
   }
   await deleteLinksOf({ type, id });
   await unindexRecord(type, id);

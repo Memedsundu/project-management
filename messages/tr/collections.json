@@ -1,1 +1,156 @@
-{}
+{
+  "title": "Koleksiyonlar",
+  "subtitle": "Dosyaları, notları ve toplantıları yerlerinden oynatmadan bir amaç için bir araya getir. Her koleksiyona soru sorabilir, ondan brif ya da rapor bölümü çıkarabilirsin.",
+  "new": "Yeni koleksiyon",
+  "edit": "Düzenle",
+  "pin": "Sabitle",
+  "unpin": "Sabitlemeyi kaldır",
+  "pinnedToast": "Kenar çubuğuna sabitlendi",
+  "unpinned": "Kenar çubuğundan kaldırıldı",
+  "footnote": "Bir kayıt birden çok koleksiyonda olabilir. Koleksiyondan çıkarmak kaydı silmez.",
+  "examples": {
+    "0": "Q3 bağışçı raporu",
+    "1": "Ortak durum tespiti",
+    "2": "Yıl sonu değerlendirmesi"
+  },
+  "empty": {
+    "title": "Henüz koleksiyon yok",
+    "body": "Örneğin “Q3 bağışçı raporu” için gereken dosyaları, notları ve toplantıları bir araya getir. Ya da “KÇD’den gelen raporlar” gibi kendini güncelleyen akıllı bir koleksiyon kur."
+  },
+  "groups": {
+    "pinned": "Sabitlenenler",
+    "others": "Diğerleri"
+  },
+  "card": {
+    "empty": "Henüz bir şey yok",
+    "many": "100+ öğe",
+    "items": "{count} öğe",
+    "smart": "Akıllı",
+    "pinned": "Sabit",
+    "updated": "Güncellendi: {date}",
+    "menu": "“{name}” için seçenekler"
+  },
+  "form": {
+    "title": "Yeni koleksiyon",
+    "editTitle": "Koleksiyonu düzenle",
+    "description": "Kayıtlar yerlerinde kalır; koleksiyon onları tek yerde toplar.",
+    "name": "Ad",
+    "namePlaceholder": "Örn. Q3 bağışçı raporu",
+    "about": "Ne için?",
+    "aboutPlaceholder": "Kim okuyacak, ne zamana gerekli? (isteğe bağlı)",
+    "smart": "Akıllı koleksiyon",
+    "smartHint": "Koşullara uyan kayıtlar kendiliğinden eklenir. Elle eklediklerin de kalır.",
+    "conditions": "Koşullar",
+    "words": "Kelimeler",
+    "wordsHint": "Başlıkta, metinde ya da dosyanın içinde geçen kelimeler.",
+    "wordsPlaceholder": "Örn. rapor hasat",
+    "kinds": "Türler",
+    "kindsHint": "Hiçbirini seçmezsen her tür gelir.",
+    "partner": "Ortak",
+    "docType": "Dosya türü",
+    "tag": "Etiket",
+    "any": "Hepsi",
+    "from": "Başlangıç",
+    "to": "Bitiş",
+    "datesError": "Bitiş tarihi başlangıçtan önce olamaz.",
+    "noCondition": "Henüz bir koşul seçmedin.",
+    "counting": "Uyan kayıtlar sayılıyor…",
+    "noMatch": "Şu an hiçbir kayıt uymuyor. Yeni kayıtlar uydukça kendiliğinden eklenir.",
+    "matchMany": "100’den fazla kayıt uyuyor. Koşulları daraltmak isteyebilirsin.",
+    "matchCount": "Şu an {count} kayıt uyuyor",
+    "pin": "Kenar çubuğuna sabitle",
+    "pinHint": "Kenar çubuğunda Belgeler başlığının altında görünür.",
+    "create": "Oluştur",
+    "saved": "Kaydedildi",
+    "created": "Koleksiyon oluşturuldu"
+  },
+  "page": {
+    "smart": "Akıllı:",
+    "editFilter": "Filtreyi düzenle",
+    "after": "{date} sonrası",
+    "before": "{date} öncesi",
+    "menu": "Koleksiyon seçenekleri",
+    "updated": "Güncellendi: {date}",
+    "items": "{count} öğe",
+    "tabs": {
+      "label": "Koleksiyon bölümleri",
+      "chat": "Sohbet",
+      "sources": "Kaynaklar",
+      "studio": "Çıktılar"
+    }
+  },
+  "sources": {
+    "title": "Kaynaklar · {count}",
+    "add": "Ekle",
+    "addPlaceholder": "Eklemek için ara: dosya, not, toplantı, görev…",
+    "added": "“{title}” eklendi",
+    "removed": "“{title}” koleksiyondan çıkarıldı",
+    "empty": "Henüz kaynak yok. Dosya, not, toplantı ya da görev ekle; yerlerinden taşınmazlar.",
+    "emptySmart": "Şu an filtreye uyan bir kayıt yok. Elle de ekleyebilirsin.",
+    "filter": "Kaynaklarda ara",
+    "allChosen": "Hepsi seçili",
+    "someChosen": "{total} kaynaktan {count} tanesi seçili",
+    "use": "“{title}” sohbette ve çıktılarda kullanılsın",
+    "aiOff": "Yapay zekâya kapalı; Claude bunu okumaz",
+    "fromFilter": "Akıllı filtreden geldi",
+    "remove": "“{title}” koleksiyondan çıkar",
+    "offNote": "{count} kaynak yapay zekâya kapalı; sohbette ve çıktılarda kullanılmaz."
+  },
+  "chat": {
+    "title": "Sohbet",
+    "notConnectedBody": "ANTHROPIC_API_KEY eklenince bu koleksiyona soru sorabilir, ondan brif ve rapor bölümü çıkarabilirsin.",
+    "introTitle": "Bu koleksiyona sor",
+    "introBody": "Claude yalnızca buradaki {count} kaynaktan yanıtlar ve her bilginin nereden geldiğini, sayfasıyla gösterir.",
+    "introEmpty": "Önce kaynak ekle: dosyalar, notlar, toplantılar. Sonra onlara soru sorabilirsin.",
+    "examples": {
+      "0": "Bu kaynaklardaki ana bulgular neler?",
+      "1": "Hangi sayılar raporlanmış, hangi dönem için?",
+      "2": "Açık sorular ve riskler neler?"
+    },
+    "goAdd": "Kaynak ekle",
+    "reading": "Claude {count} kaynağı okuyor…",
+    "nothing": "Seçili kaynaklarda “{question}” sorusuna uyan bir şey bulamadım. Başka kelimelerle sorar mısın?",
+    "placeholder": "Bu koleksiyona sor, Enter'a bas…",
+    "placeholderEmpty": "Soru sormak için en az bir kaynak seç",
+    "usingAll": "Tüm kaynaklar seçili ({count})",
+    "usingSome": "Seçili kaynaklar: {count}/{total}",
+    "saveAsNote": "Not olarak kaydet"
+  },
+  "studio": {
+    "title": "Çıktılar",
+    "notConnected": "Yapay zekâ bağlanınca buradan brif, konuşma notları, sunum taslağı, ortağa e-posta ve rapor bölümü çıkarabilirsin.",
+    "kinds": {
+      "brief": "Brif",
+      "talking_points": "Konuşma notları",
+      "slide_outline": "Sunum taslağı",
+      "partner_email": "Ortağa e-posta",
+      "section": "Rapor bölümü"
+    },
+    "hints": {
+      "brief": "Bir sayfa: ana noktalar, sayılar, açık sorular, sonraki adımlar",
+      "talking_points": "Toplantıda ya da telefonda söyleyeceklerin ve olası sorular",
+      "slide_outline": "5–8 slayt; her birinde maddeler ve konuşmacı notu",
+      "partner_email": "Ortağa kısa bir e-posta taslağı; istekler ve tarihlerle",
+      "section": "Bağışçı raporu üslubunda bir bölüm: yapılanlar, sonuçlar, zorluklar"
+    },
+    "needSources": "Çıktı için en az bir kaynak seç.",
+    "focus": "Odak (isteğe bağlı)",
+    "focusPlaceholder": "Örn. yalnızca Q3 saha ziyaretleri ve ulaşılan hane sayısı",
+    "language": "Dil",
+    "languages": {
+      "tr": "Türkçe",
+      "en": "English"
+    },
+    "fromSources": "Seçili {count} kaynaktan yazılır. Sonuç, kaynaklarıyla birlikte gelen bir taslaktır.",
+    "cancel": "Vazgeç",
+    "make": "Oluştur",
+    "writing": "{kind} yazılıyor…",
+    "saved": "Oluşturulanlar",
+    "notes": "Kaydedilen notlar",
+    "noteSaved": "Not olarak kaydedildi",
+    "openNote": "Notu aç",
+    "draftNote": "Taslak; kullanmadan önce kaynaklarla karşılaştır.",
+    "deleted": "Çıktı silindi",
+    "saveAsNote": "Not olarak kaydet"
+  }
+}

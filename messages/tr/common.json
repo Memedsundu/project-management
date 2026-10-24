@@ -262,5 +262,6 @@
     "visual": "Görseller",
     "logframe": "Logframe düzeyleri"
   },
-  "remove": "Kaldır"
+  "remove": "Kaldır",
+  "addedToCollection": "“{title}” koleksiyonuna eklendi"
 }

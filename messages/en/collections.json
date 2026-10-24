@@ -1,1 +1,156 @@
-{}
+{
+  "title": "Collections",
+  "subtitle": "Bring files, notes and meetings together for one purpose without moving them. Ask each collection questions, or turn it into a brief or a report section.",
+  "new": "New collection",
+  "edit": "Edit",
+  "pin": "Pin",
+  "unpin": "Unpin",
+  "pinnedToast": "Pinned to the sidebar",
+  "unpinned": "Removed from the sidebar",
+  "footnote": "A record can sit in several collections. Removing it from one never deletes it.",
+  "examples": {
+    "0": "Q3 donor report",
+    "1": "Partner due diligence",
+    "2": "Year-end review"
+  },
+  "empty": {
+    "title": "No collections yet",
+    "body": "Gather the files, notes and meetings you need for a “Q3 donor report”, for example. Or set up a smart collection that keeps itself up to date, like “Reports from KÇD”."
+  },
+  "groups": {
+    "pinned": "Pinned",
+    "others": "Others"
+  },
+  "card": {
+    "empty": "Nothing here yet",
+    "many": "100+ items",
+    "items": "{count, plural, one {# item} other {# items}}",
+    "smart": "Smart",
+    "pinned": "Pinned",
+    "updated": "Updated {date}",
+    "menu": "Options for “{name}”"
+  },
+  "form": {
+    "title": "New collection",
+    "editTitle": "Edit collection",
+    "description": "Records stay where they are; a collection gathers them in one place.",
+    "name": "Name",
+    "namePlaceholder": "e.g. Q3 donor report",
+    "about": "What is it for?",
+    "aboutPlaceholder": "Who will read it, and when is it needed? (optional)",
+    "smart": "Smart collection",
+    "smartHint": "Records that match the conditions join by themselves. Anything you add by hand stays too.",
+    "conditions": "Conditions",
+    "words": "Words",
+    "wordsHint": "Words in the title, the text or inside the file.",
+    "wordsPlaceholder": "e.g. report harvest",
+    "kinds": "Kinds",
+    "kindsHint": "Pick none to include every kind.",
+    "partner": "Partner",
+    "docType": "File type",
+    "tag": "Tag",
+    "any": "Any",
+    "from": "From",
+    "to": "To",
+    "datesError": "The end date can’t be before the start date.",
+    "noCondition": "You haven’t set a condition yet.",
+    "counting": "Counting matches…",
+    "noMatch": "Nothing matches right now. New records join as soon as they match.",
+    "matchMany": "More than 100 records match. You may want to narrow the conditions.",
+    "matchCount": "{count, plural, one {# record matches} other {# records match}} right now",
+    "pin": "Pin to the sidebar",
+    "pinHint": "Shows in the sidebar under Files.",
+    "create": "Create",
+    "saved": "Saved",
+    "created": "Collection created"
+  },
+  "page": {
+    "smart": "Smart:",
+    "editFilter": "Edit filter",
+    "after": "after {date}",
+    "before": "before {date}",
+    "menu": "Collection options",
+    "updated": "Updated {date}",
+    "items": "{count, plural, one {# item} other {# items}}",
+    "tabs": {
+      "label": "Collection sections",
+      "chat": "Chat",
+      "sources": "Sources",
+      "studio": "Outputs"
+    }
+  },
+  "sources": {
+    "title": "Sources · {count}",
+    "add": "Add",
+    "addPlaceholder": "Search to add: file, note, meeting, task…",
+    "added": "Added “{title}”",
+    "removed": "Removed “{title}” from the collection",
+    "empty": "No sources yet. Add files, notes, meetings or tasks; they stay where they are.",
+    "emptySmart": "Nothing matches the filter right now. You can add records by hand too.",
+    "filter": "Search sources",
+    "allChosen": "All selected",
+    "someChosen": "{count} of {total} selected",
+    "use": "Use “{title}” in chat and outputs",
+    "aiOff": "Kept away from AI; Claude doesn’t read this",
+    "fromFilter": "Added by the smart filter",
+    "remove": "Remove “{title}” from the collection",
+    "offNote": "{count, plural, one {# source is} other {# sources are}} kept away from AI and not used in chat or outputs."
+  },
+  "chat": {
+    "title": "Chat",
+    "notConnectedBody": "Once ANTHROPIC_API_KEY is added you can ask this collection questions and turn it into briefs and report sections.",
+    "introTitle": "Ask this collection",
+    "introBody": "Claude answers only from the {count, plural, one {# source} other {# sources}} here, and shows where each fact comes from, down to the page.",
+    "introEmpty": "Add sources first: files, notes, meetings. Then you can ask about them.",
+    "examples": {
+      "0": "What are the main findings in these sources?",
+      "1": "Which numbers are reported, and for which period?",
+      "2": "What open questions and risks come up?"
+    },
+    "goAdd": "Add sources",
+    "reading": "Claude is reading {count, plural, one {# source} other {# sources}}…",
+    "nothing": "I found nothing in the selected sources for “{question}”. Could you ask in other words?",
+    "placeholder": "Ask this collection, press Enter…",
+    "placeholderEmpty": "Select at least one source to ask",
+    "usingAll": "All sources selected ({count})",
+    "usingSome": "Selected sources: {count}/{total}",
+    "saveAsNote": "Save as note"
+  },
+  "studio": {
+    "title": "Outputs",
+    "notConnected": "Once AI is connected you can make briefs, talking points, slide outlines, partner emails and report sections here.",
+    "kinds": {
+      "brief": "Brief",
+      "talking_points": "Talking points",
+      "slide_outline": "Slide outline",
+      "partner_email": "Email to a partner",
+      "section": "Report section"
+    },
+    "hints": {
+      "brief": "One page: key points, numbers, open questions, next steps",
+      "talking_points": "What to say in a meeting or a call, and likely questions",
+      "slide_outline": "5–8 slides, each with bullets and a speaker note",
+      "partner_email": "A short email draft to a partner, with requests and dates",
+      "section": "A section in donor-report style: what was done, results, challenges"
+    },
+    "needSources": "Select at least one source to make an output.",
+    "focus": "Focus (optional)",
+    "focusPlaceholder": "e.g. only the Q3 field visits and households reached",
+    "language": "Language",
+    "languages": {
+      "tr": "Türkçe",
+      "en": "English"
+    },
+    "fromSources": "Written from {count, plural, one {the # selected source} other {the # selected sources}}. The result is a draft that comes with its sources.",
+    "cancel": "Cancel",
+    "make": "Create",
+    "writing": "{kind}: writing…",
+    "saved": "Made so far",
+    "notes": "Saved notes",
+    "noteSaved": "Saved as a note",
+    "openNote": "Open note",
+    "draftNote": "A draft; check it against the sources before you use it.",
+    "deleted": "Output deleted",
+    "saveAsNote": "Save as note"
+  }
+}

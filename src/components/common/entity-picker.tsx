@@ -22,6 +22,7 @@ export function EntityPicker({
   exclude = [],
   placeholder,
   align = "start",
+  keepOpen,
 }: {
   trigger: React.ReactNode;
   types?: EntityType[];
@@ -29,6 +30,8 @@ export function EntityPicker({
   exclude?: string[];
   placeholder?: string;
   align?: "start" | "end";
+  /** Stay open to pick several (adding sources to a collection). */
+  keepOpen?: boolean;
 }) {
   const t = useTranslations("common");
   const [open, setOpen] = useState(false);
@@ -43,7 +46,7 @@ export function EntityPicker({
             placeholder={placeholder ?? t("searchToLink")}
             onPick={(item) => {
               onPick(item);
-              setOpen(false);
+              if (!keepOpen) setOpen(false);
             }}
           />
         ) : null}
@@ -88,6 +91,12 @@ export function PickerBody({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [q, typesKey]);
 
+  // A picked item leaves the list, so the picker can stay open for the next one.
+  const pick = (item: PickedEntity) => {
+    onPick(item);
+    setItems((list) => list.filter((x) => !(x.type === item.type && x.id === item.id)));
+  };
+
   return (
     <div className="flex flex-col gap-1">
       <div className="relative">
@@ -105,7 +114,7 @@ export function PickerBody({
               setActive((a) => Math.max(0, a - 1));
             } else if (e.key === "Enter" && items[active]) {
               e.preventDefault();
-              onPick(items[active]!);
+              pick(items[active]!);
             }
           }}
           placeholder={placeholder}
@@ -119,7 +128,7 @@ export function PickerBody({
             <button
               type="button"
               onMouseEnter={() => setActive(i)}
-              onClick={() => onPick(item)}
+              onClick={() => pick(item)}
               className={cn(
                 "flex min-h-10 w-full items-center gap-2.5 rounded-lg px-2.5 text-left text-[14px]",
                 i === active ? "bg-panel" : "",

@@ -1,6 +1,8 @@
 import "server-only";
 import { and, asc, desc, eq, isNull, sql } from "drizzle-orm";
 import { z } from "zod";
+import { onlyGiven } from "@/lib/patch";
+import { UserError } from "@/server/action";
 import { getDb } from "@/server/db/client";
 import { collections, links } from "@/server/db/schema";
 import { ENTITY_TYPES, type EntityRef, type EntityType } from "@/server/entities";
@@ -27,6 +29,27 @@ export const smartFilterSchema = z.object({
 });
 export type SmartFilter = z.infer<typeof smartFilterSchema>;
 
+/** Only the conditions she set. A filter with none would match everything, so it is refused. */
+export function cleanSmartFilter(f: SmartFilter | null | undefined): SmartFilter | null {
+  if (!f) return null;
+  const out: SmartFilter = {};
+  if (f.q?.trim()) out.q = f.q.trim();
+  if (f.types?.length) out.types = [...new Set(f.types)];
+  if (f.orgId) out.orgId = f.orgId;
+  if (f.tag?.trim()) out.tag = f.tag.trim();
+  if (f.docType) out.docType = f.docType;
+  if (f.from) out.from = f.from;
+  if (f.to) out.to = f.to;
+  return Object.keys(out).length ? out : null;
+}
+
+function checkedFilter(f: SmartFilter | null | undefined) {
+  if (f === undefined || f === null) return f;
+  const clean = cleanSmartFilter(f);
+  if (!clean) throw new UserError("Akıllı koleksiyon için en az bir koşul seç.");
+  return clean;
+}
+
 export const collectionInputSchema = z.object({
   name: z.string().trim().min(1).max(200),
   description: z.string().max(4000).nullish(),
@@ -39,7 +62,7 @@ export async function createCollection(raw: z.input<typeof collectionInputSchema
   const db = await getDb();
   const [row] = await db
     .insert(collections)
-    .values({ name: input.name, description: input.description ?? null, pinned: input.pinned ?? false, smartFilter: input.smartFilter ?? null })
+    .values({ name: input.name, description: input.description || null, pinned: input.pinned ?? false, smartFilter: checkedFilter(input.smartFilter) ?? null })
     .returning();
   for (const item of items) await addLink({ type: "collection", id: row!.id }, item, "collection_item");
   await logActivity({ action: "create", entityType: "collection", entityId: row!.id, title: row!.name });
@@ -48,7 +71,9 @@ export async function createCollection(raw: z.input<typeof collectionInputSchema
 }
 
 export async function updateCollection(id: string, raw: Partial<z.input<typeof collectionInputSchema>>) {
-  const patch = collectionInputSchema.partial().parse(raw);
+  const patch = onlyGiven(raw, collectionInputSchema.partial().parse(raw));
+  if (patch.smartFilter !== undefined) patch.smartFilter = checkedFilter(patch.smartFilter) ?? null;
+  if (patch.description !== undefined) patch.description = patch.description || null;
   const db = await getDb();
   const [row] = await db.update(collections).set({ ...patch, updatedAt: new Date() }).where(eq(collections.id, id)).returning();
   if (row) await indexCollection(id);
@@ -114,6 +139,13 @@ export async function runSmartFilter(f: SmartFilter, limit = 100): Promise<Searc
     hits = hits.filter((h) => allowed.has(`${h.type}:${h.id}`));
   }
   return hits.filter((h) => h.type !== "collection").slice(0, limit);
+}
+
+/** The collection row alone, without running its filter (page titles). */
+export async function findCollection(id: string) {
+  const db = await getDb();
+  const [c] = await db.select().from(collections).where(eq(collections.id, id)).limit(1);
+  return c ?? null;
 }
 
 export async function getCollection(id: string) {

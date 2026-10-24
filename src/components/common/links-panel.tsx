@@ -47,7 +47,9 @@ export function LinksPanel({
           <EntityPicker
             exclude={[`${self.type}:${self.id}`, ...visible.map((i) => `${i.type}:${i.id}`)]}
             onPick={async (item) => {
-              await runAction(addLinkAction(self, { type: item.type, id: item.id }));
+              // Picking a collection puts this record in it.
+              if (item.type === "collection") await runAction(addLinkAction({ type: "collection", id: item.id }, self, "collection_item"), { success: t("addedToCollection", { title: item.title }) });
+              else await runAction(addLinkAction(self, { type: item.type, id: item.id }));
             }}
             align="end"
             trigger={

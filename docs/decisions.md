@@ -69,3 +69,32 @@ follows.
   imported workplan put at the top can be moved under an outcome.
 - The Excel export has three sheets: the IPTT, every value with its source, and
   the definitions (PIRS).
+
+## Koleksiyonlar (collections)
+
+- A collection gathers records for one purpose and leaves them where they live
+  (Dropbox Dash Stacks). A record can sit in several collections; removing it
+  from one never deletes it, and the toast offers undo.
+- A smart collection is a saved filter (Paperless saved views): words, kinds,
+  partner, file type, tag and dates. It needs at least one condition, shows a
+  live count while she sets it up, and keeps her hand-picked items too.
+- The collection page works like a NotebookLM notebook: sources on the left,
+  the chat in the middle, Studio outputs on the right. A laptop narrower than
+  about 1500 px shows sources and outputs as two tabs beside the chat; a phone
+  shows one of the three at a time.
+- Every source has a tick box, all ticked by default. The chat and the outputs
+  read only the ticked ones. Items marked "Yapay zekâya kapalı" or flagged for
+  child data show a lock and are never sent.
+- Chat answers come from Claude's citations feature, one line per source under
+  each answer, and stay in the collection like NotebookLM's chat. Asking works
+  in an archived (read-only) project, as in Sor.
+- Studio makes five drafts: a brief, talking points, a slide outline, an email
+  to a partner and a report section. They are written in English by default
+  (the working language), the partner email in Turkish; she can switch. Each
+  draft keeps its citations and can be copied or saved as a normal note linked
+  to the collection and to the sources it cites. Saved notes are listed under
+  the outputs but are not sources unless she adds them.
+- Picking a collection in any record's "Bağlantılar" puts the record in that
+  collection.
+- A collection in the trash keeps its chat and outputs for 30 days; emptying
+  the trash deletes them with it. Notes saved from them stay.

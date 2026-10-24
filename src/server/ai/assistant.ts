@@ -355,6 +355,19 @@ async function screenContext(screen: ScreenInfo | null | undefined, locale: Loca
         if (checkForChildData({ text: t.text }).flag) lines.push("Its text was withheld because it may contain personal data about a child.");
         else material.push(asMaterial(materialTag(ref.type), { title: t.title, type: ref.type, id: ref.id, date: t.date ?? null }, t.text || "(empty)"));
       }
+    } else if (ref?.type === "collection") {
+      const { getCollection } = await import("@/server/services/collections");
+      const c = await getCollection(ref.id);
+      if (c) {
+        const hidden = await aiOffKeys(c.items.map((i) => ({ type: i.type, id: i.id })));
+        lines.push(`She is on the collection "${c.name}" (id ${ref.id}, href /collections/${ref.id}). Its list of items is attached; use read_record to read one.`);
+        const list = c.items
+          .slice(0, 80)
+          .map((i) => `- ${i.title} (type ${i.type}, id ${i.id}, href ${i.href})${hidden.has(`${i.type}:${i.id}`) ? ", kept away from AI" : ""}`)
+          .join("\n");
+        const text = [c.description, list || "(no items yet)"].filter(Boolean).join("\n\n");
+        if (!checkForChildData({ text }).flag) material.push(asMaterial("source", { title: `Items of the collection ${c.name}` }, text));
+      }
     } else if (ref) {
       lines.push(`She is on the ${screen.kind} page "${screen.title}" (id ${ref.id}).`);
     } else {

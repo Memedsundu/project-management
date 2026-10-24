@@ -66,16 +66,28 @@ export async function purgeExpiredAction() {
   return act(async () => ({ count: await purgeExpired() }));
 }
 
+/** A collection's search entry lists its items, so it follows its links. */
+async function reindexCollections(...refs: { type: EntityType; id: string }[]) {
+  const { indexCollection } = await import("@/server/services/collections");
+  for (const r of refs) if (r.type === "collection") await indexCollection(r.id);
+}
+
 export async function addLinkAction(from: { type: EntityType; id: string }, to: { type: EntityType; id: string }, kind: LinkKind = "related") {
   return act(async () => {
-    await addLink(refSchema.parse(from), refSchema.parse(to), kindSchema.parse(kind));
+    const a = refSchema.parse(from);
+    const b = refSchema.parse(to);
+    await addLink(a, b, kindSchema.parse(kind));
+    await reindexCollections(a, b);
     return null;
   });
 }
 
 export async function removeLinkAction(from: { type: EntityType; id: string }, to: { type: EntityType; id: string }, kind?: LinkKind) {
   return act(async () => {
-    await removeLink(refSchema.parse(from), refSchema.parse(to), kind ? kindSchema.parse(kind) : undefined);
+    const a = refSchema.parse(from);
+    const b = refSchema.parse(to);
+    await removeLink(a, b, kind ? kindSchema.parse(kind) : undefined);
+    await reindexCollections(a, b);
     return null;
   });
 }

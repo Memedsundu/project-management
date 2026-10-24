@@ -127,6 +127,16 @@
         "Hangi çıktıların göstergesi ya da faaliyeti eksik?",
         "Mantıksal çerçeveyi bir paragrafta özetle",
         "Sonuçlarla göstergeler arasında bir uyumsuzluk var mı?"
+      ],
+      "collections": [
+        "Bu hafta hangi belgeler eklendi?",
+        "Bağışçı raporu için hangi dosyaları toplamalıyım?",
+        "Ortak raporlarını kısaca özetle"
+      ],
+      "collection": [
+        "Bu koleksiyondaki belgeleri tek paragrafta özetle",
+        "Bu kaynaklarda hangi bilgiler eksik?",
+        "Bu koleksiyondan üç görev öner"
       ]
     },
     "memory": {

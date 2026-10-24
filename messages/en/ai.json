@@ -127,6 +127,16 @@
         "Which outputs lack an indicator or an activity?",
         "Summarise the logframe in one paragraph",
         "Do the outcomes and their indicators fit together?"
+      ],
+      "collections": [
+        "Which files were added this week?",
+        "Which files should I gather for the donor report?",
+        "Summarise the partner reports briefly"
+      ],
+      "collection": [
+        "Summarise the files in this collection in one paragraph",
+        "What information is missing from these sources?",
+        "Suggest three tasks from this collection"
       ]
     },
     "memory": {

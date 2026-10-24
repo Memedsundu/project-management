@@ -262,5 +262,6 @@
     "visual": "Visuals",
     "logframe": "Logframe levels"
   },
-  "remove": "Remove"
+  "remove": "Remove",
+  "addedToCollection": "Added to “{title}”"
 }
