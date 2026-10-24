@@ -14,5 +14,80 @@
   "commands": "Komutlar",
   "goTo": "Git",
   "nothingFound": "Hiçbir şey bulunamadı. Başka bir kelime dener misin?",
-  "cmdNewOrg": "Yeni ortak veya paydaş"
+  "cmdNewOrg": "Yeni ortak veya paydaş",
+  "page": {
+    "title": "Ara",
+    "subtitle": "Görevler, notlar, toplantılar, ortaklar ve dosyaların içindeki kelimeler, tek kutuda.",
+    "placeholder": "Ne arıyorsun?",
+    "askClaude": "Claude'a sor",
+    "filters": "Süzgeçler",
+    "anyPartner": "Tüm ortaklar",
+    "anyDate": "Her tarih",
+    "anyOwner": "Herkes",
+    "dates": {
+      "7d": "Son 7 gün",
+      "30d": "Son 30 gün",
+      "year": "Bu yıl"
+    },
+    "owners": {
+      "me": "Benim işlerim",
+      "others": "Başkalarından beklenenler"
+    },
+    "page": "s. {page}",
+    "byMeaning": "Anlamca yakın",
+    "seeAll": "Tümünü gör ({count})",
+    "noResults": "“{q}” için sonuç yok",
+    "noResultsBody": "Başka bir kelime dener misin? Türkçe karakterler fark etmez.",
+    "noResultsAsk": "Başka bir kelime dene ya da soruyu Claude'a sor; anlamına göre arar.",
+    "modeBoth": "Kelimeye ve anlama göre arandı.",
+    "modeKeyword": "Kelimeye göre arandı.",
+    "modeKeywordOnly": "Kelimeye göre arandı. Anlam araması Voyage anahtarı eklenince açılır.",
+    "tipTurkishTitle": "Türkçe karakterler fark etmez",
+    "tipTurkishBody": "“cocuk isciligi” yazsan da “Çocuk İşçiliği”ni bulur; “rapor” “raporlarımız”ı da kapsar.",
+    "tipInsideTitle": "Dosyaların içine bakar",
+    "tipInsideBody": "PDF, Word ve Excel dosyalarındaki kelimeler de aranır; sonuç doğru sayfayı açar.",
+    "tipAskTitle": "Soru sorabilirsin",
+    "tipAskBody": "“Ortak B bütçe hakkında ne dedi?” gibi bir soruya Claude kendi kayıtlarından, kaynak göstererek yanıt verir.",
+    "loose": "Bütün kelimeleri içeren sonuç yok; kelimelerden bazılarını içerenler gösteriliyor."
+  },
+  "ask": {
+    "title": "Sor",
+    "subtitle": "Dosyalarına, notlarına ve toplantılarına sor. Claude yalnızca kendi kayıtlarından yanıtlar ve her bilginin kaynağını gösterir.",
+    "placeholder": "Bir soru yaz, Enter'a bas…",
+    "ask": "Sor",
+    "scope": "Nerede aransın",
+    "scopes": {
+      "all": "Her yerde",
+      "meetings": "Toplantılarda"
+    },
+    "reading": "Claude kaynakları okuyor…",
+    "sources": "Kaynaklar",
+    "page": "s. {page}",
+    "open": "Aç",
+    "openAtPage": "{page}. sayfada aç",
+    "noCitations": "Bu yanıtta kaynak gösterilmedi; kayıtlarda bir karşılığı olmayabilir.",
+    "save": "Kaydet",
+    "unsave": "Kaydedilenlerden çıkar",
+    "savedToast": "Kaydedildi",
+    "unsaved": "Kaydedilenlerden çıkarıldı",
+    "menu": "Soru seçenekleri",
+    "delete": "Soruyu sil",
+    "deleted": "Soru silindi",
+    "history": "Önceki sorular",
+    "savedTitle": "Kaydedilenler",
+    "noHistory": "Henüz soru sormadın.",
+    "newQuestion": "Yeni soru",
+    "tryTitle": "Şunları sorabilirsin",
+    "examples": {
+      "0": "Son toplantılarda bütçe hakkında ne kararlaştırdık?",
+      "1": "Ortak raporlarında kaç haneye ulaşıldığı yazıyor?",
+      "2": "Hasat döneminde saha ziyaretleri ne zaman planlandı?"
+    },
+    "privacy": "“Yapay zekâya kapalı” işaretli dosya ve notlar ile çocuk verisi uyarısı alan dosyalar Claude'a hiç gönderilmez.",
+    "nothingTitle": "Bu soruyla ilgili bir kayıt bulamadım",
+    "nothingBody": "Başka kelimelerle sorar mısın? Ya da kelime aramasıyla bak.",
+    "keywordInstead": "Kelime aramasıyla bak",
+    "notConnectedTitle": "Yapay zekâ henüz bağlı değil",
+    "notConnectedBody": "ANTHROPIC_API_KEY eklenince sorularını kaynak göstererek yanıtlar. Bu arada kelime aramasını kullanabilirsin."
+  }
 }

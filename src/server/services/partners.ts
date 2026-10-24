@@ -106,7 +106,7 @@ export async function indexContact(id: string) {
     id,
     title: c.name,
     body: [c.role, org?.name, c.email, c.phone, c.notes].filter(Boolean).join("\n"),
-    meta: { orgIds: c.organisationId ? [c.organisationId] : [] },
+    meta: { orgIds: c.organisationId ? [c.organisationId] : [], organisationId: c.organisationId },
     occurredAt: c.updatedAt,
   });
 }

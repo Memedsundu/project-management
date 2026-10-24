@@ -11,6 +11,7 @@ export type Citation = {
   title: string;
   page?: number | null;
   quote?: string;
+  href?: string;
 };
 
 export const reports = pgTable("reports", {

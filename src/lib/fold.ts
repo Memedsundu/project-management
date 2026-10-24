@@ -71,9 +71,24 @@ export function stemTerm(folded: string): string {
   return word;
 }
 
+/**
+ * Question words and fillers, folded. Dropped when a question is searched
+ * word by word ("KÇD kaç haneye ulaştı?" looks for "kcd", "hane", "ulas").
+ */
+export const QUESTION_STOPWORDS = new Set([
+  "ne", "neden", "niye", "nasil", "kim", "kimin", "hangi", "hangisi", "kac", "nerede", "nereye", "zaman", "mi", "mu", "midir", "mudur",
+  "icin", "ile", "ve", "veya", "ya", "bu", "su", "bir", "da", "de", "ki", "gibi", "kadar", "daha", "en", "cok", "var", "yok", "neler", "nedir",
+  "hakkinda", "olan", "oldu", "olarak", "edildi", "edilen", "yapildi", "yapilan", "dedi", "dedik", "soyledi", "bize", "biz", "ben", "sen",
+  "the", "an", "of", "in", "on", "for", "to", "and", "or", "what", "how", "many", "much", "did", "does", "do", "is", "are", "was", "were",
+  "which", "who", "when", "where", "why", "with", "about", "we", "our", "they", "their", "it", "its", "that", "this", "say", "said",
+]);
+
 /** Prefix query on stems, so "raporları" also finds "rapor" and "raporlarımız". */
 export function stemmedTsQuery(query: string, mode: "and" | "or" = "and"): string | null {
-  const terms = queryTerms(query);
+  const all = queryTerms(query);
+  // A question searched with OR: leave out the question words, unless nothing else is left.
+  const content = mode === "or" ? all.filter((t) => !QUESTION_STOPWORDS.has(t)) : all;
+  const terms = content.length ? content : all;
   if (terms.length === 0) return null;
   return uniqTerms(terms.map(stemTerm))
     .map((t) => `${t}:*`)

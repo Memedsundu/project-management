@@ -223,5 +223,24 @@
     "role": "görev",
     "email": "e-posta",
     "phone": "telefon"
+  },
+  "kindsPlural": {
+    "task": "Görevler",
+    "note": "Notlar",
+    "meeting": "Toplantılar",
+    "document": "Belgeler",
+    "folder": "Klasörler",
+    "organisation": "Kurumlar",
+    "contact": "Kişiler",
+    "activity": "Faaliyetler",
+    "indicator": "Göstergeler",
+    "report": "Raporlar",
+    "collection": "Koleksiyonlar",
+    "decision": "Kararlar",
+    "series": "Toplantı serileri",
+    "template": "Şablonlar",
+    "passage": "Belge bölümleri",
+    "visual": "Görseller",
+    "logframe": "Logframe düzeyleri"
   }
 }

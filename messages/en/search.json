@@ -14,5 +14,80 @@
   "commands": "Commands",
   "goTo": "Go to",
   "nothingFound": "Nothing found. Could you try another word?",
-  "cmdNewOrg": "New partner or stakeholder"
+  "cmdNewOrg": "New partner or stakeholder",
+  "page": {
+    "title": "Search",
+    "subtitle": "Tasks, notes, meetings, partners and the words inside your files, in one box.",
+    "placeholder": "What are you looking for?",
+    "askClaude": "Ask Claude",
+    "filters": "Filters",
+    "anyPartner": "All partners",
+    "anyDate": "Any date",
+    "anyOwner": "Anyone",
+    "dates": {
+      "7d": "Last 7 days",
+      "30d": "Last 30 days",
+      "year": "This year"
+    },
+    "owners": {
+      "me": "My tasks",
+      "others": "Waiting on others"
+    },
+    "page": "p. {page}",
+    "byMeaning": "Close in meaning",
+    "seeAll": "See all ({count})",
+    "noResults": "No results for “{q}”",
+    "noResultsBody": "Could you try another word? Turkish letters do not matter.",
+    "noResultsAsk": "Try another word, or ask Claude; it searches by meaning.",
+    "modeBoth": "Searched by words and by meaning.",
+    "modeKeyword": "Searched by words.",
+    "modeKeywordOnly": "Searched by words. Meaning search turns on once a Voyage key is added.",
+    "tipTurkishTitle": "Turkish letters do not matter",
+    "tipTurkishBody": "Typing “cocuk isciligi” finds “Çocuk İşçiliği”, and “rapor” also covers “raporlarımız”.",
+    "tipInsideTitle": "It looks inside files",
+    "tipInsideBody": "Words in PDF, Word and Excel files are searched too, and a result opens the right page.",
+    "tipAskTitle": "You can ask questions",
+    "tipAskBody": "For a question like “What did Partner B say about the budget?”, Claude answers from your own records and shows its sources.",
+    "loose": "Nothing has all the words; showing results with some of them."
+  },
+  "ask": {
+    "title": "Ask",
+    "subtitle": "Ask your files, notes and meetings. Claude answers only from your own records and shows the source of every point.",
+    "placeholder": "Type a question and press Enter…",
+    "ask": "Ask",
+    "scope": "Where to look",
+    "scopes": {
+      "all": "Everywhere",
+      "meetings": "In meetings"
+    },
+    "reading": "Claude is reading the sources…",
+    "sources": "Sources",
+    "page": "p. {page}",
+    "open": "Open",
+    "openAtPage": "Open at page {page}",
+    "noCitations": "This answer cites no source; your records may not cover it.",
+    "save": "Save",
+    "unsave": "Remove from saved",
+    "savedToast": "Saved",
+    "unsaved": "Removed from saved",
+    "menu": "Question options",
+    "delete": "Delete question",
+    "deleted": "Question deleted",
+    "history": "Earlier questions",
+    "savedTitle": "Saved",
+    "noHistory": "You have not asked anything yet.",
+    "newQuestion": "New question",
+    "tryTitle": "You could ask",
+    "examples": {
+      "0": "What did we decide about the budget in recent meetings?",
+      "1": "How many households do the partner reports say were reached?",
+      "2": "When were field visits planned for the harvest season?"
+    },
+    "privacy": "Files and notes marked “Kept away from AI”, and files with a child-data warning, are never sent to Claude.",
+    "nothingTitle": "I found nothing about this question",
+    "nothingBody": "Could you ask with other words? Or look with keyword search.",
+    "keywordInstead": "Use keyword search",
+    "notConnectedTitle": "AI is not connected yet",
+    "notConnectedBody": "Once ANTHROPIC_API_KEY is added, your questions are answered with sources. Meanwhile you can use keyword search."
+  }
 }

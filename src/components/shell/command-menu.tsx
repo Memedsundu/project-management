@@ -58,7 +58,7 @@ export function CommandMenu({
 }) {
   const t = useTranslations("search");
   const tn = useTranslations("nav");
-  const tk = useTranslations("common.kinds");
+  const tk = useTranslations("common.kindsPlural");
   const router = useRouter();
   const locale = useLocale();
   const { setTheme } = useTheme();

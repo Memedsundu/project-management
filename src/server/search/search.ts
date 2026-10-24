@@ -53,7 +53,7 @@ export function makeSnippet(body: string, foldedBody: string, stems: string[], s
   return snippet;
 }
 
-function filterSql(f: SearchFilters | undefined): SQL[] {
+export function filterSql(f: SearchFilters | undefined): SQL[] {
   const where: SQL[] = [];
   if (!f) return where;
   const types = (f.types ?? []).filter(isEntityType);
@@ -74,13 +74,14 @@ function filterSql(f: SearchFilters | undefined): SQL[] {
  */
 export async function keywordSearch(
   query: string,
-  opts: { filters?: SearchFilters; limit?: number } = {},
+  opts: { filters?: SearchFilters; limit?: number; mode?: "and" | "or" } = {},
 ): Promise<SearchHit[]> {
   const limit = opts.limit ?? 40;
   const folded = foldText(query);
   const terms = queryTerms(query);
   const stems = terms.map(stemTerm);
-  const andQuery = stemmedTsQuery(query, "and");
+  // "or" is for questions: any content word may match, more matches rank higher.
+  const andQuery = stemmedTsQuery(query, opts.mode ?? "and");
   const filters = filterSql(opts.filters);
   const extra = filters.length ? sql` and ${sql.join(filters, sql` and `)}` : sql``;
 
@@ -155,7 +156,7 @@ export async function keywordSearch(
   return [...hits.values()].sort((a, b) => b.score - a.score).slice(0, limit);
 }
 
-function toHit(r: Row, snippet: string, score: number): SearchHit {
+export function toHit(r: Record<string, unknown>, snippet: string, score: number): SearchHit {
   const type = String(r.entity_type) as EntityType;
   const id = String(r.entity_id);
   const meta = (r.meta ?? {}) as Record<string, unknown>;

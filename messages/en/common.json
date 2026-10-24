@@ -223,5 +223,24 @@
     "role": "role",
     "email": "email",
     "phone": "phone"
+  },
+  "kindsPlural": {
+    "task": "Tasks",
+    "note": "Notes",
+    "meeting": "Meetings",
+    "document": "Files",
+    "folder": "Folders",
+    "organisation": "Organisations",
+    "contact": "Contacts",
+    "activity": "Activities",
+    "indicator": "Indicators",
+    "report": "Reports",
+    "collection": "Collections",
+    "decision": "Decisions",
+    "series": "Meeting series",
+    "template": "Templates",
+    "passage": "File passages",
+    "visual": "Visuals",
+    "logframe": "Logframe levels"
   }
 }
