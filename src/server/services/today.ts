@@ -5,7 +5,7 @@ import { getDb } from "@/server/db/client";
 import { briefs, documents, indicatorValues, organisations, tasks } from "@/server/db/schema";
 import { listDocumentsToCheck, listKeyDates } from "./documents";
 import { listMeetings, meetingsNeedingNotes, type MeetingListItem } from "./meetings";
-import { reportDueDates } from "./partners";
+import { partnerReportDocs, reportSlots } from "./partners";
 import { getSetting } from "./settings";
 import { listPendingSuggestions } from "./suggestions";
 import { listGrouped, listWaiting, type TaskView } from "./tasks";
@@ -25,27 +25,15 @@ export async function latePartnerReports(today = todayStr()): Promise<LateReport
     .from(organisations)
     .where(and(isNull(organisations.deletedAt), sql`${organisations.reportingRhythm} <> 'none'`));
   if (!orgs.length) return [];
-  const docs = (await db.execute(sql`
-    select d.period_label, d.created_at, l.to_id as org
-    from documents d
-    join links l on l.from_type = 'document' and l.from_id = d.id and l.to_type = 'organisation'
-    where d.deleted_at is null and d.doc_type = 'partner_report'`)) as unknown as { rows: { period_label: string | null; created_at: string; org: string }[] };
-  const byOrg = new Map<string, { period: string | null; created: string }[]>();
-  for (const r of docs.rows ?? []) byOrg.set(r.org, [...(byOrg.get(r.org) ?? []), { period: r.period_label, created: String(r.created_at).slice(0, 10) }]);
+  const docs = await partnerReportDocs(orgs.map((o) => o.id));
   const out: LateReport[] = [];
   for (const o of orgs) {
-    // Look back far enough to see the last two due dates.
-    const due = reportDueDates(o.reportingRhythm, o.reportDueDays, addDaysStr(today, -400), 16, o.agreementEnd)
-      .filter((d) => d.due < today && (!o.agreementStart || d.periodEnd >= o.agreementStart))
-      .slice(-2);
-    const filed = byOrg.get(o.id) ?? [];
-    for (const d of due) {
-      const has = filed.some((f) => (f.period && f.period.replace(/\s+/g, " ").toUpperCase() === d.label.toUpperCase()) || f.created > d.periodEnd);
-      if (!has) {
-        const daysLate = Math.round((Date.parse(today) - Date.parse(d.due)) / 86_400_000);
-        out.push({ orgId: o.id, orgName: o.shortName || o.name, label: d.label, due: d.due, daysLate });
-      }
-    }
+    // The last two periods that are due: older gaps are history, not today's work.
+    const late = reportSlots(o, docs.filter((d) => d.org === o.id), today, { aheadDays: 0 })
+      .filter((s) => s.due < today)
+      .slice(-2)
+      .filter((s) => s.status === "late");
+    for (const s of late) out.push({ orgId: o.id, orgName: o.shortName || o.name, label: s.label, due: s.due, daysLate: s.daysLate });
   }
   return out.sort((a, b) => b.daysLate - a.daysLate);
 }

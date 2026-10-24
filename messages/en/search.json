@@ -13,5 +13,6 @@
   "allResults": "See all results",
   "commands": "Commands",
   "goTo": "Go to",
-  "nothingFound": "Nothing found. Could you try another word?"
+  "nothingFound": "Nothing found. Could you try another word?",
+  "cmdNewOrg": "New partner or stakeholder"
 }

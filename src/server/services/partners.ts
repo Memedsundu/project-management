@@ -3,9 +3,11 @@ import { and, asc, desc, eq, gte, inArray, isNull, ne, or, sql } from "drizzle-o
 import { z } from "zod";
 import { addDaysStr, todayStr } from "@/lib/dates";
 import { getDb } from "@/server/db/client";
-import { contacts, meetings, organisations, tasks } from "@/server/db/schema";
+import { contacts, decisions, documents, meetings, notes, organisations, tasks } from "@/server/db/schema";
 import { indexRecord, unindexRecord } from "@/server/search/index-service";
 import { logActivity } from "./activity";
+import { indexDocument } from "./documents";
+import { addLink } from "./links";
 
 export const ORG_KINDS = ["partner", "donor", "government", "un", "ngo", "other"] as const;
 export const RHYTHMS = ["none", "monthly", "quarterly", "biannual", "annual"] as const;
@@ -227,4 +229,172 @@ export async function waitingFrom(orgId: string) {
       ),
     )
     .orderBy(asc(tasks.dueDate));
+}
+
+/* ---------------------------- Reporting calendar ---------------------------- */
+
+export type ReportDoc = { id: string; title: string; period: string | null; created: string; org: string };
+export type ReportSlot = {
+  label: string;
+  periodEnd: string;
+  due: string;
+  status: "received" | "late" | "due" | "upcoming";
+  daysLate: number;
+  doc: { id: string; title: string } | null;
+};
+
+/** Partner reports on file: documents of type "Ortak raporu" linked to the organisation. */
+export async function partnerReportDocs(orgIds?: string[]): Promise<ReportDoc[]> {
+  const db = await getDb();
+  const rows = (await db.execute(sql`
+    select d.id, d.title, d.period_label, d.created_at, l.to_id as org
+    from documents d
+    join links l on l.from_type = 'document' and l.from_id = d.id and l.to_type = 'organisation'
+    where d.deleted_at is null and d.doc_type = 'partner_report'
+    ${orgIds?.length ? sql`and l.to_id in (${sql.join(orgIds.map((o) => sql`${o}::uuid`), sql`, `)})` : sql``}
+    order by d.created_at asc`)) as unknown as { rows: { id: string; title: string; period_label: string | null; created_at: string | Date; org: string }[] };
+  return (rows.rows ?? []).map((r) => ({ id: r.id, title: r.title, period: r.period_label, created: new Date(r.created_at).toISOString().slice(0, 10), org: r.org }));
+}
+
+const norm = (s: string) => s.replace(/\s+/g, " ").trim().toUpperCase();
+
+/**
+ * Expected reports from the agreement start (or a year back) to a few months
+ * ahead. A report counts for a period when its period label matches, or when
+ * it arrived after that period ended and before the next one did.
+ */
+export function reportSlots(
+  org: { reportingRhythm: string; reportDueDays: number; agreementStart: string | null; agreementEnd: string | null },
+  docs: ReportDoc[],
+  today = todayStr(),
+  opts: { aheadDays?: number } = {},
+): ReportSlot[] {
+  if (org.reportingRhythm === "none") return [];
+  const from = org.agreementStart ?? addDaysStr(today, -365);
+  const until = addDaysStr(today, opts.aheadDays ?? 200);
+  const dates = reportDueDates(org.reportingRhythm, org.reportDueDays, from, 60, org.agreementEnd).filter(
+    (d) => d.periodEnd >= from && d.periodEnd <= until,
+  );
+  const used = new Set<string>();
+  const byLabel = new Map<string, ReportDoc>();
+  for (const d of docs) if (d.period && !byLabel.has(norm(d.period))) byLabel.set(norm(d.period), d);
+  const slots = dates.map((d) => {
+    const doc = byLabel.get(norm(d.label)) ?? null;
+    if (doc) used.add(doc.id);
+    return { ...d, doc };
+  });
+  // Reports without a matching label fill the period they arrived after.
+  slots.forEach((s, i) => {
+    if (s.doc) return;
+    const nextEnd = slots[i + 1]?.periodEnd ?? until;
+    const doc = docs.find((d) => !used.has(d.id) && d.created > s.periodEnd && d.created <= addDaysStr(nextEnd, org.reportDueDays));
+    if (doc) {
+      used.add(doc.id);
+      s.doc = doc;
+    }
+  });
+  return slots.map((s) => {
+    const daysLate = s.due < today ? Math.round((Date.parse(today) - Date.parse(s.due)) / 86_400_000) : 0;
+    const status: ReportSlot["status"] = s.doc ? "received" : s.due < today ? "late" : s.periodEnd <= today || s.due <= addDaysStr(today, 30) ? "due" : "upcoming";
+    return { label: s.label, periodEnd: s.periodEnd, due: s.due, status, daysLate: s.doc ? 0 : daysLate, doc: s.doc ? { id: s.doc.id, title: s.doc.title } : null };
+  });
+}
+
+/** She marks a file as the partner's report for a period. */
+export async function markPartnerReport(orgId: string, documentId: string, periodLabel: string) {
+  const db = await getDb();
+  const [doc] = await db
+    .update(documents)
+    .set({ docType: "partner_report", periodLabel, classificationStatus: "confirmed", updatedAt: new Date() })
+    .where(eq(documents.id, documentId))
+    .returning();
+  if (!doc) return null;
+  await addLink({ type: "document", id: documentId }, { type: "organisation", id: orgId }, "partner");
+  await logActivity({ action: "update", entityType: "document", entityId: documentId, title: doc.title, summary: "docType, periodLabel" });
+  await indexDocument(documentId);
+  return doc;
+}
+
+/* --------------------------------- Timeline --------------------------------- */
+
+export type TimelineItem = {
+  key: string;
+  type: "meeting" | "document" | "decision" | "task" | "note";
+  date: string;
+  title: string;
+  href: string;
+  meta: string | null;
+  state?: string | null;
+};
+
+/** Attio's activity timeline: everything that happened with this organisation, newest first. */
+export async function partnerTimeline(orgId: string, opts: { type?: TimelineItem["type"] | null; limit?: number } = {}): Promise<TimelineItem[]> {
+  const db = await getDb();
+  const want = (t: TimelineItem["type"]) => !opts.type || opts.type === t;
+  const linkedTo = (fromType: string, col: unknown) =>
+    sql`exists (select 1 from links l where l.from_type = ${fromType} and l.from_id = ${col} and l.to_type = 'organisation' and l.to_id = ${orgId}::uuid)`;
+  const limit = opts.limit ?? 80;
+  const [ms, ds, decs, ts, ns] = await Promise.all([
+    want("meeting")
+      ? db
+          .select({ id: meetings.id, title: meetings.title, startsAt: meetings.startsAt, status: meetings.status })
+          .from(meetings)
+          .where(and(isNull(meetings.deletedAt), linkedTo("meeting", meetings.id), sql`${meetings.startsAt} <= now() + interval '60 days'`))
+          .orderBy(desc(meetings.startsAt))
+          .limit(limit)
+      : [],
+    want("document")
+      ? db
+          .select({ id: documents.id, title: documents.title, createdAt: documents.createdAt, docType: documents.docType, periodLabel: documents.periodLabel })
+          .from(documents)
+          .where(and(isNull(documents.deletedAt), linkedTo("document", documents.id)))
+          .orderBy(desc(documents.createdAt))
+          .limit(limit)
+      : [],
+    want("decision")
+      ? db
+          .select({ id: decisions.id, text: decisions.text, decidedOn: decisions.decidedOn, meetingId: decisions.meetingId })
+          .from(decisions)
+          .where(
+            and(
+              isNull(decisions.deletedAt),
+              sql`(${decisions.organisationId} = ${orgId}::uuid or exists (select 1 from links l where l.from_type = 'meeting' and l.from_id = ${decisions.meetingId} and l.to_type = 'organisation' and l.to_id = ${orgId}::uuid))`,
+            ),
+          )
+          .orderBy(desc(decisions.decidedOn))
+          .limit(limit)
+      : [],
+    want("task")
+      ? db
+          .select({ id: tasks.id, title: tasks.title, createdAt: tasks.createdAt, completedAt: tasks.completedAt, status: tasks.status, dueDate: tasks.dueDate })
+          .from(tasks)
+          .where(and(isNull(tasks.deletedAt), sql`(${tasks.ownerOrgId} = ${orgId}::uuid or ${linkedTo("task", tasks.id)})`))
+          .orderBy(desc(tasks.createdAt))
+          .limit(limit)
+      : [],
+    want("note")
+      ? db
+          .select({ id: notes.id, title: notes.title, updatedAt: notes.updatedAt, dailyDate: notes.dailyDate })
+          .from(notes)
+          .where(and(isNull(notes.deletedAt), linkedTo("note", notes.id)))
+          .orderBy(desc(notes.updatedAt))
+          .limit(limit)
+      : [],
+  ]);
+  const items: TimelineItem[] = [
+    ...ms.map((m) => ({ key: `m:${m.id}`, type: "meeting" as const, date: m.startsAt.toISOString(), title: m.title, href: `/meetings/${m.id}`, meta: null, state: m.status })),
+    ...ds.map((d) => ({ key: `d:${d.id}`, type: "document" as const, date: d.createdAt.toISOString(), title: d.title, href: `/files/d/${d.id}`, meta: d.periodLabel, state: d.docType })),
+    ...decs.map((d) => ({ key: `c:${d.id}`, type: "decision" as const, date: `${d.decidedOn}T12:00:00.000Z`, title: d.text, href: d.meetingId ? `/meetings/${d.meetingId}` : `/meetings/decisions#${d.id}`, meta: null })),
+    ...ts.map((t) => ({
+      key: `t:${t.id}`,
+      type: "task" as const,
+      date: (t.completedAt ?? t.createdAt).toISOString(),
+      title: t.title,
+      href: `/tasks?open=${t.id}`,
+      meta: t.dueDate,
+      state: t.status,
+    })),
+    ...ns.map((n) => ({ key: `n:${n.id}`, type: "note" as const, date: n.updatedAt.toISOString(), title: n.title || n.dailyDate || "", href: `/notes/${n.id}`, meta: null })),
+  ];
+  return items.sort((a, b) => b.date.localeCompare(a.date)).slice(0, limit);
 }

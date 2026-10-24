@@ -210,6 +210,18 @@
     "seriesId": "series",
     "text": "text",
     "decidedOn": "decision date",
-    "organisationId": "partner"
+    "organisationId": "partner",
+    "shortName": "short name",
+    "provinces": "provinces",
+    "agreementStart": "agreement start",
+    "agreementEnd": "agreement end",
+    "focalContactId": "focal person",
+    "reportingRhythm": "reporting rhythm",
+    "reportDueDays": "report window",
+    "statusLine": "status line",
+    "website": "website",
+    "role": "role",
+    "email": "email",
+    "phone": "phone"
   }
 }

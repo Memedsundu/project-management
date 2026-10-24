@@ -506,7 +506,7 @@ export function FollowupDialog({
 /* ---------------------------------- Prep ---------------------------------- */
 
 /** Bullets and **bold** from Claude's short Markdown, nothing else. */
-function MiniMarkdown({ text }: { text: string }) {
+export function MiniMarkdown({ text }: { text: string }) {
   const lines = text.split("\n").map((l) => l.trim()).filter(Boolean);
   const inline = (s: string) =>
     s.split(/(\*\*[^*]+\*\*)/g).map((part, i) => (part.startsWith("**") && part.endsWith("**") ? <strong key={i}>{part.slice(2, -2)}</strong> : <span key={i}>{part}</span>));

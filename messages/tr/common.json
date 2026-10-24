@@ -210,6 +210,18 @@
     "seriesId": "seri",
     "text": "metin",
     "decidedOn": "karar tarihi",
-    "organisationId": "ortak"
+    "organisationId": "ortak",
+    "shortName": "kısa ad",
+    "provinces": "iller",
+    "agreementStart": "anlaşma başlangıcı",
+    "agreementEnd": "anlaşma bitişi",
+    "focalContactId": "odak kişi",
+    "reportingRhythm": "rapor sıklığı",
+    "reportDueDays": "rapor süresi",
+    "statusLine": "durum satırı",
+    "website": "web sitesi",
+    "role": "görev",
+    "email": "e-posta",
+    "phone": "telefon"
   }
 }

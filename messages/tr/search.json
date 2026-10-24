@@ -13,5 +13,6 @@
   "allResults": "Tüm sonuçları gör",
   "commands": "Komutlar",
   "goTo": "Git",
-  "nothingFound": "Hiçbir şey bulunamadı. Başka bir kelime dener misin?"
+  "nothingFound": "Hiçbir şey bulunamadı. Başka bir kelime dener misin?",
+  "cmdNewOrg": "Yeni ortak veya paydaş"
 }
