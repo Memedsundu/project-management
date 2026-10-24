@@ -1,0 +1,1 @@
+ALTER TABLE "report_sections" ADD COLUMN "draft" jsonb;

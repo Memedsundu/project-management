@@ -5,6 +5,8 @@ import { findCollection } from "@/server/services/collections";
 import { loadCollectionPage } from "@/server/views/collections";
 
 export const dynamic = "force-dynamic";
+// Studio outputs from many sources can take a minute or two.
+export const maxDuration = 300;
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 

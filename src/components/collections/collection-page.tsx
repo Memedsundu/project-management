@@ -544,7 +544,7 @@ export function CollectionPage({ data }: { data: CollectionPageData }) {
         />
         <ChatPane data={data} refs={refs} usable={chosen.length} onShowSources={() => setPane("sources")} className={cn(pane === "chat" ? "flex" : "hidden", "lg:col-start-1 lg:row-start-1 lg:flex 2xl:col-start-2")} />
         <StudioPane
-          collectionId={data.id}
+          scope={{ type: "collection", id: data.id }}
           outputs={data.outputs}
           notes={data.notes}
           refs={refs}

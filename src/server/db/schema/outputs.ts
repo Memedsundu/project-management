@@ -14,6 +14,9 @@ export type Citation = {
   href?: string;
 };
 
+/** Claude's draft of a section, waiting for her: Kullan, Sonuna ekle or Vazgeç (Notion AI). */
+export type SectionDraft = { content: string; citations: Citation[]; at: string; instruction: string | null; model: string | null };
+
 export const reports = pgTable("reports", {
   id: id(),
   title: text("title").notNull(),
@@ -43,6 +46,7 @@ export const reportSections = pgTable(
     content: text("content").notNull().default(""), // markdown with [n] citation markers
     citations: jsonb("citations").$type<Citation[]>().notNull().default([]),
     numberChecks: jsonb("number_checks").notNull().default([]),
+    draft: jsonb("draft").$type<SectionDraft | null>(),
     generatedAt: timestamp("generated_at", { withTimezone: true }),
     createdAt: createdAt(),
     updatedAt: updatedAt(),

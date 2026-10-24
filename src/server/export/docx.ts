@@ -23,6 +23,7 @@ import { markdownToBlocks, type Block, type Inline, type InlineLink, type Inline
  */
 
 const FONT = "Calibri";
+const CITE_SPLIT = /⟦(\d+(?:,\d+)*)⟧/;
 const HEADINGS = [HeadingLevel.HEADING_1, HeadingLevel.HEADING_2, HeadingLevel.HEADING_3, HeadingLevel.HEADING_4, HeadingLevel.HEADING_5, HeadingLevel.HEADING_6];
 
 function runsOf(content: Block["content"], base: { bold?: boolean; italics?: boolean } = {}, origin = ""): ParagraphChild[] {
@@ -36,17 +37,25 @@ function runsOf(content: Block["content"], base: { bold?: boolean; italics?: boo
       const st = t.styles ?? {};
       const parts = t.text.split("\n");
       parts.forEach((part, i) => {
-        out.push(
-          new TextRun({
-            text: part,
-            bold: base.bold || Boolean(st.bold),
-            italics: base.italics || Boolean(st.italic),
-            strike: Boolean(st.strike),
-            underline: st.underline ? {} : undefined,
-            font: st.code ? "Consolas" : undefined,
-            break: i > 0 ? 1 : undefined,
-          }),
-        );
+        // A report's citations arrive as "⟦1,3⟧" and become superscript numbers.
+        const pieces = part.split(CITE_SPLIT);
+        let first = true;
+        pieces.forEach((piece, k) => {
+          if (!piece && !(first && k === pieces.length - 1)) return;
+          out.push(
+            new TextRun({
+              text: piece,
+              bold: base.bold || Boolean(st.bold),
+              italics: base.italics || Boolean(st.italic),
+              strike: Boolean(st.strike),
+              underline: st.underline ? {} : undefined,
+              font: st.code ? "Consolas" : undefined,
+              superScript: k % 2 === 1 ? true : undefined,
+              break: i > 0 && first ? 1 : undefined,
+            }),
+          );
+          first = false;
+        });
       });
     } else if (c.type === "link") {
       const l = c as InlineLink;
@@ -157,14 +166,10 @@ function walk(blocks: Block[], depth: number, out: (Paragraph | Table)[], origin
   }
 }
 
-export async function buildDocx(input: { title: string; subtitle?: string | null; blocks?: Block[]; markdown?: string; origin?: string }) {
-  const blocks = input.blocks ?? markdownToBlocks(input.markdown ?? "");
-  const body: (Paragraph | Table)[] = [new Paragraph({ heading: HeadingLevel.TITLE, children: [new TextRun({ text: input.title || "—" })] })];
-  if (input.subtitle) body.push(new Paragraph({ children: [new TextRun({ text: input.subtitle, color: "666666" })] }));
-  walk(blocks, 0, body, input.origin ?? "");
+function pack(title: string, body: (Paragraph | Table)[]) {
   const doc = new Document({
     creator: "[uygulama]",
-    title: input.title,
+    title,
     styles: {
       default: { document: { run: { font: FONT, size: 22 }, paragraph: { spacing: { after: 120, line: 276 } } } },
     },
@@ -185,6 +190,53 @@ export async function buildDocx(input: { title: string; subtitle?: string | null
     sections: [{ properties: {}, children: body }],
   });
   return Packer.toBuffer(doc);
+}
+
+export async function buildDocx(input: { title: string; subtitle?: string | null; blocks?: Block[]; markdown?: string; origin?: string }) {
+  const blocks = input.blocks ?? markdownToBlocks(input.markdown ?? "");
+  const body: (Paragraph | Table)[] = [new Paragraph({ heading: HeadingLevel.TITLE, children: [new TextRun({ text: input.title || "—" })] })];
+  if (input.subtitle) body.push(new Paragraph({ children: [new TextRun({ text: input.subtitle, color: "666666" })] }));
+  walk(blocks, 0, body, input.origin ?? "");
+  return pack(input.title, body);
+}
+
+/**
+ * A report for Word: each section a Heading 1 (so Word's navigation pane and
+ * table of contents work), citations as superscripts, and the numbered source
+ * list at the end. Headings inside a section move one level down.
+ */
+export async function buildReportDocx(input: {
+  title: string;
+  subtitle: string | null;
+  sections: { heading: string; content: string }[];
+  sources: { n: number; title: string; page: number | null }[];
+  words: { sources: string; empty: string; page: (n: number) => string };
+  origin?: string;
+}) {
+  const body: (Paragraph | Table)[] = [new Paragraph({ heading: HeadingLevel.TITLE, children: [new TextRun({ text: input.title || "—" })] })];
+  if (input.subtitle) body.push(new Paragraph({ children: [new TextRun({ text: input.subtitle, color: "666666" })] }));
+  for (const s of input.sections) {
+    body.push(new Paragraph({ heading: HeadingLevel.HEADING_1, children: [new TextRun({ text: s.heading })] }));
+    if (!s.content.trim()) {
+      body.push(new Paragraph({ children: [new TextRun({ text: input.words.empty, italics: true, color: "888888" })] }));
+      continue;
+    }
+    const blocks = markdownToBlocks(s.content).map((b) => (b.type === "heading" ? { ...b, props: { ...b.props, level: Math.min(Number(b.props?.level ?? 1) + 1, 6) } } : b));
+    walk(blocks, 0, body, input.origin ?? "");
+  }
+  if (input.sources.length) {
+    body.push(new Paragraph({ heading: HeadingLevel.HEADING_1, children: [new TextRun({ text: input.words.sources })] }));
+    for (const src of input.sources) {
+      body.push(
+        new Paragraph({
+          indent: { left: 400, hanging: 400 },
+          spacing: { after: 60 },
+          children: [new TextRun({ text: `${src.n}.\t` }), new TextRun({ text: src.page ? `${src.title}, ${input.words.page(src.page)}` : src.title })],
+        }),
+      );
+    }
+  }
+  return pack(input.title, body);
 }
 
 /** File names she can read: "Saha ziyareti 12 Ekim.docx", without characters Windows refuses. */

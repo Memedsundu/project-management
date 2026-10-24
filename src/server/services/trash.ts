@@ -2,7 +2,7 @@ import "server-only";
 import { and, desc, eq, isNotNull, isNull, sql } from "drizzle-orm";
 import { UserError } from "@/server/action";
 import { getDb } from "@/server/db/client";
-import { askThreads, folders, logframeNodes, notes, studioOutputs } from "@/server/db/schema";
+import { askThreads, folders, logframeNodes, notes, studioOutputs, visuals } from "@/server/db/schema";
 import { ENTITIES, type EntityType } from "@/server/entities";
 import { unindexRecord } from "@/server/search/index-service";
 import { logActivity } from "./activity";
@@ -182,6 +182,11 @@ async function purgeOne(type: EntityType, id: string) {
     // Its chat and Studio outputs go with it; notes saved from them stay.
     await db.delete(askThreads).where(and(eq(askThreads.scopeType, "collection"), eq(askThreads.scopeId, id)));
     await db.delete(studioOutputs).where(and(eq(studioOutputs.scopeType, "collection"), eq(studioOutputs.scopeId, id)));
+  }
+  if (type === "report") {
+    // Its Studio outputs go with it; its visuals stay as visuals of their own.
+    await db.delete(studioOutputs).where(and(eq(studioOutputs.scopeType, "report"), eq(studioOutputs.scopeId, id)));
+    await db.update(visuals).set({ reportId: null }).where(eq(visuals.reportId, id));
   }
   await deleteLinksOf({ type, id });
   await unindexRecord(type, id);

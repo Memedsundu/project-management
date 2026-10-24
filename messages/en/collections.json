@@ -151,6 +151,8 @@
     "openNote": "Open note",
     "draftNote": "A draft; check it against the sources before you use it.",
     "deleted": "Output deleted",
-    "saveAsNote": "Save as note"
+    "saveAsNote": "Save as note",
+    "fromReport": "Written from {count, plural, one {the report's # source} other {the report's # sources}}. The result is a draft that comes with its sources.",
+    "needReportSources": "Add sources to the report first to make an output."
   }
 }

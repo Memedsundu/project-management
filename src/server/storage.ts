@@ -42,9 +42,10 @@ export function newStorageKey(filename: string, prefix = "documents") {
 }
 
 function localPath(key: string) {
-  const root = LOCAL_DIR();
-  const full = path.resolve(root, key);
-  if (!full.startsWith(path.resolve(root) + path.sep)) throw new Error("Bad storage key");
+  // Local mode only (never on Vercel), so the bundler need not trace this folder.
+  const root = path.resolve(/*turbopackIgnore: true*/ LOCAL_DIR());
+  const full = path.resolve(/*turbopackIgnore: true*/ root, key);
+  if (!full.startsWith(root + path.sep)) throw new Error("Bad storage key");
   return full;
 }
 

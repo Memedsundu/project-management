@@ -188,6 +188,14 @@
     padding-left: 12px;
     color: var(--muted);
   }
+  .print-report sup.cite {
+    font-size: 0.7em;
+    line-height: 0;
+    color: var(--muted);
+  }
+  .print-report sup.cite a {
+    text-decoration: none;
+  }
 }
 
 /* Phones: the keyboard pushes the page up (interactive-widget in the layout),
@@ -209,6 +217,9 @@
   .print-page {
     padding: 0;
     max-width: none;
+  }
+  .print-report h2 {
+    break-after: avoid;
   }
 }
 

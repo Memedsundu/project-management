@@ -80,7 +80,7 @@ const kindSchema = z.enum(["brief", "talking_points", "slide_outline", "partner_
 export async function generateOutputAction(id: string, input: { kind: string; focus?: string | null; language: string; refs?: EntityRef[] }) {
   return act(async () => {
     const { generateStudioOutput } = await import("@/server/ai/collections");
-    return generateStudioOutput(uuid.parse(id), {
+    return generateStudioOutput({ type: "collection", id: uuid.parse(id) }, {
       kind: kindSchema.parse(input.kind),
       focus: z.string().max(600).nullish().parse(input.focus),
       language: z.enum(["tr", "en"]).parse(input.language),
@@ -105,13 +105,13 @@ function noteMarkdown(text: string, citations: Citation[], locale: string) {
   return `${text}\n\n## ${locale === "en" ? "Sources" : "Kaynaklar"}\n\n${lines.join("\n")}`;
 }
 
-async function saveNote(collectionId: string, title: string, text: string, citations: Citation[]) {
+async function saveNote(scope: { type: "collection" | "report"; id: string }, title: string, text: string, citations: Citation[]) {
   const { createNote } = await import("@/server/services/notes");
   const sources = citations.flatMap((c) => (c.sourceId && (ENTITY_TYPES as readonly string[]).includes(c.sourceType) ? [{ type: c.sourceType, id: c.sourceId } as EntityRef] : []));
   const note = await createNote({
     title: title.slice(0, 200),
     markdown: noteMarkdown(text, citations, await getLocale()),
-    links: [{ type: "collection", id: collectionId }, ...sources.filter((s, i) => sources.findIndex((x) => x.type === s.type && x.id === s.id) === i)],
+    links: [scope, ...sources.filter((s, i) => sources.findIndex((x) => x.type === s.type && x.id === s.id) === i)],
   });
   return { id: note.id };
 }
@@ -122,7 +122,7 @@ export async function saveOutputAsNoteAction(id: string, title?: string) {
     const { getStudioOutput } = await import("@/server/ai/collections");
     const out = await getStudioOutput(uuid.parse(id));
     if (!out) throw new UserError("Çıktı bulunamadı.");
-    return saveNote(out.scopeId, z.string().trim().min(1).max(200).catch(out.title).parse(title), out.content, out.citations);
+    return saveNote({ type: out.scopeType, id: out.scopeId }, z.string().trim().min(1).max(200).catch(out.title).parse(title), out.content, out.citations);
   });
 }
 
@@ -132,6 +132,6 @@ export async function saveAnswerAsNoteAction(threadId: string) {
     const { getAskThread } = await import("@/server/ai/ask");
     const thread = await getAskThread(uuid.parse(threadId));
     if (!thread || thread.scopeType !== "collection" || !thread.scopeId) throw new UserError("Yanıt bulunamadı.");
-    return saveNote(thread.scopeId, thread.question, thread.answer, thread.citations);
+    return saveNote({ type: "collection", id: thread.scopeId }, thread.question, thread.answer, thread.citations);
   });
 }

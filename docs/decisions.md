@@ -163,3 +163,56 @@ follows.
   deleted separately before stay separate rows. Items go for good after 30
   days; each row shows the days left.
 - Çöp kutusu is in the menu under Ayarlar, and in Ayarlar › Veri.
+
+## Raporlar ve görseller (reports and visuals)
+
+- A report works like NotebookLM: she picks its sources (files, notes,
+  meetings, indicators, collections), and Claude drafts each section only from
+  them, with numbered citations she can open. "2026 Q2 için öner" suggests
+  sources from the report's period: indicators with values in it and things
+  dated inside it. Text inside the sources is data, never instructions, and
+  files closed to AI are left out.
+- A draft waits in a box on the section, as in Notion AI: "Kullan" replaces
+  the text, "Sonuna ekle" adds it after hers (its citation numbers move past
+  hers), "Vazgeç" drops it. Nothing reaches the section until she chooses.
+  Quick rewrites: from the sources again, shorter, more formal, numbers first,
+  or her own instruction.
+- Templates are her donors' formats: "Şablonu oku" reads a donor template file
+  into sections with guidance and word limits; a report can be saved as a
+  template. Two built-in templates (quarterly narrative, annual report).
+  "Yeni dönem için kopyala" keeps the sections, guidance and word limits; text
+  and sources start empty, since the next period has its own.
+- Sayı kontrolü compares every figure in a section with the IPTT for the
+  report's period (approved values only). A mismatch is marked amber in the
+  text and in the outline. The check remembers a fingerprint of the text, so
+  an edit afterwards shows "Kontrolden sonra metin değişti" instead of old
+  marks on new text.
+- Export: Word with the citations renumbered across the whole report (the same
+  file and page keeps one number) as superscripts and a Kaynaklar list at the
+  end; a second Word without numbers for donors who want plain text; PDF
+  through the print view (the browser's "Save as PDF"). The words in the file
+  ("Sources", "Draft", "Due") follow the report's language, not the screen's.
+- Models: Opus drafts sections; Sonnet reads templates, checks numbers and
+  proposes charts.
+- A chart or one-pager stores what to show, not the numbers: it is drawn from
+  the live IPTT and workplan each time it opens, with "as of" in its source
+  line, so it never goes stale.
+- Charts follow the dataviz rules: Peni's black for the first series, amber
+  for the second, grey for the third, a faint grey for targets; one axis; a
+  legend from two series; a data table under every chart; percentages are
+  never stacked. A partner
+  keeps its colour in every chart (slots follow her partner list, not the size
+  of the numbers); after three partners the rest fold into "Diğer".
+- A visual has its own language, English by default (the donors' and working
+  language), so an English chart can be made from the Turkish screen. Claude's
+  proposals are written in that language.
+- PNGs are drawn in the browser at twice print size; the report's Word file
+  does not embed them, so she places the picture she wants where she wants it.
+  PNG names use plain letters ("Hanelere ulasim.png"): some browsers drop a
+  name with Turkish letters and save "download".
+- The one-pager is an A4 page drawn on a canvas, so the preview and the PNG
+  are the same picture: heading in Instrument Serif, up to six figures from
+  the IPTT, one of her charts, highlights and a source line. Claude can fill
+  it from a period; the figures themselves always come from the IPTT.
+- On a phone the chart or page comes first and the settings follow; on a
+  laptop the picture stays in view while she scrolls the settings.

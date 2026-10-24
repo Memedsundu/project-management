@@ -7,6 +7,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 import { toast } from "sonner";
 import { deleteOutputAction, generateOutputAction, saveOutputAsNoteAction } from "@/app/(app)/collections/actions";
+import { generateReportOutputAction } from "@/app/(app)/reports/actions";
 import { CitedText, plainCited, SourceList } from "@/components/common/cited-text";
 import { useShell } from "@/components/shell/shell-context";
 import { Badge } from "@/components/ui/badge";
@@ -127,10 +128,12 @@ function OutputDialog({ output, onClose }: { output: StudioOutputView; onClose: 
 /**
  * "Çıktılar" (NotebookLM Studio): a brief, talking points, a slide outline,
  * an email to a partner or a report section, written from the sources she
- * ticked. Each one is a draft with citations.
+ * ticked in a collection, or from a report's sources. Each one is a draft
+ * with citations.
  */
 export function StudioPane({
-  collectionId,
+  scope,
+  kinds,
   outputs,
   notes,
   refs,
@@ -139,7 +142,9 @@ export function StudioPane({
   className,
   switcher,
 }: {
-  collectionId: string;
+  scope: { type: "collection" | "report"; id: string };
+  /** The outputs offered; a report has its own sections, so it leaves "section" out. */
+  kinds?: StudioKind[];
   outputs: StudioOutputView[];
   notes: { id: string; title: string; href: string }[];
   refs: EntityRef[] | undefined;
@@ -157,6 +162,7 @@ export function StudioPane({
   const [busy, setBusy] = useState<StudioKind | null>(null);
   const [open, setOpen] = useState<StudioOutputView | null>(null);
   const canMake = aiReady && !shell.readOnly && usable > 0;
+  const offered = kinds ? KINDS.filter((k) => kinds.includes(k.kind)) : KINDS;
 
   const pick = (kind: StudioKind) => {
     setMaking(kind);
@@ -168,7 +174,11 @@ export function StudioPane({
     const kind = making;
     setBusy(kind);
     setMaking(null);
-    const res = await runAction(generateOutputAction(collectionId, { kind, focus: focus.trim() || null, language, refs }));
+    const res = await runAction(
+      scope.type === "report"
+        ? generateReportOutputAction(scope.id, { kind, focus: focus.trim() || null, language })
+        : generateOutputAction(scope.id, { kind, focus: focus.trim() || null, language, refs }),
+    );
     setBusy(null);
     if (!res) return;
     setFocus("");
@@ -186,7 +196,7 @@ export function StudioPane({
       ) : (
         <>
           <div className="grid grid-cols-2 gap-2">
-            {KINDS.map(({ kind, icon: Icon }) => (
+            {offered.map(({ kind, icon: Icon }) => (
               <button
                 key={kind}
                 type="button"
@@ -204,7 +214,7 @@ export function StudioPane({
               </button>
             ))}
           </div>
-          {usable === 0 && !shell.readOnly ? <p className="text-[13px] text-muted">{t("needSources")}</p> : null}
+          {usable === 0 && !shell.readOnly ? <p className="text-[13px] text-muted">{scope.type === "report" ? t("needReportSources") : t("needSources")}</p> : null}
 
           {making ? (
             <form
@@ -241,7 +251,7 @@ export function StudioPane({
                   ))}
                 </div>
               </div>
-              <p className="text-[13px] text-muted">{t("fromSources", { count: usable })}</p>
+              <p className="text-[13px] text-muted">{scope.type === "report" ? t("fromReport", { count: usable }) : t("fromSources", { count: usable })}</p>
               <div className="flex justify-end gap-2">
                 <Button type="button" variant="ghost" size="sm" onClick={() => setMaking(null)}>
                   {t("cancel")}

@@ -18,7 +18,7 @@ echarts.use([BarChart, LineChart, GridComponent, TooltipComponent, LegendCompone
  * ΔE 45 light / 38 dark under every colour-vision type, both above 3:1 on the
  * surface. Its hue-band and chroma checks do not apply to greys.
  */
-type Colors = { ink: string; muted: string; faint: string; line: string; lineSoft: string; bg: string; font: string };
+export type Colors = { ink: string; muted: string; faint: string; line: string; lineSoft: string; bg: string; font: string; dark: boolean };
 
 function subscribe(cb: () => void) {
   const mo = new MutationObserver(cb);
@@ -27,7 +27,7 @@ function subscribe(cb: () => void) {
 }
 
 /** The theme's colour tokens, read again when light and dark switch. Null on the server. */
-function useColors(): Colors | null {
+export function useColors(): Colors | null {
   const key = useSyncExternalStore(
     subscribe,
     () => `c:${document.documentElement.className}`,
@@ -37,12 +37,21 @@ function useColors(): Colors | null {
     if (!key) return null;
     const css = getComputedStyle(document.documentElement);
     const v = (n: string) => css.getPropertyValue(n).trim();
-    return { ink: v("--ink"), muted: v("--muted"), faint: v("--faint"), line: v("--line"), lineSoft: v("--line-soft"), bg: v("--bg"), font: getComputedStyle(document.body).fontFamily };
+    return {
+      ink: v("--ink"),
+      muted: v("--muted"),
+      faint: v("--faint"),
+      line: v("--line"),
+      lineSoft: v("--line-soft"),
+      bg: v("--bg"),
+      font: getComputedStyle(document.body).fontFamily,
+      dark: document.documentElement.classList.contains("dark"),
+    };
   }, [key]);
 }
 
 /** A callback ref, so the chart starts whenever its box appears (an empty chart gets data later). */
-function useEChart(option: echarts.EChartsCoreOption | null) {
+export function useEChart(option: echarts.EChartsCoreOption | null) {
   const [el, setEl] = useState<HTMLDivElement | null>(null);
   const chart = useRef<echarts.ECharts | null>(null);
   useEffect(() => {
@@ -63,12 +72,12 @@ function useEChart(option: echarts.EChartsCoreOption | null) {
   return setEl;
 }
 
-const reducedMotion = () => typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+export const reducedMotion = () => typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-type TipRow = { key: "bar" | "line" | "dash"; color: string; value: string; name: string };
+export type TipRow = { key: "bar" | "line" | "dash"; color: string; value: string; name: string };
 
 /** Tooltip as DOM nodes: names come from her data, so they go in as text, never HTML. Values lead. */
-function tipNode(c: Colors, title: string, rows: TipRow[], note?: string | null) {
+export function tipNode(c: Pick<Colors, "ink" | "muted">, title: string, rows: TipRow[], note?: string | null) {
   const root = document.createElement("div");
   root.style.cssText = "display:flex;flex-direction:column;gap:4px;min-width:150px";
   const head = document.createElement("div");
@@ -98,7 +107,7 @@ function tipNode(c: Colors, title: string, rows: TipRow[], note?: string | null)
   return root;
 }
 
-const axisBase = (c: Colors) => ({
+export const axisBase = (c: Pick<Colors, "line" | "muted" | "font" | "lineSoft">) => ({
   axisLine: { lineStyle: { color: c.line } },
   axisTick: { show: false },
   axisLabel: { color: c.muted, fontSize: 12, fontFamily: c.font },
@@ -164,7 +173,8 @@ export function TargetActualChart({
         textStyle: { color: c.muted, fontSize: 12, fontFamily: c.font },
         data: cumulative
           ? [
-              { name: t("actualToDate"), icon: "path://M0,4H16V6H0Z", itemStyle: { color: c.ink } },
+              // borderWidth 0: the series ring (2px, surface colour) would hide this thin icon.
+              { name: t("actualToDate"), icon: "path://M0,4H16V6H0Z", itemStyle: { color: c.ink, borderWidth: 0 } },
               { name: t("targetToDate"), icon: "path://M0,4H5V6H0ZM8,4H13V6H8Z", itemStyle: { color: c.faint } },
             ]
           : [

@@ -23,7 +23,8 @@ export async function createPgliteDb(url?: string): Promise<DB> {
     dataDir = undefined;
   } else {
     dataDir = url?.startsWith("pglite:") ? url.slice("pglite:".length) : path.join(localDataDir(), "db");
-    mkdirSync(path.dirname(path.resolve(dataDir)), { recursive: true });
+    // Local mode only (never on Vercel), so the bundler need not trace this folder.
+    mkdirSync(path.dirname(path.resolve(/*turbopackIgnore: true*/ dataDir)), { recursive: true });
   }
   const client = await PGlite.create(dataDir, { extensions: { vector, pg_trgm, unaccent } });
   const db = drizzle({ client, schema }) as unknown as DB;

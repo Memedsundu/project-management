@@ -1,11 +1,11 @@
 import "server-only";
-import { and, asc, desc, eq, isNull, sql } from "drizzle-orm";
+import { and, asc, desc, eq, gte, inArray, isNull, lte, sql } from "drizzle-orm";
 import { z } from "zod";
 import { onlyGiven } from "@/lib/patch";
 import { UserError } from "@/server/action";
 import { getDb } from "@/server/db/client";
-import { periods, reports, reportSections, visuals, type Citation, type SourceRef } from "@/server/db/schema";
-import { isEntityType, resolveEntities, type EntityRef } from "@/server/entities";
+import { documents, indicatorValues, periods, reports, reportSections, searchIndex, visuals, type Citation, type SectionDraft, type SourceRef } from "@/server/db/schema";
+import { ENTITIES, isEntityType, resolveEntities, type EntityRef, type EntityType } from "@/server/entities";
 import { indexRecord, unindexRecord } from "@/server/search/index-service";
 import { logActivity, type Actor } from "./activity";
 import { getTemplateItem } from "./templates";
@@ -108,7 +108,7 @@ export async function getReport(id: string) {
   return { ...row.r, periodLabel: row.periodLabel, periodStart: row.periodStart, periodEnd: row.periodEnd, sections, sourceItems: sources };
 }
 
-export async function setReportSources(id: string, list: z.input<typeof sourceSchema>[]) {
+export async function setReportSources(id: string, list: { type: string; id: string }[]) {
   const parsed = z.array(sourceSchema).max(200).parse(list);
   const unique = [...new Map(parsed.map((s) => [`${s.type}:${s.id}`, s])).values()];
   const db = await getDb();
@@ -171,9 +171,178 @@ export async function updateSection(id: string, raw: z.input<typeof sectionPatch
   return row ?? null;
 }
 
-export async function setSectionChecks(id: string, checks: unknown[]) {
+/** A section with the report it belongs to, and the other headings (so a draft does not repeat them). */
+export async function getSection(id: string) {
   const db = await getDb();
-  await db.update(reportSections).set({ numberChecks: checks }).where(eq(reportSections.id, id));
+  const [row] = await db
+    .select({ s: reportSections, r: reports, periodLabel: periods.label, periodStart: periods.startDate, periodEnd: periods.endDate })
+    .from(reportSections)
+    .innerJoin(reports, eq(reports.id, reportSections.reportId))
+    .leftJoin(periods, eq(periods.id, reports.periodId))
+    .where(eq(reportSections.id, id))
+    .limit(1);
+  if (!row || row.r.deletedAt) return null;
+  const others = await db
+    .select({ id: reportSections.id, heading: reportSections.heading })
+    .from(reportSections)
+    .where(eq(reportSections.reportId, row.r.id))
+    .orderBy(asc(reportSections.sort));
+  return {
+    section: row.s,
+    report: row.r,
+    period: row.periodLabel ? { label: row.periodLabel, start: row.periodStart!, end: row.periodEnd! } : null,
+    otherHeadings: others.filter((o) => o.id !== id).map((o) => o.heading),
+  };
+}
+
+/* ------------------------------ Number check ------------------------------- */
+
+export type NumberCheckItem = {
+  quote: string;
+  status: "match" | "mismatch" | "not_in_iptt";
+  indicatorCode: string | null;
+  ipttValue: string | null;
+  note: string;
+};
+export type NumberCheck = { at: string; hash: string; periodLabel: string | null; items: NumberCheckItem[] };
+
+/** Short fingerprint of a section's text, so a check knows when the text has changed since. */
+export function textHash(text: string) {
+  let h = 2166136261;
+  for (let i = 0; i < text.length; i++) h = Math.imul(h ^ text.charCodeAt(i), 16777619);
+  return (h >>> 0).toString(36);
+}
+
+/** The last check of a section, or null when it was never checked (old rows hold an empty list). */
+export function numberCheckOf(raw: unknown): NumberCheck | null {
+  if (!raw || Array.isArray(raw) || typeof raw !== "object") return null;
+  const c = raw as Partial<NumberCheck>;
+  return typeof c.at === "string" && typeof c.hash === "string" && Array.isArray(c.items) ? { at: c.at, hash: c.hash, periodLabel: c.periodLabel ?? null, items: c.items } : null;
+}
+
+export async function setSectionChecks(id: string, check: NumberCheck | null) {
+  const db = await getDb();
+  await db
+    .update(reportSections)
+    .set({ numberChecks: check ?? [] })
+    .where(eq(reportSections.id, id));
+}
+
+/* ---------------------------------- Drafts ---------------------------------- */
+
+export async function setSectionDraft(id: string, draft: SectionDraft | null) {
+  const db = await getDb();
+  const [row] = await db.update(reportSections).set({ draft }).where(eq(reportSections.id, id)).returning();
+  return row ?? null;
+}
+
+/** [n] markers shifted so an appended draft keeps its own sources after the ones already there. Other brackets stay as written. */
+export function shiftCitations(content: string, citations: Citation[], offset: number) {
+  if (!offset) return { content, citations };
+  const known = new Set(citations.map((c) => c.n));
+  return {
+    content: content.replace(/\[(\d+)\]/g, (m, n: string) => (known.has(Number(n)) ? `[${Number(n) + offset}]` : m)),
+    citations: citations.map((c) => ({ ...c, n: c.n + offset })),
+  };
+}
+
+/** "Kullan" puts Claude's draft in place of the text; "Sonuna ekle" adds it after. Either way the draft is hers now. */
+export async function acceptDraft(id: string, mode: "replace" | "append") {
+  const db = await getDb();
+  const [row] = await db.select().from(reportSections).where(eq(reportSections.id, id)).limit(1);
+  if (!row?.draft) throw new UserError("Bekleyen bir taslak yok.");
+  const draft = row.draft;
+  let content = draft.content;
+  let citations = draft.citations;
+  if (mode === "append" && row.content.trim()) {
+    const offset = Math.max(0, ...row.citations.map((c) => c.n));
+    const shifted = shiftCitations(draft.content, draft.citations, offset);
+    content = `${row.content.trimEnd()}\n\n${shifted.content}`;
+    citations = [...row.citations, ...shifted.citations];
+  }
+  const [saved] = await db
+    .update(reportSections)
+    .set({ content, citations, draft: null, numberChecks: [], generatedAt: new Date(), updatedAt: new Date() })
+    .where(eq(reportSections.id, id))
+    .returning();
+  await touch(row.reportId);
+  await logActivity({ action: "update", entityType: "report", entityId: row.reportId, title: row.heading, summary: mode === "append" ? "draft appended" : "draft used" });
+  return saved!;
+}
+
+/* ------------------------------ Source ideas -------------------------------- */
+
+export type SourceIdea = { type: EntityType; id: string; title: string; href: string; reason: "period" | "dates" | "values" };
+
+/**
+ * "Dönemden öner": what the report's period points to. Files filed under
+ * the period, meetings, decisions and notes dated inside it, and the
+ * indicators with approved values for it. She ticks what to add.
+ */
+export async function suggestReportSources(reportId: string): Promise<SourceIdea[]> {
+  const r = await getReport(reportId);
+  if (!r) return [];
+  const have = new Set((r.sources as SourceRef[]).map((s) => `${s.type}:${s.id}`));
+  const db = await getDb();
+  const end = r.periodEnd ?? new Date().toISOString().slice(0, 10);
+  const start = r.periodStart ?? new Date(Date.now() - 92 * 86_400_000).toISOString().slice(0, 10);
+  const out: SourceIdea[] = [];
+  const push = (type: EntityType, id: string, title: string, meta: Record<string, unknown>, reason: SourceIdea["reason"]) => {
+    const key = `${type}:${id}`;
+    if (have.has(key)) return;
+    have.add(key);
+    out.push({ type, id, title, href: ENTITIES[type].href(id, meta), reason });
+  };
+  if (r.periodId) {
+    const filed = await db
+      .select({ id: documents.id, title: documents.title })
+      .from(documents)
+      .where(and(eq(documents.periodId, r.periodId), isNull(documents.deletedAt), eq(documents.aiOff, false), eq(documents.childDataFlag, false)))
+      .orderBy(desc(documents.createdAt))
+      .limit(40);
+    for (const d of filed) push("document", d.id, d.title, {}, "period");
+    const valued = await db
+      .selectDistinct({ id: indicatorValues.indicatorId })
+      .from(indicatorValues)
+      .where(and(eq(indicatorValues.periodId, r.periodId), eq(indicatorValues.status, "approved")));
+    if (valued.length) {
+      const resolved = await resolveEntities(valued.map((v) => ({ type: "indicator" as const, id: v.id })));
+      for (const v of valued) {
+        const e = resolved.get(`indicator:${v.id}`);
+        if (e) push("indicator", v.id, e.title, {}, "values");
+      }
+    }
+  }
+  const dated = await db
+    .select({ type: searchIndex.entityType, id: searchIndex.entityId, title: searchIndex.title, meta: searchIndex.meta })
+    .from(searchIndex)
+    .where(
+      and(
+        inArray(searchIndex.entityType, ["meeting", "decision", "note", "document"]),
+        eq(searchIndex.aiOff, false),
+        gte(searchIndex.occurredAt, new Date(`${start}T00:00:00+03:00`)),
+        lte(searchIndex.occurredAt, new Date(`${end}T23:59:59+03:00`)),
+      ),
+    )
+    .orderBy(desc(searchIndex.occurredAt))
+    .limit(60);
+  for (const d of dated) if (isEntityType(d.type)) push(d.type, d.id, d.title, (d.meta ?? {}) as Record<string, unknown>, "dates");
+  return out.slice(0, 60);
+}
+
+/** A copy for the next period: the same sections and guidance, with empty text and no sources (the new period has its own). */
+export async function duplicateReport(id: string, input: { title: string; periodId: string | null; dueDate?: string | null }) {
+  const r = await getReport(id);
+  if (!r) throw new UserError("Rapor bulunamadı.");
+  const db = await getDb();
+  const [row] = await db
+    .insert(reports)
+    .values({ title: input.title.trim() || r.title, templateId: r.templateId, periodId: input.periodId, dueDate: input.dueDate ?? null, audience: r.audience, language: r.language, sources: [] })
+    .returning();
+  await db.insert(reportSections).values(r.sections.map((s, i) => ({ reportId: row!.id, sort: (i + 1) * 10, heading: s.heading, guidance: s.guidance, wordLimit: s.wordLimit })));
+  await logActivity({ action: "create", entityType: "report", entityId: row!.id, title: row!.title, summary: `copy of ${r.title}` });
+  await indexReport(row!.id);
+  return row!;
 }
 
 export async function reorderSections(reportId: string, ids: string[]) {

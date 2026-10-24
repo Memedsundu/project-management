@@ -151,6 +151,8 @@
     "openNote": "Notu aç",
     "draftNote": "Taslak; kullanmadan önce kaynaklarla karşılaştır.",
     "deleted": "Çıktı silindi",
-    "saveAsNote": "Not olarak kaydet"
+    "saveAsNote": "Not olarak kaydet",
+    "fromReport": "Raporun {count} kaynağından yazılır. Sonuç, kaynaklarıyla birlikte gelen bir taslaktır.",
+    "needReportSources": "Çıktı için önce rapora kaynak ekle."
   }
 }

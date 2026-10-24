@@ -9,15 +9,42 @@ import { cn } from "@/lib/utils";
 import type { Citation } from "@/server/db/schema/outputs";
 import { EntityIcon } from "./entity-icon";
 
+/** Split a line around marked phrases (number-check mismatches), first match first. */
+function splitMarks(s: string, marks: string[]) {
+  const out: { text: string; mark: boolean }[] = [];
+  let rest = s;
+  while (rest) {
+    let at = -1;
+    let hit = "";
+    for (const m of marks) {
+      const i = m ? rest.indexOf(m) : -1;
+      if (i >= 0 && (at < 0 || i < at)) {
+        at = i;
+        hit = m;
+      }
+    }
+    if (at < 0) {
+      out.push({ text: rest, mark: false });
+      break;
+    }
+    if (at > 0) out.push({ text: rest.slice(0, at), mark: false });
+    out.push({ text: hit, mark: true });
+    rest = rest.slice(at + hit.length);
+  }
+  return out;
+}
+
 /**
- * Claude's cited writing (Sor, collection chat, Studio outputs): headings,
- * bullets, numbered lists, bold and [n] markers. Each marker shows the quoted
- * passage on hover and jumps to its source card underneath.
+ * Claude's cited writing (Sor, collection chat, Studio outputs, report
+ * sections): headings, bullets, numbered lists, bold and [n] markers. Each
+ * marker shows the quoted passage on hover and jumps to its source card
+ * underneath. `marks` highlights phrases in amber (figures that differ from
+ * the IPTT).
  */
-export function CitedText({ text, citations, idPrefix = "", className }: { text: string; citations: Citation[]; idPrefix?: string; className?: string }) {
+export function CitedText({ text, citations, idPrefix = "", className, marks }: { text: string; citations: Citation[]; idPrefix?: string; className?: string; marks?: string[] }) {
   const t = useTranslations("search.ask");
   const byN = new Map(citations.map((c) => [c.n, c]));
-  const inline = (s: string) =>
+  const parts = (s: string) =>
     s.split(/(\*\*[^*]+\*\*|\[\d+\])/g).map((part, i) => {
       const cite = /^\[(\d+)\]$/.exec(part);
       if (cite) {
@@ -54,6 +81,18 @@ export function CitedText({ text, citations, idPrefix = "", className }: { text:
       if (part.startsWith("**") && part.endsWith("**")) return <strong key={i}>{part.slice(2, -2)}</strong>;
       return <Fragment key={i}>{part}</Fragment>;
     });
+  const inline = (s: string) =>
+    marks?.length
+      ? splitMarks(s, marks).map((seg, i) =>
+          seg.mark ? (
+            <mark key={i} className="rounded-[4px] bg-accent-soft px-0.5 text-accent-ink" data-testid="number-mark">
+              {parts(seg.text)}
+            </mark>
+          ) : (
+            <Fragment key={i}>{parts(seg.text)}</Fragment>
+          ),
+        )
+      : parts(s);
   const blocks: { kind: "p" | "ul" | "ol" | "h"; lines: string[] }[] = [];
   for (const raw of text.split("\n")) {
     const line = raw.trim();
