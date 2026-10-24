@@ -1,5 +1,5 @@
 import "server-only";
-import { and, asc, count, getTableColumns, getTableName, gt, isNull, ne, notInArray, or, sql, type SQL } from "drizzle-orm";
+import { and, asc, count, eq, getTableColumns, getTableName, gt, isNull, ne, notInArray, or, sql, type SQL } from "drizzle-orm";
 import type { PgTable } from "drizzle-orm/pg-core";
 import type { BackupRow } from "@/lib/backup-format";
 import { foldText } from "@/lib/fold";
@@ -8,7 +8,7 @@ import { getDb } from "@/server/db/client";
 import * as s from "@/server/db/schema";
 import { ENTITIES, type EntityType } from "@/server/entities";
 import { reserveUploadKey } from "@/server/files/uploads";
-import { enqueue } from "@/server/jobs/queue";
+import { enqueue, kickJobs } from "@/server/jobs/queue";
 import { INDEXERS, reindexEntity } from "@/server/services/reindex";
 import { getSetting, setSetting } from "@/server/services/settings";
 import { newStorageKey, objectSize, storageReady } from "@/server/storage";
@@ -186,12 +186,22 @@ export async function reindexSlice(cursor: IndexCursor | null, budgetMs = 15_000
   return { cursor: cursor.type >= INDEX_TYPES.length ? null : cursor, done };
 }
 
-/** Step 5: the restore is over; embeddings for search by meaning are made in the background. */
+/**
+ * Step 5: the restore is over. Embeddings for search by meaning are made in
+ * the background, and files the export caught before they were read are
+ * read now (the job queue itself is not part of a backup).
+ */
 export async function finishRestore() {
   await assertRestoring();
   await setSetting("restore", null);
-  await enqueue("embed_pending", {}, { dedupeKey: "embed_pending" });
   const db = await getDb();
+  const unread = await db
+    .select({ id: s.documents.id, versionId: s.documents.currentVersionId })
+    .from(s.documents)
+    .where(and(isNull(s.documents.deletedAt), eq(s.documents.textStatus, "pending")));
+  for (const d of unread) if (d.versionId) await enqueue("extract_text", { documentId: d.id, versionId: d.versionId }, { dedupeKey: `extract:${d.versionId}` });
+  await enqueue("embed_pending", {}, { dedupeKey: "embed_pending" });
+  await kickJobs(["extract_text", "classify_document", "embed_pending"]);
   const [docs] = await db.select({ n: count() }).from(s.documents).where(isNull(s.documents.deletedAt));
   return { documents: Number(docs?.n ?? 0) };
 }
