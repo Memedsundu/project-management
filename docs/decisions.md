@@ -98,3 +98,35 @@ follows.
   collection.
 - A collection in the trash keeps its chat and outputs for 30 days; emptying
   the trash deletes them with it. Notes saved from them stay.
+
+## Telefon ve bildirimler (phone, offline and push)
+
+- The app installs from the browser (PWA): "Ana ekrana ekle" on iPhone, the
+  install button in Chrome or Edge. It opens on Bugün. Long-pressing the icon
+  on Android offers Hızlı ekle, Görevler, Bugün and Ara. The manifest takes the
+  app's name from Ayarlar.
+- The icon is a white Instrument Serif "u" on black, a placeholder like the
+  name. `node scripts/make-icons.mjs <letter>` draws a new set once the app has
+  a name. iPhone start-up images are left out; iOS shows a white screen for a
+  moment instead.
+- Offline reading: the service worker (`public/sw.js`) keeps the last 60 pages
+  she opened on that device, network first. With no signal, or a network
+  slower than 5 seconds, it shows the kept copy and the page says so with the
+  time it was saved. A page never opened shows the offline page, which lists
+  what can be read. Pages with a query (a search, an open drawer) are kept only
+  when loaded in full, so the app does not re-run searches in the background.
+- Offline capture: Hızlı ekle saves tasks and notes in the browser when there
+  is no connection and sends them, oldest first, once it is back (Todoist,
+  Things). A banner shows how many wait. Files need a connection. If the
+  connection drops in the middle of sending, one item can arrive twice; that is
+  rare and easy to delete, so the server keeps no extra bookkeeping for it.
+- Signing out first sends what waits, then deletes the kept pages and the list
+  from that device. A session that ends on its own also clears the kept pages
+  the next time the sign-in page opens. Sign-out is now also in the phone menu.
+- Push reminders use Web Push with keys made by the app (no outside service to
+  sign up for). Each device gets its texts in the language it subscribed in.
+  Quiet hours apply to everything except reminders she set herself. On an
+  iPhone, push works only from the home-screen app (iOS 16.4 or later).
+- The service worker runs only in the built app, never in development.
+- On Android the keyboard shrinks the page (`interactive-widget`), so inputs
+  stay above it; the bottom bar steps aside while she types.

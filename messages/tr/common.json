@@ -263,5 +263,27 @@
     "logframe": "Logframe düzeyleri"
   },
   "remove": "Kaldır",
-  "addedToCollection": "“{title}” koleksiyonuna eklendi"
+  "addedToCollection": "“{title}” koleksiyonuna eklendi",
+  "offline": {
+    "pageTitle": "Çevrimdışı",
+    "title": "Bağlantı yok",
+    "body": "İnternet gelince kaldığın yerden devam edersin. Daha önce açtığın sayfalar aşağıda; onları şimdi de okuyabilirsin.",
+    "notKept": "Bu sayfa bu cihazda kayıtlı değil, o yüzden bağlantı gelince açılır. Daha önce açtığın sayfaları aşağıdan okuyabilirsin.",
+    "retry": "Tekrar dene",
+    "toToday": "Bugün'e git",
+    "keptTitle": "Çevrimdışı okunabilenler",
+    "noneKept": "Henüz kayıtlı sayfa yok. Açtığın sayfalar bu cihazda saklanır ve bağlantı yokken de okunabilir.",
+    "pendingLong": "{count} kayıt gönderilmeyi bekliyor. Bağlantı gelince kendiliğinden kaydedilir.",
+    "offline": "Çevrimdışısın. Açtığın sayfaları okuyabilirsin; eklediklerin bağlantı gelince kaydedilir.",
+    "offlineCopy": "Çevrimdışısın. Bu, sayfanın {time} tarihli kayıtlı kopyası.",
+    "copy": "Bağlantı yavaş; bu, sayfanın {time} tarihli kayıtlı kopyası.",
+    "pending": "· {count} kayıt bekliyor.",
+    "pendingOnline": "{count} kayıt gönderilmeyi bekliyor.",
+    "reload": "Yenile",
+    "sendNow": "Şimdi gönder",
+    "synced": "Çevrimdışıyken eklediğin {count} kayıt kaydedildi.",
+    "refused": "“{title}” kaydedilemedi: {error}",
+    "signOutOffline": "Çıkış yapmak için bağlantı gerekiyor.",
+    "signOutPending": "Bekleyen kayıtlar gönderilemedi. Bağlantını kontrol edip yeniden dene."
+  }
 }

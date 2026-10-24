@@ -129,7 +129,10 @@
     "offlineQueued": "Çevrimdışısın. Bağlantı gelince eklenecek.",
     "taskSavedInbox": "Görev Gelen kutusuna eklendi",
     "noteSavedLinked": "Not eklendi ve bağlandı",
-    "newLine": "yeni satır"
+    "newLine": "yeni satır",
+    "queued": "Bağlantı yok; bağlantı gelince kaydedilecek.",
+    "queuedMany": "Bağlantı yok; {count} görev bağlantı gelince kaydedilecek.",
+    "fileOffline": "Dosya eklemek için bağlantı gerekiyor."
   },
   "tokens": {
     "date": "Son tarih",

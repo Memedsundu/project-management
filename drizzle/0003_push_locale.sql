@@ -1,0 +1,1 @@
+ALTER TABLE "push_subscriptions" ADD COLUMN "locale" text DEFAULT 'tr' NOT NULL;

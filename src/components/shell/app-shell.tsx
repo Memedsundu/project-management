@@ -13,13 +13,15 @@ import { cn } from "@/lib/utils";
 import type { ShellData } from "@/server/services/shell";
 import { ALL_NAV_ITEMS, activeNavKey } from "./nav-items";
 import { ShellContext, type QuickAddPrefill, type ScreenContext } from "./shell-context";
-import { Sidebar, SidebarNav } from "./sidebar";
+import { OfflineSupport } from "./offline-support";
+import { Sidebar, SidebarNav, SignOutButton } from "./sidebar";
 import { LanguageSwitch } from "./language-switch";
 import { ThemeSwitch } from "./theme-switch";
 import { useMediaQuery } from "./use-media-query";
 
 const CommandMenu = dynamic(() => import("./command-menu").then((m) => m.CommandMenu), { ssr: false });
-const QuickAdd = dynamic(() => import("./quick-add").then((m) => m.QuickAdd), { ssr: false });
+const loadQuickAdd = () => import("./quick-add").then((m) => m.QuickAdd);
+const QuickAdd = dynamic(loadQuickAdd, { ssr: false });
 const AssistantPanel = dynamic(() => import("./assistant-panel").then((m) => m.AssistantPanel), { ssr: false });
 const ShortcutsSheet = dynamic(() => import("./shortcuts-sheet").then((m) => m.ShortcutsSheet), { ssr: false });
 
@@ -117,6 +119,18 @@ export function AppShell({ data, children }: { data: ShellData; children: React.
     return () => window.removeEventListener("keydown", onKey);
   }, [onKey]);
 
+  // The home screen shortcut "Hızlı ekle" opens /today?quick=1.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("quick") !== "1") return;
+    params.delete("quick");
+    const rest = params.toString();
+    window.history.replaceState(window.history.state, "", window.location.pathname + (rest ? `?${rest}` : ""));
+    if (data.readOnly) return;
+    const handle = window.setTimeout(() => setQuickAdd({}), 0);
+    return () => window.clearTimeout(handle);
+  }, [data.readOnly]);
+
   const active = activeNavKey(pathname);
 
   return (
@@ -209,6 +223,7 @@ export function AppShell({ data, children }: { data: ShellData; children: React.
               {tc("readOnly")}
             </div>
           ) : null}
+          <OfflineSupport preload={loadQuickAdd} />
 
           <div className="flex min-h-0 flex-1">
             <main id="main" className="min-w-0 flex-1 px-4 pb-28 pt-5 md:px-8 lg:px-10 lg:pb-16 lg:pt-8">
@@ -229,7 +244,7 @@ export function AppShell({ data, children }: { data: ShellData; children: React.
       </div>
 
       {/* Phone bottom bar with quick add in the centre */}
-      <nav className="no-print fixed inset-x-0 bottom-0 z-30 border-t border-line bg-bg/95 pb-[env(safe-area-inset-bottom)] backdrop-blur lg:hidden">
+      <nav className="bottom-bar no-print fixed inset-x-0 bottom-0 z-30 border-t border-line bg-bg/95 pb-[env(safe-area-inset-bottom)] backdrop-blur lg:hidden">
         <div className="mx-auto grid h-16 max-w-md grid-cols-5 items-center">
           {[
             { key: "today", href: "/today", icon: Sun, label: t("today") },
@@ -294,6 +309,7 @@ export function AppShell({ data, children }: { data: ShellData; children: React.
           <div className="mt-6 flex flex-col gap-2 px-1">
             <LanguageSwitch />
             <ThemeSwitch />
+            <SignOutButton withLabel />
           </div>
         </SheetContent>
       </Dialog>

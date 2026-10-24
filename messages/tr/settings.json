@@ -18,5 +18,22 @@
     "setDate": "Tarih ver",
     "setPriority": "Öncelik ver",
     "complete": "Tamamla"
+  },
+  "push": {
+    "taskTitle": "Hatırlatma",
+    "meetingTitle": "{time} · {title}",
+    "meetingSoon": "Birazdan başlıyor",
+    "meetingSoonAt": "Birazdan başlıyor · {location}",
+    "lateTitle": "{org} raporu gecikti",
+    "lateBody": "{label} raporu {days} gündür bekleniyor.",
+    "briefTitle": "Günlük özetin hazır",
+    "testTitle": "Bildirimler açık",
+    "testBody": "Hatırlatmalar bu cihaza böyle gelecek."
+  },
+  "notifications": {
+    "enabled": "Bu cihazda bildirimler açık.",
+    "disabled": "Bu cihazda bildirimler kapandı.",
+    "enableFailed": "Bildirimler açılamadı. Tarayıcının izinlerini kontrol et.",
+    "testSent": "Deneme bildirimi gönderildi."
   }
 }

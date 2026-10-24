@@ -263,5 +263,27 @@
     "logframe": "Logframe levels"
   },
   "remove": "Remove",
-  "addedToCollection": "Added to “{title}”"
+  "addedToCollection": "Added to “{title}”",
+  "offline": {
+    "pageTitle": "Offline",
+    "title": "You're offline",
+    "body": "Pick up where you left off once you're back online. Pages you opened before are listed below, and you can read them now.",
+    "notKept": "This page isn't saved on this device, so it opens once you're back online. You can read the pages you opened before, below.",
+    "retry": "Try again",
+    "toToday": "Go to Today",
+    "keptTitle": "Readable offline",
+    "noneKept": "No saved pages yet. Pages you open are kept on this device and stay readable offline.",
+    "pendingLong": "{count, plural, one {# item is} other {# items are}} waiting to be sent. They're saved as soon as you're back online.",
+    "offline": "You're offline. You can read pages you've opened; anything you add is saved once you're back online.",
+    "offlineCopy": "You're offline. This is the copy of this page saved at {time}.",
+    "copy": "The connection is slow, so this is the copy of this page saved at {time}.",
+    "pending": "· {count, plural, one {# item} other {# items}} waiting.",
+    "pendingOnline": "{count, plural, one {# item is} other {# items are}} waiting to be sent.",
+    "reload": "Reload",
+    "sendNow": "Send now",
+    "synced": "{count, plural, one {# item you added offline was} other {# items you added offline were}} saved.",
+    "refused": "“{title}” couldn't be saved: {error}",
+    "signOutOffline": "You need a connection to sign out.",
+    "signOutPending": "Waiting items couldn't be sent. Check your connection and try again."
+  }
 }

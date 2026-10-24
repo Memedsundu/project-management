@@ -22,6 +22,13 @@
       "when": 1792852144875,
       "tag": "0002_briefs",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1792869281313,
+      "tag": "0003_push_locale",
+      "breakpoints": true
     }
   ]
 }

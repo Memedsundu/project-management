@@ -86,7 +86,7 @@ export async function dailyBriefJob(payload: Record<string, unknown> = {}) {
   }
   const brief = await saveBrief({ kind: "daily", day, title: formatLongDay(day, "tr"), content: lines.join("\n"), data: { lines }, model });
   if (payload.notify !== false && (await getSetting("notifications")).briefReady) {
-    await sendPush(`brief:${day}`, { title: "Günlük özetin hazır", body: lines[0] ?? "", url: "/today", tag: "brief" });
+    await sendPush(`brief:${day}`, (tr) => ({ title: tr("briefTitle"), body: lines[0] ?? "", url: "/today", tag: "brief" }));
   }
   return brief;
 }

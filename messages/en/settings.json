@@ -18,5 +18,22 @@
     "setDate": "Set a date",
     "setPriority": "Set priority",
     "complete": "Complete"
+  },
+  "push": {
+    "taskTitle": "Reminder",
+    "meetingTitle": "{time} · {title}",
+    "meetingSoon": "Starting soon",
+    "meetingSoonAt": "Starting soon · {location}",
+    "lateTitle": "{org} report is late",
+    "lateBody": "The {label} report has been due for {days, plural, one {# day} other {# days}}.",
+    "briefTitle": "Your daily brief is ready",
+    "testTitle": "Notifications are on",
+    "testBody": "Reminders will reach this device like this."
+  },
+  "notifications": {
+    "enabled": "Notifications are on for this device.",
+    "disabled": "Notifications are off for this device.",
+    "enableFailed": "Couldn't turn on notifications. Check the browser's permissions.",
+    "testSent": "Test notification sent."
   }
 }

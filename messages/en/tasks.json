@@ -129,7 +129,10 @@
     "offlineQueued": "You are offline. It will be added when you reconnect.",
     "taskSavedInbox": "Task added to the Inbox",
     "noteSavedLinked": "Note added and linked",
-    "newLine": "new line"
+    "newLine": "new line",
+    "queued": "No connection; it'll be saved once you're back online.",
+    "queuedMany": "No connection; {count, plural, one {# task} other {# tasks}} will be saved once you're back online.",
+    "fileOffline": "You need a connection to add files."
   },
   "tokens": {
     "date": "Deadline",

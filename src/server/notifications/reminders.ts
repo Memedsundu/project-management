@@ -31,7 +31,7 @@ export async function sendRemindersJob() {
       )
       .limit(50);
     for (const t of due) {
-      await sendPush(`task:${t.id}:${t.reminderAt!.toISOString()}`, { title: "Hatırlatma", body: t.title, url: `/tasks?open=${t.id}`, tag: `task-${t.id}` }, { ignoreQuiet: true });
+      await sendPush(`task:${t.id}:${t.reminderAt!.toISOString()}`, (tr) => ({ title: tr("taskTitle"), body: t.title, url: `/tasks?open=${t.id}`, tag: `task-${t.id}` }), { ignoreQuiet: true });
     }
   }
 
@@ -42,12 +42,12 @@ export async function sendRemindersJob() {
       .where(and(isNull(meetings.deletedAt), inArray(meetings.status, ["planned"]), gte(meetings.startsAt, now), lte(meetings.startsAt, new Date(now.getTime() + 20 * 60 * 1000))))
       .limit(10);
     for (const m of soon) {
-      await sendPush(`meeting:${m.id}:${m.startsAt.toISOString()}`, {
-        title: `${formatTime(m.startsAt)} · ${m.title}`,
-        body: m.location ? `Birazdan başlıyor · ${m.location}` : "Birazdan başlıyor",
+      await sendPush(`meeting:${m.id}:${m.startsAt.toISOString()}`, (tr) => ({
+        title: tr("meetingTitle", { time: formatTime(m.startsAt), title: m.title }),
+        body: m.location ? tr("meetingSoonAt", { location: m.location }) : tr("meetingSoon"),
         url: `/meetings/${m.id}`,
         tag: `meeting-${m.id}`,
-      });
+      }));
     }
   }
 
@@ -55,12 +55,12 @@ export async function sendRemindersJob() {
     const { latePartnerReports } = await import("@/server/services/today");
     const late = await latePartnerReports();
     for (const r of late.filter((x) => x.daysLate >= 1)) {
-      await sendPush(`late:${r.orgId}:${r.label}`, {
-        title: `${r.orgName} raporu gecikti`,
-        body: `${r.label} raporu ${r.daysLate} gündür bekleniyor.`,
+      await sendPush(`late:${r.orgId}:${r.label}`, (tr) => ({
+        title: tr("lateTitle", { org: r.orgName }),
+        body: tr("lateBody", { label: r.label, days: r.daysLate }),
         url: `/partners/${r.orgId}`,
         tag: `late-${r.orgId}`,
-      });
+      }));
     }
   }
 }

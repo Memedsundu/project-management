@@ -190,6 +190,14 @@
   }
 }
 
+/* Phones: the keyboard pushes the page up (interactive-widget in the layout),
+   so the bottom bar steps aside while she types. */
+@media (pointer: coarse) {
+  body:has(:is(textarea, [contenteditable="true"], input:not([type="checkbox"], [type="radio"], [type="range"], [type="file"], [type="button"], [type="submit"], [type="color"])):focus) .bottom-bar {
+    display: none;
+  }
+}
+
 @media print {
   .no-print {
     display: none !important;

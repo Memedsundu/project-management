@@ -4,8 +4,10 @@ import { LogOut, Pin } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { toast } from "sonner";
 import { signOutAction } from "@/app/(auth)/actions";
 import { CountPill } from "@/components/ui/badge";
+import { flushCaptures, forgetOfflineCopies, pendingCaptures } from "@/lib/client/offline";
 import type { ShellData } from "@/server/services/shell";
 import { cn } from "@/lib/utils";
 import { LanguageSwitch } from "./language-switch";
@@ -81,7 +83,6 @@ export function SidebarNav({ data, onNavigate }: { data: ShellData; onNavigate?:
 }
 
 export function Sidebar({ data }: { data: ShellData }) {
-  const t = useTranslations("nav");
   return (
     <aside className="no-print sticky top-0 hidden h-dvh w-[248px] shrink-0 flex-col gap-6 overflow-y-auto border-r border-line bg-bg-subtle px-4 py-6 scrollbar-thin lg:flex">
       <Link href="/today" className="flex flex-col gap-1 px-3">
@@ -97,18 +98,49 @@ export function Sidebar({ data }: { data: ShellData }) {
         </div>
         <div className="flex items-center justify-between">
           <ThemeSwitch />
-          <form action={signOutAction}>
-            <button
-              type="submit"
-              title={t("signOut")}
-              aria-label={t("signOut")}
-              className="inline-flex h-9 w-9 items-center justify-center rounded-full text-muted hover:bg-panel-2 hover:text-ink"
-            >
-              <LogOut size={16} />
-            </button>
-          </form>
+          <SignOutButton />
         </div>
       </div>
     </aside>
+  );
+}
+
+/**
+ * Sign out. What she added offline is sent first, then the pages kept for
+ * offline reading are dropped from this device.
+ */
+export function SignOutButton({ withLabel }: { withLabel?: boolean }) {
+  const t = useTranslations("nav");
+  const to = useTranslations("common.offline");
+  return (
+    <form
+      action={async () => {
+        if (!navigator.onLine) {
+          toast.error(to("signOutOffline"));
+          return;
+        }
+        await flushCaptures({ saved: (count) => to("synced", { count }), refused: (title, error) => to("refused", { title, error }) });
+        if (pendingCaptures().length) {
+          toast.error(to("signOutPending"));
+          return;
+        }
+        await forgetOfflineCopies();
+        await signOutAction();
+      }}
+    >
+      <button
+        type="submit"
+        title={t("signOut")}
+        aria-label={withLabel ? undefined : t("signOut")}
+        className={cn(
+          "inline-flex items-center rounded-full text-muted hover:bg-panel-2 hover:text-ink",
+          withLabel ? "h-11 w-full gap-3 px-3 text-[15px]" : "h-9 w-9 justify-center",
+        )}
+        data-testid="sign-out"
+      >
+        <LogOut size={16} />
+        {withLabel ? t("signOut") : null}
+      </button>
+    </form>
   );
 }

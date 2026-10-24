@@ -14,6 +14,7 @@ import { Checkbox } from "@/components/ui/controls";
 import { Dialog, DialogContent } from "@/components/ui/overlay";
 import { todayStr } from "@/lib/dates";
 import { describeRule, parseTaskInput, splitLines, type ParsedTask, type PartnerRef } from "@/lib/parse-task";
+import { saveOrQueue, useOnline } from "@/lib/client/offline";
 import { runAction } from "@/lib/client/run-action";
 import { cn } from "@/lib/utils";
 import type { QuickAddPrefill } from "./shell-context";
@@ -41,6 +42,7 @@ export function QuickAdd({ prefill, onClose }: { prefill: QuickAddPrefill; onClo
   const [skip, setSkip] = useState<Set<number>>(new Set());
   const ref = useRef<HTMLTextAreaElement>(null);
   const uploader = useUploader();
+  const online = useOnline();
 
   useEffect(() => {
     runAction(quickAddContextAction(), { silent: true }).then((r) => r && setCtx(r));
@@ -68,14 +70,17 @@ export function QuickAdd({ prefill, onClose }: { prefill: QuickAddPrefill; onClo
   const link = prefill.link ? { type: prefill.link.type, id: prefill.link.id } : null;
   const goesToInbox = (p: ParsedTask) => !link && !p.dueDate && !p.startDate && !p.ownerOrgId && !p.ownerName && !p.orgId;
 
+  // Without signal, what she adds waits in this browser and is sent later.
   const saveTask = async () => {
     if (!parsed) return;
     setBusy(true);
-    const res = await runAction(
-      createTaskAction({ ...parsedToInput(parsed, { locale, inbox: goesToInbox(parsed) }), links: link ? [link] : undefined }),
-    );
+    const input = { ...parsedToInput(parsed, { locale, inbox: goesToInbox(parsed) }), links: link ? [link] : undefined };
+    const res = await saveOrQueue({ kind: "task", input }, parsed.title, () => createTaskAction(input));
     setBusy(false);
-    if (res) {
+    if (res === "queued") {
+      toast(t("queued"));
+      onClose();
+    } else if (res) {
       toast(goesToInbox(parsed) ? t("taskSavedInbox") : t("taskSaved"));
       onClose();
     }
@@ -85,11 +90,13 @@ export function QuickAdd({ prefill, onClose }: { prefill: QuickAddPrefill; onClo
     const keep = parsedMany.filter((_, i) => !skip.has(i));
     if (!keep.length) return;
     setBusy(true);
-    const res = await runAction(
-      createTasksAction(keep.map((p) => ({ ...parsedToInput(p, { locale, inbox: goesToInbox(p) }), links: link ? [link] : undefined }))),
-    );
+    const inputs = keep.map((p) => ({ ...parsedToInput(p, { locale, inbox: goesToInbox(p) }), links: link ? [link] : undefined }));
+    const res = await saveOrQueue({ kind: "tasks", inputs }, keep.map((p) => p.title).join(", "), () => createTasksAction(inputs));
     setBusy(false);
-    if (res) {
+    if (res === "queued") {
+      toast(t("queuedMany", { count: inputs.length }));
+      onClose();
+    } else if (res) {
       toast(t("tasksSaved", { count: res.ids.length }));
       onClose();
     }
@@ -98,9 +105,12 @@ export function QuickAdd({ prefill, onClose }: { prefill: QuickAddPrefill; onClo
   const saveNote = async () => {
     if (!text.trim()) return;
     setBusy(true);
-    const res = await runAction(createInboxNoteAction(text, link));
+    const res = await saveOrQueue({ kind: "note", text, link }, text.trim().split("\n")[0] ?? "", () => createInboxNoteAction(text, link));
     setBusy(false);
-    if (res) {
+    if (res === "queued") {
+      toast(t("queued"));
+      onClose();
+    } else if (res) {
       toast(link ? t("noteSavedLinked") : t("noteSaved"));
       onClose();
     }
@@ -190,7 +200,7 @@ export function QuickAdd({ prefill, onClose }: { prefill: QuickAddPrefill; onClo
           </div>
 
           {mode === "file" ? (
-            <FileDrop uploader={uploader} onDone={onClose} hint={t("fileHint")} choose={t("chooseFiles")} />
+            <FileDrop uploader={uploader} onDone={onClose} hint={online ? t("fileHint") : t("fileOffline")} choose={t("chooseFiles")} disabled={!online} />
           ) : (
             <>
               <textarea
@@ -269,7 +279,7 @@ export function QuickAdd({ prefill, onClose }: { prefill: QuickAddPrefill; onClo
                   )}
                 </div>
                 <div className="flex items-center gap-2">
-                  {mode === "task" && !many && ctx.ai && text.trim() ? (
+                  {mode === "task" && !many && ctx.ai && online && text.trim() ? (
                     <Button variant="ghost" size="sm" onClick={askAi} disabled={aiBusy}>
                       <Sparkles size={15} className="text-accent" />
                       {aiBusy ? tc("working") : t("aiParse")}
@@ -288,11 +298,11 @@ export function QuickAdd({ prefill, onClose }: { prefill: QuickAddPrefill; onClo
   );
 }
 
-function FileDrop({ uploader, onDone, hint, choose }: { uploader: ReturnType<typeof useUploader>; onDone: () => void; hint: string; choose: string }) {
+function FileDrop({ uploader, onDone, hint, choose, disabled }: { uploader: ReturnType<typeof useUploader>; onDone: () => void; hint: string; choose: string; disabled?: boolean }) {
   const [over, setOver] = useState(false);
   const input = useRef<HTMLInputElement>(null);
   const start = async (files: FileList | File[] | null) => {
-    if (!files || !files.length) return;
+    if (disabled || !files || !files.length) return;
     const ok = await uploader.upload(Array.from(files), { folderId: null });
     if (ok) onDone();
   };
@@ -316,7 +326,7 @@ function FileDrop({ uploader, onDone, hint, choose }: { uploader: ReturnType<typ
       <Upload size={26} className="text-muted" />
       <p className="max-w-[40ch] text-[14px] text-muted">{hint}</p>
       <input ref={input} type="file" multiple className="sr-only" onChange={(e) => start(e.target.files)} />
-      <Button variant="secondary" onClick={() => input.current?.click()} disabled={uploader.busy}>
+      <Button variant="secondary" onClick={() => input.current?.click()} disabled={uploader.busy || disabled}>
         {uploader.busy ? uploader.label : choose}
       </Button>
     </div>
