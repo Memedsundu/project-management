@@ -102,6 +102,16 @@
         "Seçili metni özetle",
         "Seçili metni İngilizceye çevir",
         "Seçili metinden görevler çıkar"
+      ],
+      "workplan": [
+        "Geciken faaliyetleri ve nedenlerini özetle",
+        "Önümüzdeki altı hafta hangi faaliyetler başlıyor?",
+        "Hasat mevsimiyle çakışan faaliyetler hangileri?"
+      ],
+      "activity": [
+        "Bu faaliyet için hazırlık görevleri öner",
+        "Bu faaliyetin durumu ne, ne bekliyor?",
+        "Bu faaliyet için bir ToR taslağı yaz"
       ]
     },
     "memory": {

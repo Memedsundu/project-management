@@ -68,6 +68,10 @@ export const SETTINGS = {
   onboarding: z
     .object({ seeded: z.boolean().default(false), dismissedTips: z.array(z.string()).default([]) })
     .default({ seeded: false, dismissedTips: [] }),
+  /** Column mappings she chose for workplan files, by the shape of their headers. */
+  workplanImport: z
+    .object({ mappings: z.record(z.string(), z.record(z.string(), z.string())).default({}) })
+    .default({ mappings: {} }),
   vapid: z
     .object({ publicKey: z.string(), privateKey: z.string() })
     .nullable()

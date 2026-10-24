@@ -98,6 +98,11 @@ export async function loadEntityText(ref: EntityRef, opts: { max?: number } = {}
     if (!t || t.deletedAt) return null;
     return { title: t.title, text: [t.title, t.notes].filter(Boolean).join("\n\n"), aiOff: false, kind: "task", date: t.dueDate };
   }
+  if (ref.type === "activity") {
+    const { activityFactsText } = await import("@/server/services/workplan");
+    const a = await activityFactsText(ref.id);
+    return a ? { title: a.title, text: a.text.slice(0, max), aiOff: false, kind: "activity", date: a.date } : null;
+  }
   if (ref.type === "organisation") {
     const [o] = await db.select().from(organisations).where(eq(organisations.id, ref.id)).limit(1);
     if (!o || o.deletedAt) return null;

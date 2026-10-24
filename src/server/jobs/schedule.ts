@@ -47,6 +47,16 @@ export async function scheduleDue(now = nowTz()) {
     }
   }
 
+  // Monday morning: preparation ideas for activities that start in the next six weeks.
+  if (dow === 1 && workday && minutes >= 9 * 60) {
+    const key = `workplan_prep:${day}`;
+    const ran = await db.select({ id: jobs.id }).from(jobs).where(eq(jobs.dedupeKey, key)).limit(1);
+    if (!ran.length) {
+      await enqueue("workplan_prep", { day }, { dedupeKey: key, maxAttempts: 1 });
+      queued.push("workplan_prep");
+    }
+  }
+
   const { scheduledRecipesDue } = await import("@/server/ai/helpers");
   const slots: ("daily_0800" | "friday_1600" | "monthly_first_workday")[] = [];
   if (workday && minutes >= 8 * 60) slots.push("daily_0800");

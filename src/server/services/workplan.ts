@@ -1,4 +1,5 @@
 import "server-only";
+import type { ActivityItem } from "@/components/workplan/types";
 import { and, asc, eq, gte, isNull, lte, sql } from "drizzle-orm";
 import { z } from "zod";
 import { addDaysStr, daysBetween, todayStr } from "@/lib/dates";
@@ -47,31 +48,68 @@ export async function updateActivity(id: string, raw: Partial<ActivityInput> & {
   const [before] = await db.select().from(activities).where(eq(activities.id, id)).limit(1);
   if (!before) return null;
   const { orgIds, ...values } = patch;
-  if (values.startDate && values.endDate && values.endDate < values.startDate) throw new UserError("Bitiş tarihi başlangıçtan önce olamaz.");
+  const start = values.startDate !== undefined ? values.startDate : before.startDate;
+  const end = values.endDate !== undefined ? values.endDate : before.endDate;
+  if (start && end && end < start) throw new UserError("Bitiş tarihi başlangıçtan önce olamaz.");
   const [row] = await db.update(activities).set({ ...values, updatedAt: new Date() }).where(eq(activities.id, id)).returning();
   if (orgIds) await setLinks({ type: "activity", id }, "partner", orgIds.map((o) => ({ type: "organisation" as const, id: o })));
   // Moving an activity can push the ones that wait for it (Gantt "shift dependents").
   if (opts.shiftDependents && before.endDate && row!.endDate && row!.endDate > before.endDate) {
-    await shiftDependents(id, daysBetween(before.endDate, row!.endDate));
+    await shiftDependents(id);
   }
   await logActivity({ action: "update", entityType: "activity", entityId: id, title: `${row!.code} ${row!.title}`, summary: Object.keys(patch).join(", ") });
   await indexActivity(id);
   return row!;
 }
 
-async function shiftDependents(id: string, days: number, seen = new Set<string>()) {
-  if (days <= 0 || seen.has(id)) return;
+/**
+ * Activities that wait for this one move only when they would now start
+ * before it ends, to its next working day (Asana's "consume buffer"):
+ * a gap she planned, such as waiting for the harvest to end, stays.
+ */
+async function shiftDependents(id: string, seen = new Set<string>()) {
+  if (seen.has(id)) return;
   seen.add(id);
   const db = await getDb();
+  const [self] = await db.select().from(activities).where(eq(activities.id, id)).limit(1);
+  if (!self?.endDate) return;
   const deps = await db.select({ id: activityDependencies.activityId }).from(activityDependencies).where(eq(activityDependencies.dependsOnId, id));
   for (const d of deps) {
     const [a] = await db.select().from(activities).where(eq(activities.id, d.id)).limit(1);
-    if (!a || a.status === "done") continue;
+    if (!a?.startDate || a.status === "done" || a.status === "canceled" || a.startDate > self.endDate) continue;
+    const days = daysBetween(a.startDate, await nextWorkingDay(addDaysStr(self.endDate, 1)));
     await db
       .update(activities)
-      .set({ startDate: a.startDate ? addDaysStr(a.startDate, days) : null, endDate: a.endDate ? addDaysStr(a.endDate, days) : null, updatedAt: new Date() })
+      .set({ startDate: addDaysStr(a.startDate, days), endDate: a.endDate ? addDaysStr(a.endDate, days) : null, updatedAt: new Date() })
       .where(eq(activities.id, a.id));
-    await shiftDependents(a.id, days, seen);
+    await shiftDependents(a.id, seen);
+  }
+}
+
+type Dates = { id: string; startDate: string | null; endDate: string | null };
+
+/** A drag on the timeline. Activities that wait for this one move along; the old dates come back for undo. */
+export async function moveActivity(id: string, startDate: string | null, endDate: string | null, opts: { shiftDependents?: boolean } = {}) {
+  const db = await getDb();
+  const snapshot = () => db.select({ id: activities.id, startDate: activities.startDate, endDate: activities.endDate }).from(activities).where(isNull(activities.deletedAt));
+  const before = await snapshot();
+  const row = await updateActivity(id, { startDate, endDate }, { shiftDependents: opts.shiftDependents ?? true });
+  if (!row) return null;
+  const prev = new Map(before.map((b) => [b.id, b]));
+  const previous: Dates[] = (await snapshot()).flatMap((a) => {
+    const b = prev.get(a.id);
+    return b && (b.startDate !== a.startDate || b.endDate !== a.endDate) ? [b] : [];
+  });
+  for (const p of previous) if (p.id !== id) await indexActivity(p.id);
+  return { previous, shifted: previous.filter((p) => p.id !== id).length };
+}
+
+/** Undo of a move: every activity back to the dates it had. */
+export async function restoreDates(list: Dates[]) {
+  const db = await getDb();
+  for (const d of list) {
+    await db.update(activities).set({ startDate: d.startDate, endDate: d.endDate, updatedAt: new Date() }).where(eq(activities.id, d.id));
+    await indexActivity(d.id);
   }
 }
 
@@ -123,6 +161,105 @@ export async function listActivities(): Promise<ActivityView[]> {
     dependsOn: depsBy.get(a.id) ?? [],
     late: Boolean(a.endDate && a.endDate < today && a.status !== "done" && a.status !== "canceled"),
   }));
+}
+
+/** Open tasks linked to each activity, in either direction. */
+export async function openTaskCounts() {
+  const db = await getDb();
+  const res = (await db.execute(sql`
+    select x.a_id as id, count(distinct x.t_id)::int as n from (
+      select l.to_id as a_id, l.from_id as t_id from links l where l.from_type = 'task' and l.to_type = 'activity'
+      union
+      select l.from_id, l.to_id from links l where l.from_type = 'activity' and l.to_type = 'task'
+    ) x join tasks t on t.id = x.t_id
+    where t.deleted_at is null and t.status in ('todo','doing','waiting')
+    group by x.a_id`)) as unknown as { rows: { id: string; n: number }[] };
+  return new Map((res.rows ?? []).map((r) => [r.id, Number(r.n)]));
+}
+
+/**
+ * Late: past its end and not finished, or marked delayed. At risk: anything
+ * that waits (directly or further down the chain) for a late activity, or
+ * starts before the one it waits for has ended (Notion's dependency warning).
+ */
+export function decorateActivities(list: ActivityView[], counts: Map<string, number>, today = todayStr()): ActivityItem[] {
+  const byId = new Map(list.map((a) => [a.id, a]));
+  const closed = (a: ActivityView) => a.status === "done" || a.status === "canceled";
+  const late = new Set(list.filter((a) => !closed(a) && (a.status === "delayed" || Boolean(a.endDate && a.endDate < today))).map((a) => a.id));
+  const dependents = new Map<string, string[]>();
+  for (const a of list) for (const d of a.dependsOn) dependents.set(d, [...(dependents.get(d) ?? []), a.id]);
+  const risk = new Set<string>();
+  const queue = [...late];
+  while (queue.length) {
+    const id = queue.shift()!;
+    for (const next of dependents.get(id) ?? []) {
+      if (risk.has(next)) continue;
+      risk.add(next);
+      queue.push(next);
+    }
+  }
+  for (const a of list) {
+    if (!a.startDate) continue;
+    for (const d of a.dependsOn) {
+      const pred = byId.get(d);
+      if (pred && !closed(pred) && pred.endDate && pred.endDate >= a.startDate) risk.add(a.id);
+    }
+  }
+  return list.map((a) => ({
+    id: a.id,
+    code: a.code,
+    title: a.title,
+    description: a.description,
+    logframeNodeId: a.logframeNodeId,
+    startDate: a.startDate,
+    endDate: a.endDate,
+    status: a.status as ActivityItem["status"],
+    provinces: a.provinces,
+    progress: a.progress,
+    isMilestone: a.isMilestone,
+    orgIds: a.orgIds,
+    dependsOn: a.dependsOn,
+    late: late.has(a.id),
+    atRisk: !closed(a) && !late.has(a.id) && risk.has(a.id),
+    openTasks: counts.get(a.id) ?? 0,
+  }));
+}
+
+/** One activity as plain facts, for Claude (read_record and the assistant's screen context). */
+export async function activityFactsText(id: string) {
+  const list = decorateActivities(await listActivities(), await openTaskCounts());
+  const a = list.find((x) => x.id === id);
+  if (!a) return null;
+  const db = await getDb();
+  const [node] = a.logframeNodeId ? await db.select().from(logframeNodes).where(eq(logframeNodes.id, a.logframeNodeId)).limit(1) : [];
+  const { organisations, tasks, links } = await import("@/server/db/schema");
+  const orgs = a.orgIds.length ? await db.select({ id: organisations.id, name: organisations.name, shortName: organisations.shortName }).from(organisations) : [];
+  const name = (oid: string) => {
+    const o = orgs.find((x) => x.id === oid);
+    return o ? o.shortName || o.name : "?";
+  };
+  const byId = new Map(list.map((x) => [x.id, x]));
+  const open = await db
+    .select({ title: tasks.title, dueDate: tasks.dueDate, status: tasks.status })
+    .from(tasks)
+    .innerJoin(links, and(eq(links.fromType, "task"), eq(links.fromId, tasks.id), eq(links.toType, "activity"), eq(links.toId, id)))
+    .where(isNull(tasks.deletedAt));
+  const lines = [
+    `Activity ${a.code}: ${a.title}`,
+    `Status: ${a.status}, ${a.progress}% done${a.late ? ", LATE" : ""}${a.atRisk ? ", AT RISK (waits for something late)" : ""}${a.isMilestone ? ", milestone" : ""}`,
+    `Dates: ${a.startDate ?? "?"} to ${a.endDate ?? "?"}`,
+    node ? `Output: ${node.code} ${node.title}` : "",
+    a.orgIds.length ? `Partners: ${a.orgIds.map(name).join(", ")}` : "",
+    a.provinces.length ? `Provinces: ${a.provinces.join(", ")}` : "",
+    a.description ? `Description:\n${a.description}` : "",
+    ...a.dependsOn.map((d) => {
+      const p = byId.get(d);
+      return p ? `Waits for ${p.code} ${p.title} (${p.status}, ends ${p.endDate ?? "?"}${p.late ? ", late" : ""})` : "";
+    }),
+    ...list.filter((x) => x.dependsOn.includes(id)).map((x) => `Waited for by ${x.code} ${x.title} (starts ${x.startDate ?? "?"})`),
+    ...open.filter((t) => t.status !== "canceled").map((t) => `Task: ${t.title} (${t.status}${t.dueDate ? `, due ${t.dueDate}` : ""})`),
+  ];
+  return { title: `${a.code} ${a.title}`, text: lines.filter(Boolean).join("\n"), date: a.startDate };
 }
 
 export async function activitiesInRange(from: string, to: string) {

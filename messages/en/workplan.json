@@ -1,1 +1,243 @@
-{}
+{
+  "title": "Workplan",
+  "subtitle": "Activities against the harvest seasons, holidays and report dates: when, with whom, where.",
+  "summary": "{count, plural, one {# activity} other {# activities}}",
+  "summaryLate": "{count} late",
+  "summaryRisk": "{count} at risk",
+  "newActivity": "New activity",
+  "import": {
+    "title": "Import from Excel",
+    "description": "Pick your workplan file: one activity per row, or a Gantt sheet with month columns.",
+    "reading": "Reading the file and matching the columns…",
+    "pick": "Choose an Excel or CSV file",
+    "pickHint": "You can drop the file here. The file is not kept; only the activities are imported.",
+    "tips": {
+      "columns": "Code, activity, partner, province, start and end columns are recognised on their own; you can change any column.",
+      "grid": "An X or a coloured cell in month or quarter columns becomes the date range. Heading rows such as \"Output 1\" become outputs.",
+      "ai": "The column headers and the first five rows go to Claude so it can suggest the mapping. Your mapping is remembered for files with the same columns.",
+      "noAi": "AI is not connected; the mapping comes from the column headers."
+    },
+    "sheet": "Sheet",
+    "sheetOption": "{name} ({count, plural, one {# row} other {# rows}})",
+    "source": {
+      "remembered": "Your last mapping",
+      "ai": "Mapped by Claude",
+      "guess": "Guessed from headers"
+    },
+    "askClaude": "Let Claude map it",
+    "askAgain": "Map again",
+    "columns": "Columns",
+    "noHeader": "Column {n} (no header)",
+    "fieldFor": "Column {header}",
+    "fields": {
+      "ignore": "Don't use",
+      "code": "Code",
+      "title": "Activity name",
+      "output": "Output",
+      "partners": "Partner",
+      "provinces": "Province",
+      "start": "Start",
+      "end": "End",
+      "status": "Status",
+      "progress": "Progress (%)",
+      "depends": "Depends on",
+      "description": "Description"
+    },
+    "periodColumns": "{count} month or quarter columns ({from} … {to}) become date ranges from the marked cells.",
+    "baseMonth": "Which calendar month is \"Month 1\"?",
+    "preview": "Preview",
+    "found": "Found {activities, plural, one {# activity} other {# activities}} and {outputs, plural, one {# output heading} other {# output headings}}",
+    "matches": "{count} already exist by code",
+    "undated": "{count} have no dates",
+    "andMore": "and {count} more",
+    "createOutputs": "Add missing outputs to the logframe",
+    "updateExisting": "Update activities with the same code",
+    "otherFile": "Another file",
+    "import": "Import {count, plural, one {# activity} other {# activities}}",
+    "doneTitle": "Workplan imported",
+    "created": "{count, plural, one {# activity} other {# activities}} added",
+    "updated": "{count, plural, one {# activity} other {# activities}} updated",
+    "skipped": "{count} already existed and were left as they are",
+    "outputsCreated": "{count, plural, one {# output} other {# outputs}} added to the logframe",
+    "unmatched": "Partner names with no match: {list}. Add them under Partners and import the file again.",
+    "warnings": "Notes for {count, plural, one {# row} other {# rows}}"
+  },
+  "export": "Export to Excel",
+  "seasons": "Seasons",
+  "holidays": "Holidays",
+  "more": "Workplan actions",
+  "today": "Today",
+  "views": {
+    "timeline": "Timeline",
+    "table": "Table",
+    "calendar": "Calendar"
+  },
+  "scale": {
+    "month": "Month",
+    "quarter": "Quarter"
+  },
+  "group": {
+    "label": "Group",
+    "output": "By output",
+    "partner": "By partner",
+    "none": "No grouping"
+  },
+  "filters": {
+    "label": "Filter",
+    "partner": "Partner",
+    "allPartners": "All partners",
+    "status": "Status",
+    "allStatuses": "All statuses",
+    "late": "Late and at risk",
+    "clear": "Clear filter",
+    "none": "No activity matches this filter."
+  },
+  "status": {
+    "planned": "Planned",
+    "ongoing": "Ongoing",
+    "done": "Done",
+    "delayed": "Delayed",
+    "canceled": "Canceled"
+  },
+  "flags": {
+    "late": "Late",
+    "lateDays": "{days, plural, one {# day} other {# days}} past its end date",
+    "atRisk": "At risk: what it waits for is late or ends after it starts",
+    "milestone": "Milestone",
+    "atRiskShort": "At risk"
+  },
+  "groups": {
+    "noOutput": "No output",
+    "noPartner": "No partner",
+    "all": "All activities"
+  },
+  "lanes": {
+    "seasons": "Seasons",
+    "milestones": "Reports and dates"
+  },
+  "timeline": {
+    "label": "Activity",
+    "dragHint": "Drag to move, drag an edge to resize. Arrow keys move a day, Shift a week; Alt changes the end.",
+    "placeHint": "Click a day on the line to give it dates",
+    "moved": "{code} moved: {range}",
+    "movedWith": "{code} moved: {range} · {count, plural, one {# waiting activity} other {# waiting activities}} moved too",
+    "placed": "{code} now runs {range}",
+    "legend": {
+      "ongoing": "Ongoing",
+      "planned": "Planned",
+      "done": "Done",
+      "late": "Late",
+      "milestone": "Report, deadline or milestone",
+      "season": "Season",
+      "holiday": "Public holiday"
+    }
+  },
+  "table": {
+    "code": "Code",
+    "title": "Activity",
+    "output": "Output",
+    "partners": "Partners",
+    "provinces": "Provinces",
+    "start": "Start",
+    "end": "End",
+    "duration": "Duration",
+    "status": "Status",
+    "progress": "Progress",
+    "depends": "Depends on",
+    "tasks": "Tasks",
+    "workdays": "{count, plural, one {# working day} other {# working days}}",
+    "none": "None",
+    "add": "Add activity",
+    "codePlaceholder": "Code",
+    "titlePlaceholder": "Name of the new activity",
+    "open": "Open {code}",
+    "openShort": "Open",
+    "choose": "Choose"
+  },
+  "calendar": {
+    "prev": "Previous",
+    "next": "Next",
+    "month": "Month",
+    "week": "Week",
+    "more": "+{count} more",
+    "empty": "Nothing in this period.",
+    "kinds": {
+      "meeting": "Meeting",
+      "task": "Task due",
+      "start": "Activity starts",
+      "end": "Activity ends",
+      "report": "Report or milestone"
+    }
+  },
+  "sheet": {
+    "waitsFor": "Waits for: {list}",
+    "date": "Date",
+    "calendarDays": "{count, plural, one {# calendar day} other {# calendar days}}",
+    "milestoneHint": "A single date: a signature, a delivery, an opening.",
+    "season": "Falls in the same period as {name} ({range}).",
+    "holidays": "{count, plural, one {# public holiday} other {# public holiday days}} in these dates: {names}.",
+    "description": "Description",
+    "descriptionPlaceholder": "Purpose, method, number of participants (totals only), notes",
+    "waitsForTitle": "Waits for",
+    "addDependency": "Add a link",
+    "ends": "ends {date}",
+    "removeDependency": "Remove the link to {code}",
+    "noDependencies": "Does not wait for another activity.",
+    "dependents": "Waiting for this one:",
+    "tasks": "Tasks",
+    "noTasks": "No tasks linked to this activity.",
+    "taskPlaceholder": "Add a task, for example the ToR draft",
+    "addTask": "Add task",
+    "dragTip": "Drag the bar on the timeline to change the dates. An activity that waits for it moves only if they would overlap; a planned gap stays.",
+    "delete": "Delete activity"
+  },
+  "form": {
+    "title": "New activity",
+    "description": "A code and a name are enough; you can give it dates on the timeline later.",
+    "name": "Activity name",
+    "namePlaceholder": "For example Family information sessions",
+    "create": "Add activity"
+  },
+  "seasonsDialog": {
+    "title": "Seasons",
+    "description": "Harvest periods behind the timeline, so activity timing reads against the season.",
+    "empty": "No seasons yet. Add a ready-made one or draw your own.",
+    "show": "Show {name}",
+    "add": "Add season",
+    "presets": "Ready-made seasons",
+    "presetsHint": "Dates are averages; adjust them to the province.",
+    "name": "Name",
+    "namePlaceholder": "For example Hazelnut harvest",
+    "crop": "Crop",
+    "cropPlaceholder": "Hazelnut",
+    "from": "From",
+    "fromDay": "Start day",
+    "to": "To",
+    "toDay": "End day",
+    "provinces": "Provinces",
+    "allProvinces": "All provinces"
+  },
+  "holidaysDialog": {
+    "title": "Holidays",
+    "description": "Public and religious holidays are left out of working days and marked on the timeline.",
+    "half": "Half day",
+    "name": "Holiday name",
+    "namePlaceholder": "Holiday name",
+    "add": "Add",
+    "note": "Religious holiday dates for later years are estimates; check them against the Diyanet calendar."
+  },
+  "ai": {
+    "prep": "Suggest preparation",
+    "prepOne": "Suggest preparation",
+    "proposing": "Claude is thinking…",
+    "prepDone": "Claude suggested {tasks} preparation tasks for {count, plural, one {# activity} other {# activities}}. Pick them on the cards.",
+    "nothing": "No activity in the next six weeks needs preparation.",
+    "summarise": "Summarise delays",
+    "summaryTitle": "Delays in short",
+    "prepTitle": "Claude's preparation ideas ({count})"
+  },
+  "empty": {
+    "title": "The workplan is empty",
+    "body": "Import your workplan from Excel or add activities one by one. Add the harvest seasons too; activity timing reads against them."
+  }
+}

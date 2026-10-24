@@ -102,6 +102,16 @@
         "Summarise the selected text",
         "Translate the selected text into Turkish",
         "Pull tasks out of the selected text"
+      ],
+      "workplan": [
+        "Summarise the late activities and why",
+        "Which activities start in the next six weeks?",
+        "Which activities overlap the harvest season?"
+      ],
+      "activity": [
+        "Suggest preparation tasks for this activity",
+        "Where does this activity stand and what is it waiting for?",
+        "Draft a ToR for this activity"
       ]
     },
     "memory": {

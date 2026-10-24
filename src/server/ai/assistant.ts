@@ -67,9 +67,9 @@ type Locale = "tr" | "en";
 
 const day = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
 const uuid = z.string().uuid();
-const SEARCH_TYPES = ["task", "note", "meeting", "decision", "document", "organisation", "contact", "series"] as const;
-const READ_TYPES = ["note", "meeting", "document", "task", "organisation"] as const;
-const ABOUT_TYPES = ["meeting", "organisation", "note", "document"] as const;
+const SEARCH_TYPES = ["task", "note", "meeting", "decision", "document", "organisation", "contact", "series", "activity"] as const;
+const READ_TYPES = ["note", "meeting", "document", "task", "organisation", "activity"] as const;
+const ABOUT_TYPES = ["meeting", "organisation", "note", "document", "activity"] as const;
 const about = z.object({ type: z.enum(ABOUT_TYPES), id: uuid }).nullish();
 
 const INPUTS = {
@@ -82,6 +82,12 @@ const INPUTS = {
     text: z.string().max(200).nullish(),
   }),
   upcoming: z.object({ days: z.number().int().min(1).max(60).nullish() }),
+  list_activities: z.object({
+    status: z.enum(["late", "planned", "ongoing", "done", "delayed", "any"]).nullish(),
+    startsWithinDays: z.number().int().min(1).max(365).nullish(),
+    orgId: uuid.nullish(),
+    text: z.string().max(200).nullish(),
+  }),
   partner_overview: z.object({ orgId: uuid }),
   propose_tasks: z.object({
     title: z.string().trim().min(1).max(200),
@@ -118,7 +124,7 @@ const PROPOSE: ToolName[] = ["propose_tasks", "propose_note", "propose_agenda", 
 const str = (description: string) => ({ type: "string", description });
 const aboutSchema = {
   type: "object",
-  description: "The record this comes from or belongs to, if any (a meeting, partner, note or file). Defaults to the record on her screen.",
+  description: "The record this comes from or belongs to, if any (a meeting, partner, note, file or workplan activity). Defaults to the record on her screen.",
   properties: { type: { type: "string", enum: [...ABOUT_TYPES] }, id: str("Record id.") },
   required: ["type", "id"],
 };
@@ -172,6 +178,21 @@ function toolDefs(readOnly: boolean): Anthropic.Tool[] {
       description:
         "What is coming up in the next days (14 by default): meetings with their ids, tasks due or starting, partner report deadlines, deadlines found in files, and partner reports that are already late.",
       input_schema: { type: "object", properties: { days: { type: "integer", minimum: 1, maximum: 60 } } },
+      ...eager,
+    },
+    {
+      name: "list_activities",
+      description:
+        "The workplan: activities with code, dates, status, progress, partners, what each waits for, and open task counts. status: late (late or at risk), planned, ongoing, done, delayed or any (default). startsWithinDays keeps those starting in the next N days. orgId keeps one partner's activities. text keeps activities whose code or title has these words. Also lists the harvest seasons she drew.",
+      input_schema: {
+        type: "object",
+        properties: {
+          status: { type: "string", enum: ["late", "planned", "ongoing", "done", "delayed", "any"] },
+          startsWithinDays: { type: "integer", minimum: 1, maximum: 365 },
+          orgId: str("Organisation id from the organisation list."),
+          text: str("Words in the activity code or title."),
+        },
+      },
       ...eager,
     },
     {
@@ -388,6 +409,8 @@ function statusLabel(name: ToolName, input: Record<string, unknown>, locale: Loc
       return tr ? "Görevlere bakıyor" : "Checking tasks";
     case "upcoming":
       return tr ? "Yaklaşanlara bakıyor" : "Checking what is coming up";
+    case "list_activities":
+      return tr ? "İş planına bakıyor" : "Checking the workplan";
     case "partner_overview":
       return tr ? `Ortak kaydına bakıyor: ${extra ?? ""}`.trim() : `Checking the partner record: ${extra ?? ""}`.trim();
     default:
@@ -517,12 +540,50 @@ async function runTool(name: ToolName, raw: unknown, ctx: RunCtx): Promise<ToolO
       out.push("Partner reports already late:");
       for (const r of late) out.push(`- ${r.orgName} ${r.label}, due ${r.due} (${r.daysLate} days late)`);
     }
+    const { activitiesInRange } = await import("@/server/services/workplan");
+    const acts = (await activitiesInRange(today, end)).filter((a) => (a.startDate && a.startDate >= today) || (a.endDate && a.endDate <= end));
+    if (acts.length) {
+      out.push("Workplan activities starting or ending:");
+      for (const a of acts) {
+        const starts = a.startDate && a.startDate >= today && a.startDate <= end;
+        out.push(`- ${starts ? `${a.startDate} starts` : `${a.endDate} ends`}: ${a.code} ${a.title} (${a.status}) · href /workplan?open=${a.id}`);
+      }
+    }
     const dates = keyDates.filter((k) => !hidden.has(`document:${k.documentId}`));
     if (dates.length) {
       out.push("Deadlines found in files:");
       for (const k of dates) out.push(`- ${k.date}: ${k.label} (${k.title}, href /files/d/${k.documentId})`);
     }
     return { content: withheldIfChildData(out.join("\n")) };
+  }
+
+  if (name === "list_activities") {
+    const f = INPUTS.list_activities.parse(input);
+    ctx.emit({ type: "status", label: statusLabel(name, input, ctx.locale) });
+    const { decorateActivities, listActivities, listSeasons, openTaskCounts } = await import("@/server/services/workplan");
+    const today = todayStr();
+    const [all, counts, seasons] = await Promise.all([listActivities(), openTaskCounts(), listSeasons()]);
+    const items = decorateActivities(all, counts, today);
+    const code = new Map(items.map((a) => [a.id, a.code]));
+    const words = f.text?.trim().toLocaleLowerCase("tr");
+    const horizon = f.startsWithinDays ? addDaysStr(today, f.startsWithinDays) : null;
+    const list = items.filter((a) => {
+      if (f.status === "late" && !(a.late || a.atRisk)) return false;
+      if (f.status && f.status !== "late" && f.status !== "any" && a.status !== f.status) return false;
+      if (horizon && !(a.startDate && a.startDate >= today && a.startDate <= horizon)) return false;
+      if (f.orgId && !a.orgIds.includes(f.orgId)) return false;
+      if (words && !`${a.code} ${a.title}`.toLocaleLowerCase("tr").includes(words)) return false;
+      return true;
+    });
+    const orgLabel = (id: string) => ctx.orgs.find((o) => o.id === id)?.shortName || ctx.orgs.find((o) => o.id === id)?.name || "?";
+    const lines = list.slice(0, 60).map(
+      (a) =>
+        `- ${a.code} ${a.title} · ${a.startDate ?? "?"} → ${a.endDate ?? "?"} · ${a.status} ${a.progress}%${a.late ? " · LATE" : ""}${a.atRisk ? " · AT RISK" : ""}${a.orgIds.length ? ` · ${a.orgIds.map(orgLabel).join(", ")}` : ""}${a.provinces.length ? ` · ${a.provinces.join(", ")}` : ""}${a.dependsOn.length ? ` · waits for ${a.dependsOn.map((d) => code.get(d) ?? "?").join(", ")}` : ""} · ${a.openTasks} open tasks · id ${a.id} · href /workplan?open=${a.id}`,
+    );
+    if (list.length > 60) lines.push(`(and ${list.length - 60} more)`);
+    const active = seasons.filter((x) => x.active);
+    if (active.length) lines.push("", "Harvest seasons:", ...active.map((x) => `- ${x.name}: ${x.startDay}.${x.startMonth} to ${x.endDay}.${x.endMonth}${x.provinces.length ? ` (${x.provinces.join(", ")})` : ""}`));
+    return { content: list.length ? withheldIfChildData(lines.join("\n")) : `No activities match.${active.length ? `\n${lines.join("\n")}` : ""}` };
   }
 
   if (name === "partner_overview") {

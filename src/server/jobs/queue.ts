@@ -20,7 +20,8 @@ export type JobType =
   | "run_recipe"
   | "organize_folder"
   | "read_indicators"
-  | "send_reminders";
+  | "send_reminders"
+  | "workplan_prep";
 
 type Handler = (payload: Record<string, unknown>) => Promise<unknown>;
 
@@ -36,6 +37,7 @@ const HANDLERS: Record<JobType, () => Promise<Handler>> = {
   organize_folder: async () => (await import("@/server/ai/organize")).organizeFolderJob,
   read_indicators: async () => (await import("@/server/ai/indicator-reader")).readIndicatorsJob,
   send_reminders: async () => (await import("@/server/notifications/reminders")).sendRemindersJob,
+  workplan_prep: async () => (await import("@/server/ai/workplan")).workplanPrepJob,
 };
 
 export async function enqueue(

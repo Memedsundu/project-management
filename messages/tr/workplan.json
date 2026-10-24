@@ -1,1 +1,243 @@
-{}
+{
+  "title": "İş planı",
+  "subtitle": "Faaliyetler hasat mevsimlerine, tatillere ve rapor tarihlerine karşı: ne zaman, kiminle, nerede.",
+  "summary": "{count} faaliyet",
+  "summaryLate": "{count} gecikmede",
+  "summaryRisk": "{count} riskte",
+  "newActivity": "Yeni faaliyet",
+  "import": {
+    "title": "Excel'den içe aktar",
+    "description": "İş planı dosyanı seç: satır satır faaliyetler ya da ay sütunlu bir Gantt tablosu.",
+    "reading": "Dosya okunuyor, sütunlar eşleniyor…",
+    "pick": "Excel ya da CSV dosyası seç",
+    "pickHint": "Dosyayı buraya sürükleyebilirsin. Dosya kaydedilmez; yalnızca faaliyetler içe aktarılır.",
+    "tips": {
+      "columns": "Kod, faaliyet, ortak, il, başlangıç ve bitiş sütunları kendiliğinden tanınır; her sütunu değiştirebilirsin.",
+      "grid": "Ay ya da çeyrek sütunlarında X ya da renkli hücreler tarih aralığına dönüşür. \"Çıktı 1\" gibi başlık satırları çıktı olur.",
+      "ai": "Sütun başlıkları ve ilk beş satır, eşlemeyi önermesi için Claude'a gönderilir. Aynı sütunlu bir dosyada eşlemen hatırlanır.",
+      "noAi": "Yapay zekâ bağlı değil; eşleme sütun başlıklarından yapılır."
+    },
+    "sheet": "Sayfa",
+    "sheetOption": "{name} ({count} satır)",
+    "source": {
+      "remembered": "Önceki eşlemen",
+      "ai": "Claude eşledi",
+      "guess": "Başlıklardan tahmin"
+    },
+    "askClaude": "Claude eşlesin",
+    "askAgain": "Yeniden eşlet",
+    "columns": "Sütunlar",
+    "noHeader": "Başlıksız sütun {n}",
+    "fieldFor": "{header} sütunu",
+    "fields": {
+      "ignore": "Kullanma",
+      "code": "Kod",
+      "title": "Faaliyet adı",
+      "output": "Çıktı",
+      "partners": "Ortak",
+      "provinces": "İl",
+      "start": "Başlangıç",
+      "end": "Bitiş",
+      "status": "Durum",
+      "progress": "İlerleme (%)",
+      "depends": "Bağlı olduğu",
+      "description": "Açıklama"
+    },
+    "periodColumns": "{count} ay ya da çeyrek sütunu ({from} … {to}) işaretli hücrelerden tarih aralığına dönüşür.",
+    "baseMonth": "\"Ay 1\" hangi takvim ayı?",
+    "preview": "Ön izleme",
+    "found": "{activities} faaliyet, {outputs} çıktı başlığı bulundu",
+    "matches": "{count} tanesinin kodu zaten var",
+    "undated": "{count} tanesinin tarihi yok",
+    "andMore": "ve {count} faaliyet daha",
+    "createOutputs": "Bulunmayan çıktıları mantıksal çerçeveye ekle",
+    "updateExisting": "Kodu aynı olan faaliyetleri güncelle",
+    "otherFile": "Başka dosya",
+    "import": "{count} faaliyeti içe aktar",
+    "doneTitle": "İş planı içe aktarıldı",
+    "created": "{count} faaliyet eklendi",
+    "updated": "{count} faaliyet güncellendi",
+    "skipped": "{count} faaliyet zaten vardı, dokunulmadı",
+    "outputsCreated": "{count} çıktı mantıksal çerçeveye eklendi",
+    "unmatched": "Eşleşmeyen ortak adları: {list}. Ortaklar'a ekleyip dosyayı yeniden içe aktarabilirsin.",
+    "warnings": "{count} satır için not"
+  },
+  "export": "Excel'e aktar",
+  "seasons": "Mevsimler",
+  "holidays": "Tatiller",
+  "more": "İş planı işlemleri",
+  "today": "Bugün",
+  "views": {
+    "timeline": "Zaman çizelgesi",
+    "table": "Tablo",
+    "calendar": "Takvim"
+  },
+  "scale": {
+    "month": "Ay",
+    "quarter": "Çeyrek"
+  },
+  "group": {
+    "label": "Grupla",
+    "output": "Çıktıya göre",
+    "partner": "Ortağa göre",
+    "none": "Gruplama yok"
+  },
+  "filters": {
+    "label": "Süz",
+    "partner": "Ortak",
+    "allPartners": "Tüm ortaklar",
+    "status": "Durum",
+    "allStatuses": "Tüm durumlar",
+    "late": "Geciken ve riskte",
+    "clear": "Süzgeci kaldır",
+    "none": "Bu süzgece uyan faaliyet yok."
+  },
+  "status": {
+    "planned": "Planlandı",
+    "ongoing": "Devam ediyor",
+    "done": "Tamamlandı",
+    "delayed": "Gecikti",
+    "canceled": "İptal"
+  },
+  "flags": {
+    "late": "Gecikmede",
+    "lateDays": "Bitiş tarihini {days} gün geçti",
+    "atRisk": "Riskte: beklediği faaliyet gecikiyor ya da bitmeden başlıyor",
+    "milestone": "Kilometre taşı",
+    "atRiskShort": "Riskte"
+  },
+  "groups": {
+    "noOutput": "Çıktısı belirtilmemiş",
+    "noPartner": "Ortak atanmamış",
+    "all": "Tüm faaliyetler"
+  },
+  "lanes": {
+    "seasons": "Mevsimler",
+    "milestones": "Raporlar ve tarihler"
+  },
+  "timeline": {
+    "label": "Faaliyet",
+    "dragHint": "Sürükleyerek taşı, kenarından uzat. Ok tuşları bir gün, Shift ile bir hafta kaydırır; Alt ile bitişi değiştirir.",
+    "placeHint": "Tarih vermek için çizgide bir güne tıkla",
+    "moved": "{code} taşındı: {range}",
+    "movedWith": "{code} taşındı: {range} · bekleyen {count} faaliyet de kaydı",
+    "placed": "{code} için tarih verildi: {range}",
+    "legend": {
+      "ongoing": "Devam ediyor",
+      "planned": "Planlandı",
+      "done": "Tamamlandı",
+      "late": "Gecikmede",
+      "milestone": "Rapor, son tarih ya da kilometre taşı",
+      "season": "Mevsim",
+      "holiday": "Resmî tatil"
+    }
+  },
+  "table": {
+    "code": "Kod",
+    "title": "Faaliyet",
+    "output": "Çıktı",
+    "partners": "Ortaklar",
+    "provinces": "İller",
+    "start": "Başlangıç",
+    "end": "Bitiş",
+    "duration": "Süre",
+    "status": "Durum",
+    "progress": "İlerleme",
+    "depends": "Bağlı olduğu",
+    "tasks": "Görevler",
+    "workdays": "{count} iş günü",
+    "none": "Yok",
+    "add": "Faaliyet ekle",
+    "codePlaceholder": "Kod",
+    "titlePlaceholder": "Yeni faaliyetin adı",
+    "open": "{code} faaliyetini aç",
+    "openShort": "Aç",
+    "choose": "Seç"
+  },
+  "calendar": {
+    "prev": "Önceki",
+    "next": "Sonraki",
+    "month": "Ay",
+    "week": "Hafta",
+    "more": "+{count} daha",
+    "empty": "Bu dönemde kayıt yok.",
+    "kinds": {
+      "meeting": "Toplantı",
+      "task": "Görev son tarihi",
+      "start": "Faaliyet başlıyor",
+      "end": "Faaliyet bitiyor",
+      "report": "Rapor ya da kilometre taşı"
+    }
+  },
+  "sheet": {
+    "waitsFor": "Beklediği: {list}",
+    "date": "Tarih",
+    "calendarDays": "{count} takvim günü",
+    "milestoneHint": "Tek günlük bir tarih: imza, teslim, açılış.",
+    "season": "{name} ile aynı döneme denk geliyor ({range}).",
+    "holidays": "Bu tarihlerde {count} gün resmî tatil var: {names}.",
+    "description": "Açıklama",
+    "descriptionPlaceholder": "Amaç, yöntem, katılımcı sayısı (yalnızca toplam), notlar",
+    "waitsForTitle": "Bağlı olduğu faaliyetler",
+    "addDependency": "Bağlantı ekle",
+    "ends": "{date} bitiyor",
+    "removeDependency": "{code} bağlantısını kaldır",
+    "noDependencies": "Başka bir faaliyeti beklemiyor.",
+    "dependents": "Bunu bekleyenler:",
+    "tasks": "Görevler",
+    "noTasks": "Bu faaliyete bağlı görev yok.",
+    "taskPlaceholder": "Görev ekle, örneğin ToR taslağı",
+    "addTask": "Görevi ekle",
+    "dragTip": "Zaman çizelgesinde çubuğu sürükleyerek tarihleri değiştirebilirsin. Bekleyen bir faaliyet ancak çakışırsa kayar; aradaki boşluk korunur.",
+    "delete": "Faaliyeti sil"
+  },
+  "form": {
+    "title": "Yeni faaliyet",
+    "description": "Kod ve ad yeter; tarihleri sonra zaman çizelgesinde de verebilirsin.",
+    "name": "Faaliyetin adı",
+    "namePlaceholder": "Örneğin Aile bilgilendirme oturumları",
+    "create": "Faaliyeti ekle"
+  },
+  "seasonsDialog": {
+    "title": "Mevsimler",
+    "description": "Zaman çizelgesinin arkasındaki hasat dönemleri. Faaliyet zamanlaması mevsime göre okunur.",
+    "empty": "Henüz mevsim yok. Hazır olanlardan ekleyebilir ya da kendin çizebilirsin.",
+    "show": "{name} görünsün",
+    "add": "Mevsim ekle",
+    "presets": "Hazır mevsimler",
+    "presetsHint": "Tarihler ortalamadır; ildeki duruma göre düzenle.",
+    "name": "Ad",
+    "namePlaceholder": "Örneğin Fındık hasadı",
+    "crop": "Ürün",
+    "cropPlaceholder": "Fındık",
+    "from": "Başlangıç",
+    "fromDay": "Başlangıç günü",
+    "to": "Bitiş",
+    "toDay": "Bitiş günü",
+    "provinces": "İller",
+    "allProvinces": "Tüm iller"
+  },
+  "holidaysDialog": {
+    "title": "Tatiller",
+    "description": "Resmî ve dini bayramlar iş günü hesabından düşülür ve zaman çizelgesinde işaretlenir.",
+    "half": "Yarım gün",
+    "name": "Tatilin adı",
+    "namePlaceholder": "Tatilin adı",
+    "add": "Ekle",
+    "note": "Dini bayram tarihleri sonraki yıllar için tahmindir; Diyanet takvimiyle karşılaştır."
+  },
+  "ai": {
+    "prep": "Hazırlık öner",
+    "prepOne": "Hazırlık öner",
+    "proposing": "Claude düşünüyor…",
+    "prepDone": "Claude {count} faaliyet için {tasks} hazırlık görevi önerdi. Kartlardan seçebilirsin.",
+    "nothing": "Önümüzdeki altı haftada hazırlık bekleyen faaliyet yok.",
+    "summarise": "Gecikmeleri özetle",
+    "summaryTitle": "Gecikmelerin özeti",
+    "prepTitle": "Claude'un hazırlık önerileri ({count})"
+  },
+  "empty": {
+    "title": "İş planı boş",
+    "body": "Excel'deki iş planını içe aktar ya da faaliyetleri tek tek ekle. Hasat mevsimlerini de ekle; faaliyetlerin zamanlaması onlara göre okunur."
+  }
+}
