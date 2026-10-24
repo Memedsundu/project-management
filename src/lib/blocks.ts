@@ -97,11 +97,15 @@ function listItems(list: Tokens.List): Block[] {
     const inner = item.tokens ?? [];
     const textTokens = inner.filter((t) => t.type !== "list");
     const nested = inner.filter((t): t is Tokens.List => t.type === "list");
-    const content = inlineFrom(textTokens.flatMap((t) => ("tokens" in t && t.tokens ? (t.tokens as Token[]) : [t])));
-    const type = item.task ? "checkListItem" : list.ordered ? "numberedListItem" : "bulletListItem";
+    let content = inlineFrom(textTokens.flatMap((t) => ("tokens" in t && t.tokens ? (t.tokens as Token[]) : [t])));
+    // An empty "- [ ] " is not a task item for marked; templates use it as an empty checkbox.
+    const bare = item.task ? null : /^\[( |x|X)\]\s*$/.exec(item.text ?? "");
+    if (bare) content = [];
+    const task = item.task || Boolean(bare);
+    const type = task ? "checkListItem" : list.ordered ? "numberedListItem" : "bulletListItem";
     return {
       type,
-      props: item.task ? { checked: Boolean(item.checked) } : {},
+      props: task ? { checked: item.task ? Boolean(item.checked) : bare?.[1] !== " " } : {},
       content,
       children: nested.flatMap(listItems),
     };
@@ -195,7 +199,9 @@ export function blocksToPlainText(blocks: Block[] | null | undefined, depth = 0)
   for (const b of blocks ?? []) {
     const text = inlineToText(b.content);
     const pad = "  ".repeat(depth);
-    if (b.type === "checkListItem") lines.push(`${pad}[${b.props?.checked ? "x" : " "}] ${text}`);
+    if (b.type === "task" && b.props?.title) lines.push(`${pad}[${b.props?.done ? "x" : " "}] ${String(b.props.title)}`);
+    else if (b.type === "entityCard" && b.props?.title) lines.push(`${pad}${String(b.props.title)}`);
+    else if (b.type === "checkListItem") lines.push(`${pad}[${b.props?.checked ? "x" : " "}] ${text}`);
     else if (b.type === "bulletListItem" || b.type === "numberedListItem" || b.type === "toggleListItem") lines.push(`${pad}- ${text}`);
     else if (b.type === "callout") lines.push(`${pad}${text}`);
     else if (text) lines.push(pad + text);
@@ -278,6 +284,12 @@ export function blocksToMarkdown(blocks: Block[] | null | undefined, depth = 0):
       case "image":
         out.push(`![${String(b.props?.caption ?? "")}](${String(b.props?.url ?? "")})`, "");
         break;
+      case "task":
+        if (b.props?.title) out.push(`${pad}- [${b.props?.done ? "x" : " "}] ${b.props?.taskId ? `[${String(b.props.title)}](app://task/${String(b.props.taskId)})` : String(b.props.title)}`);
+        break;
+      case "entityCard":
+        if (b.props?.id) out.push(`${pad}[${String(b.props?.title ?? "")}](app://${String(b.props?.kind)}/${String(b.props?.id)})`, "");
+        break;
       default:
         out.push(pad + text, depth ? "" : "");
     }
@@ -306,6 +318,9 @@ export function extractMentions(blocks: Block[] | null | undefined): { kind: str
           found.set(`${m.props.kind}:${m.props.id}`, m.props);
         }
       }
+      // Task blocks and record cards link the page too, so they show as backlinks.
+      if (b.type === "task" && b.props?.taskId) found.set(`task:${String(b.props.taskId)}`, { kind: "task", id: String(b.props.taskId), title: String(b.props.title ?? "") });
+      if (b.type === "entityCard" && b.props?.id) found.set(`${String(b.props.kind)}:${String(b.props.id)}`, { kind: String(b.props.kind), id: String(b.props.id), title: String(b.props.title ?? "") });
       walk(b.children);
     }
   };

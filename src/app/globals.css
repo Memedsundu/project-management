@@ -198,6 +198,58 @@
     background: #fff;
     color: #111;
   }
+  .print-page {
+    padding: 0;
+    max-width: none;
+  }
+}
+
+/* BlockNote in Peni colours: the editor and its menus follow the light and dark tokens. */
+:root .bn-container[data-color-scheme] {
+  --bn-font-family: var(--font-sans);
+  --bn-border-radius: 10px;
+  --bn-colors-editor-text: var(--ink);
+  --bn-colors-editor-background: var(--bg);
+  --bn-colors-menu-text: var(--ink);
+  --bn-colors-menu-background: var(--bg);
+  --bn-colors-tooltip-text: var(--on-ink);
+  --bn-colors-tooltip-background: var(--ink);
+  --bn-colors-hovered-text: var(--ink);
+  --bn-colors-hovered-background: var(--panel);
+  --bn-colors-selected-text: var(--on-ink);
+  --bn-colors-selected-background: var(--ink);
+  --bn-colors-disabled-text: var(--faint);
+  --bn-colors-disabled-background: var(--panel);
+  --bn-colors-shadow: rgb(17 17 17 / 0.12);
+  --bn-colors-border: var(--line);
+  --bn-colors-side-menu: var(--faint);
+}
+.note-editor .bn-editor {
+  font-size: 16px;
+  line-height: 1.6;
+}
+.note-editor .bn-inline-content:has(> .ProseMirror-trailingBreak:only-child)::before {
+  color: var(--faint);
+}
+.note-editor [data-content-type="heading"] {
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  padding-top: 12px;
+  --level: 1.6em;
+}
+.note-editor [data-content-type="heading"][data-level="2"] {
+  --level: 1.3em;
+}
+.note-editor [data-content-type="heading"][data-level="3"] {
+  --level: 1.12em;
+}
+.note-editor input[type="checkbox"] {
+  accent-color: var(--ink);
+}
+@media (max-width: 639px) {
+  .note-editor .bn-editor {
+    padding-inline: 8px;
+  }
 }
 
 /* ⌘K group headings (cmdk) */

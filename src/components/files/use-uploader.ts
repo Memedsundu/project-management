@@ -4,16 +4,7 @@ import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-
-const MAX = 250 * 1024 * 1024;
-
-async function sha256Hex(file: File) {
-  const buf = await file.arrayBuffer();
-  const hash = await crypto.subtle.digest("SHA-256", buf);
-  return [...new Uint8Array(hash)].map((b) => b.toString(16).padStart(2, "0")).join("");
-}
-
-type Prepared = { uploadId: string; key: string; mode: "blob" | "local" } | { duplicate: { id: string; title: string } } | { error: string };
+import { uploadOne, type UploadOpts } from "./upload-core";
 
 /**
  * Upload files the Drive way: straight from the browser to private storage,
@@ -25,10 +16,10 @@ export function useUploader() {
   const [busy, setBusy] = useState(false);
   const [label, setLabel] = useState("");
   // The duplicate toast offers "upload anyway", which calls upload again.
-  const self = useRef<((files: File[], opts: { folderId: string | null; documentId?: string; note?: string; force?: boolean }) => Promise<boolean>) | null>(null);
+  const self = useRef<((files: File[], opts: UploadOpts) => Promise<boolean>) | null>(null);
 
   const upload = useCallback(
-    async (files: File[], opts: { folderId: string | null; documentId?: string; note?: string; force?: boolean }) => {
+    async (files: File[], opts: UploadOpts) => {
       if (!files.length) return false;
       if (!navigator.onLine) {
         toast.error(t("offline"));
@@ -39,20 +30,13 @@ export function useUploader() {
       try {
         for (const [i, file] of files.entries()) {
           const prefix = files.length > 1 ? `${i + 1}/${files.length} · ` : "";
-          if (file.size > MAX) {
-            toast.error(t("tooLarge", { name: file.name }));
+          const out = await uploadOne(file, opts, (stage, percent) => setLabel(`${prefix}${t(stage)}${percent !== undefined ? ` ${percent}%` : ""}`));
+          if (out.ok) {
+            done.push({ id: out.id, title: out.title });
             continue;
           }
-          setLabel(`${prefix}${t("reading")}`);
-          const sha256 = await sha256Hex(file);
-          const res = await fetch(`/api/files/prepare${opts.force ? "?force=1" : ""}`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ name: file.name, size: file.size, type: file.type, sha256, folderId: opts.folderId, documentId: opts.documentId ?? null, note: opts.note ?? null }),
-          });
-          const prep = (await res.json().catch(() => ({ error: "error" }))) as Prepared;
-          if ("duplicate" in prep) {
-            const dup = prep.duplicate;
+          if ("duplicate" in out) {
+            const dup = out.duplicate;
             toast(t("duplicate", { name: file.name }), {
               duration: 8000,
               action: { label: t("openExisting"), onClick: () => router.push(`/files/d/${dup.id}`) },
@@ -60,39 +44,10 @@ export function useUploader() {
             });
             continue;
           }
-          if ("error" in prep) {
-            toast.error(prep.error === "storage_not_ready" ? t("storageNotReady") : prep.error === "read_only" ? t("readOnly") : t("failed", { name: file.name }));
-            continue;
-          }
-          setLabel(`${prefix}${t("uploading")}`);
-          if (prep.mode === "blob") {
-            const { upload: put } = await import("@vercel/blob/client");
-            await put(prep.key, file, {
-              access: "private",
-              handleUploadUrl: "/api/files/blob-token",
-              multipart: file.size > 8 * 1024 * 1024,
-              contentType: file.type || undefined,
-              onUploadProgress: (p) => setLabel(`${prefix}${t("uploading")} ${Math.round(p.percentage)}%`),
-            });
-          } else {
-            const put = await fetch(`/api/files/local-upload?upload=${prep.uploadId}`, { method: "PUT", body: file });
-            if (!put.ok) {
-              toast.error(t("failed", { name: file.name }));
-              continue;
-            }
-          }
-          setLabel(`${prefix}${t("saving")}`);
-          const fin = await fetch("/api/files/complete", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ uploadId: prep.uploadId }),
-          });
-          const out = (await fin.json().catch(() => ({}))) as { id?: string; title?: string };
-          if (!fin.ok || !out.id) {
-            toast.error(t("failed", { name: file.name }));
-            continue;
-          }
-          done.push({ id: out.id, title: out.title ?? file.name });
+          if (out.error === "too_large") toast.error(t("tooLarge", { name: file.name }));
+          else if (out.error === "storage_not_ready") toast.error(t("storageNotReady"));
+          else if (out.error === "read_only") toast.error(t("readOnly"));
+          else toast.error(t("failed", { name: file.name }));
         }
       } catch (err) {
         console.error(err);
