@@ -31,6 +31,10 @@ export type TodayProps = {
   part: "morning" | "day" | "evening";
   brief: { lines: string[]; ai: boolean; at: string } | null;
   aiReady: boolean;
+  /** The 08:00 summary is switched on in Ayarlar › Yardımcılar. */
+  briefAuto: boolean;
+  /** Weekly review, partner check and saved instructions she has not opened yet. */
+  otherBriefs: { items: { id: string; kind: string; title: string }[]; total: number };
   tasks: TaskItem[];
   planCandidates: TaskItem[];
   meetings: TodayMeeting[];
@@ -103,10 +107,13 @@ export function TodayScreen(props: TodayProps) {
           </Badge>
           <InfoTip ask={t("brief.ask")}>{t("brief.info")}</InfoTip>
           <span className="flex-1" />
+          <Link href="/briefs" className="inline-flex h-9 items-center whitespace-nowrap rounded-full px-3 text-[14px] text-muted hover:bg-panel-2 hover:text-ink" data-testid="today-all-briefs">
+            {t("brief.all")}
+          </Link>
           {!shell.readOnly ? (
-            <Button size="sm" variant="ghost" onClick={refresh} disabled={briefBusy} aria-label={t("brief.refresh")}>
+            <Button size="sm" variant="ghost" onClick={refresh} disabled={briefBusy} aria-label={props.brief ? t("brief.refresh") : t("brief.makeNow")}>
               <RefreshCw size={14} className={cn(briefBusy && "animate-spin")} />
-              {props.brief ? t("brief.refresh") : t("brief.makeNow")}
+              <span className="hidden sm:inline">{props.brief ? t("brief.refresh") : t("brief.makeNow")}</span>
             </Button>
           ) : null}
         </div>
@@ -119,9 +126,25 @@ export function TodayScreen(props: TodayProps) {
             ))}
           </ul>
         ) : (
-          <p className="text-[15px] text-muted">{t("brief.none")}</p>
+          <p className="text-[15px] text-muted">{props.briefAuto ? t("brief.none") : t("brief.off")}</p>
         )}
         {props.brief && !props.brief.ai && props.aiReady === false ? <p className="text-[13px] text-faint">{t("brief.plain")}</p> : null}
+        {props.otherBriefs.items.length ? (
+          <div className="flex flex-wrap items-center gap-2 border-t border-line-soft pt-3" data-testid="today-other-briefs">
+            <span className="text-[13px] text-muted">{t("brief.alsoReady")}</span>
+            {props.otherBriefs.items.map((b) => (
+              <Link key={b.id} href={`/briefs/${b.id}`} className="inline-flex h-8 max-w-full items-center gap-1.5 rounded-full border border-line bg-bg px-3 text-[13px] hover:border-ink">
+                <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-accent" aria-hidden />
+                <span className="truncate">{b.title}</span>
+              </Link>
+            ))}
+            {props.otherBriefs.total > props.otherBriefs.items.length ? (
+              <Link href="/briefs" className="text-[13px] text-muted hover:text-ink">
+                {t("brief.more", { count: props.otherBriefs.total - props.otherBriefs.items.length })}
+              </Link>
+            ) : null}
+          </div>
+        ) : null}
       </Panel>
 
       {overbooked ? (

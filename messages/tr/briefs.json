@@ -1,0 +1,59 @@
+{
+  "title": "Özetler",
+  "subtitle": "Yardımcıların senin için yazdıkları: günün özeti, haftalık değerlendirme, aylık ortak raporu kontrolü ve kayıtlı talimatlarının sonuçları.",
+  "kinds": {
+    "all": "Tümü",
+    "daily": "Günün özeti",
+    "weekly": "Haftalık",
+    "partner_check": "Ortak raporları",
+    "recipe": "Talimatlar"
+  },
+  "kindOne": {
+    "daily": "Günün özeti",
+    "weekly": "Haftalık değerlendirme",
+    "partner_check": "Ortak raporu kontrolü",
+    "recipe": "Kayıtlı talimat"
+  },
+  "helpers": {
+    "title": "Yardımcılar",
+    "manage": "Yardımcıları yönet",
+    "when": {
+      "daily": "Her iş günü 08:00",
+      "weekly": "Cuma 16:00",
+      "partner_check": "Ayın ilk iş günü"
+    },
+    "on": "açık",
+    "off": "kapalı",
+    "last": "Son: {date}",
+    "never": "Henüz yazılmadı",
+    "makeNow": "Şimdi hazırla",
+    "making": "Hazırlanıyor…",
+    "plain": "Yapay zekâ kapalı ya da bağlı değil; yardımcılar yalnızca kayıtlardan sade özetler hazırlar."
+  },
+  "markAllRead": "Tümünü okundu say",
+  "allRead": "Hepsi okundu sayıldı.",
+  "unread": "Okunmadı",
+  "empty": {
+    "title": "Henüz özet yok",
+    "body": "Günün özeti her iş günü 08:00'de, haftalık değerlendirme cuma 16:00'da, ortak raporu kontrolü ayın ilk iş gününde gelir. Kayıtlı talimatlarının sonuçları da burada durur."
+  },
+  "emptyKind": "Bu türde özet yok.",
+  "page": {
+    "breadcrumb": "Konum",
+    "copy": "Kopyala",
+    "copied": "Kopyalandı.",
+    "copyFailed": "Kopyalanamadı; metni seçip kopyalayabilirsin.",
+    "more": "Diğer işlemler",
+    "toNote": "Not olarak kaydet",
+    "toNoteDone": "Not olarak kaydedildi.",
+    "remake": "Yeniden hazırla",
+    "remaking": "Yeniden hazırlanıyor…",
+    "remade": "Yeniden hazırlandı.",
+    "delete": "Sil",
+    "deleted": "Özet silindi.",
+    "recipe": "Talimat: {name}",
+    "byAi": "Claude yazdı · {model}",
+    "plain": "Yapay zekâ olmadan, kayıtlardan hazırlandı.",
+    "written": "{at}"
+  }
+}

@@ -12,7 +12,11 @@
     "refresh": "Rewrite",
     "makeNow": "Write it now",
     "none": "The brief is written at 08:00 on working days. You can have it written now.",
-    "plain": "This brief was made from your records without AI."
+    "plain": "This brief was made from your records without AI.",
+    "all": "All briefs",
+    "off": "The daily brief is switched off. Turn it on in Settings › Helpers, or have it written now.",
+    "alsoReady": "Not read yet:",
+    "more": "+{count} more"
   },
   "overbooked": {
     "title": "Too much for today.",

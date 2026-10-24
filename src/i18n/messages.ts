@@ -19,6 +19,7 @@ export const NAMESPACES = [
   "workplan",
   "indicators",
   "reports",
+  "briefs",
   "collections",
   "search",
   "ai",

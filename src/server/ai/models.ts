@@ -25,7 +25,7 @@ export const HELPERS = {
   prepBrief: { model: MODELS.haiku, labelTr: "Toplantı hazırlığı", labelEn: "Meeting prep" },
   columnMapping: { model: MODELS.haiku, labelTr: "Excel sütun eşleme", labelEn: "Excel column mapping" },
   workplanHelper: { model: MODELS.haiku, labelTr: "İş planı önerileri", labelEn: "Workplan suggestions" },
-  recipe: { model: MODELS.haiku, labelTr: "Tarifler", labelEn: "Recipes" },
+  recipe: { model: MODELS.haiku, labelTr: "Kayıtlı talimatlar", labelEn: "Saved instructions" },
   writing: { model: MODELS.sonnet, labelTr: "Yazma araçları ve çeviri", labelEn: "Writing tools and translation" },
   ask: { model: MODELS.sonnet, labelTr: "Sor (kaynaklı yanıtlar)", labelEn: "Ask (cited answers)" },
   assistant: { model: MODELS.sonnet, labelTr: "Asistan paneli", labelEn: "Assistant panel" },

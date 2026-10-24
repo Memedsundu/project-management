@@ -1,8 +1,8 @@
 "use client";
 
-import { Plus } from "lucide-react";
+import { ListChecks, Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useScreenContext, useShell } from "@/components/shell/shell-context";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/ui/card";
@@ -12,6 +12,7 @@ import { FilterBar, type SavedViewItem, type TaskFilterState } from "./filter-ba
 import { InlineAdd } from "./inline-add";
 import { LogbookView } from "./logbook";
 import { TaskList } from "./task-list";
+import { ApplyTaskSetDialog } from "./task-set-dialogs";
 import { TaskSheet, type TaskSheetData } from "./task-sheet";
 import type { ContactOption, OrgOption, TaskItem } from "./types";
 import { UpcomingView, type UpcomingDay } from "./upcoming";
@@ -43,6 +44,7 @@ export function TasksScreen(props: TasksScreenProps) {
   const readOnly = shell.readOnly;
   const partnerNames = useMemo(() => new Map(props.orgs.map((o) => [o.id, o.shortName || o.name])), [props.orgs]);
   const partners = useMemo(() => props.orgs.map((o) => ({ id: o.id, name: o.name, shortName: o.shortName })), [props.orgs]);
+  const [setsOpen, setSetsOpen] = useState(false);
   useScreenContext({ kind: "tasks", title: t("title"), detail: t(`views.${props.tab}`) });
 
   const tabHref = (tab: TasksTab) => {
@@ -62,10 +64,16 @@ export function TasksScreen(props: TasksScreenProps) {
         subtitle={t("subtitle")}
         actions={
           !readOnly ? (
-            <Button onClick={() => shell.openQuickAdd({ mode: "task" })}>
-              <Plus size={18} />
-              {t("newTask")}
-            </Button>
+            <>
+              <Button variant="outline" onClick={() => setSetsOpen(true)} data-testid="tasks-apply-set">
+                <ListChecks size={18} />
+                {t("sets.apply")}
+              </Button>
+              <Button onClick={() => shell.openQuickAdd({ mode: "task" })}>
+                <Plus size={18} />
+                {t("newTask")}
+              </Button>
+            </>
           ) : null
         }
       />
@@ -119,6 +127,7 @@ export function TasksScreen(props: TasksScreenProps) {
       {props.tab === "waiting" && props.waiting ? <WaitingView groups={props.waiting} readOnly={readOnly} /> : null}
 
       <TaskSheet detail={props.detail} orgs={props.orgs} contacts={props.contacts} />
+      {!readOnly ? <ApplyTaskSetDialog open={setsOpen} onOpenChange={setSetsOpen} /> : null}
     </div>
   );
 }

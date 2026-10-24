@@ -1,0 +1,59 @@
+{
+  "title": "Briefs",
+  "subtitle": "What your helpers wrote for you: the day's brief, the weekly review, the monthly partner report check and the results of your saved instructions.",
+  "kinds": {
+    "all": "All",
+    "daily": "Daily brief",
+    "weekly": "Weekly",
+    "partner_check": "Partner reports",
+    "recipe": "Instructions"
+  },
+  "kindOne": {
+    "daily": "Daily brief",
+    "weekly": "Weekly review",
+    "partner_check": "Partner report check",
+    "recipe": "Saved instruction"
+  },
+  "helpers": {
+    "title": "Helpers",
+    "manage": "Manage helpers",
+    "when": {
+      "daily": "Every working day 08:00",
+      "weekly": "Friday 16:00",
+      "partner_check": "First working day of the month"
+    },
+    "on": "on",
+    "off": "off",
+    "last": "Last: {date}",
+    "never": "Not written yet",
+    "makeNow": "Write it now",
+    "making": "Writing…",
+    "plain": "AI is off or not connected; the helpers write plain briefs from your records only."
+  },
+  "markAllRead": "Mark all as read",
+  "allRead": "All marked as read.",
+  "unread": "Unread",
+  "empty": {
+    "title": "No briefs yet",
+    "body": "The daily brief arrives at 08:00 on working days, the weekly review on Friday at 16:00 and the partner report check on the first working day of the month. The results of your saved instructions are kept here too."
+  },
+  "emptyKind": "Nothing of this kind yet.",
+  "page": {
+    "breadcrumb": "Location",
+    "copy": "Copy",
+    "copied": "Copied.",
+    "copyFailed": "Could not copy; you can select the text and copy it.",
+    "more": "More actions",
+    "toNote": "Save as a note",
+    "toNoteDone": "Saved as a note.",
+    "remake": "Write again",
+    "remaking": "Writing again…",
+    "remade": "Written again.",
+    "delete": "Delete",
+    "deleted": "Brief deleted.",
+    "recipe": "Instruction: {name}",
+    "byAi": "Written by Claude · {model}",
+    "plain": "Made from your records, without AI.",
+    "written": "{at}"
+  }
+}

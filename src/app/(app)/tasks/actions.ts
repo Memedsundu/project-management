@@ -3,7 +3,7 @@
 import { and, eq } from "drizzle-orm";
 import { z } from "zod";
 import { todayStr } from "@/lib/dates";
-import { act } from "@/server/action";
+import { act, UserError } from "@/server/action";
 import { aiConfigured } from "@/server/ai/client";
 import { getDb } from "@/server/db/client";
 import { savedViews } from "@/server/db/schema";
@@ -123,4 +123,54 @@ export async function splitTaskAction(id: string) {
     const { proposeSubtasks } = await import("@/server/ai/extract-tasks");
     return proposeSubtasks(z.string().uuid().parse(id));
   }, { write: false });
+}
+
+/* --------------------------------- Task sets --------------------------------- */
+
+const day = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
+
+export async function listTaskSetsAction() {
+  return act(
+    async () => {
+      const { listTemplates } = await import("@/server/services/templates");
+      const [sets, orgs] = await Promise.all([listTemplates("task_set"), listOrganisationsLite()]);
+      return {
+        today: todayStr(),
+        sets: sets.map((s) => ({ id: s.id, name: s.name, description: s.description, builtin: s.builtin, anchor: s.content.anchor ?? "deadline", count: s.content.tasks?.length ?? 0 })),
+        partners: orgs.filter((o) => o.kind === "partner").map((o) => ({ id: o.id, name: o.shortName || o.name })),
+      };
+    },
+    { write: false },
+  );
+}
+
+export async function previewTaskSetAction(templateId: string, anchorDay: string) {
+  return act(
+    async () => {
+      const { previewTaskSet } = await import("@/server/services/templates");
+      return previewTaskSet(z.string().max(80).parse(templateId), day.parse(anchorDay));
+    },
+    { write: false },
+  );
+}
+
+export async function applyTaskSetAction(templateId: string, anchorDay: string, opts: { orgId?: string | null; skip?: number[] }) {
+  return act(async () => {
+    const { applyTaskSet } = await import("@/server/services/templates");
+    const parsed = z.object({ orgId: z.string().uuid().nullish(), skip: z.array(z.number().int().min(0)).max(200).optional() }).parse(opts);
+    const ids = await applyTaskSet(z.string().max(80).parse(templateId), day.parse(anchorDay), parsed);
+    return { count: ids.length };
+  });
+}
+
+export async function saveTaskSetAction(taskIds: string[], input: { name: string; description?: string | null; anchor: string }) {
+  return act(async () => {
+    const { taskSetFromTasks, TASK_SET_ANCHORS } = await import("@/server/services/templates");
+    const parsed = z
+      .object({ name: z.string().trim().min(1).max(120), description: z.string().trim().max(400).nullish(), anchor: z.enum(TASK_SET_ANCHORS) })
+      .parse(input);
+    const row = await taskSetFromTasks(z.array(z.string().uuid()).min(1).max(100).parse(taskIds), parsed);
+    if (!row) throw new UserError("Seçili görevler bulunamadı.");
+    return { id: row.id, name: row.name };
+  });
 }

@@ -159,6 +159,15 @@
       "updated": "Terim güncellendi.",
       "deleted": "Terim silindi."
     },
-    "moreSources": "+{count} daha"
+    "moreSources": "+{count} daha",
+    "recipes": {
+      "title": "Kayıtlı talimatların",
+      "ran": "Talimat: {name}",
+      "running": "Talimat çalışıyor…",
+      "saved": "Özetler'de saklandı",
+      "onRecord": "{title} sayfasının bilgisiyle çalışır.",
+      "hint": "Günün kayıtlarıyla çalışır.",
+      "manage": "Talimatları düzenle"
+    }
   }
 }

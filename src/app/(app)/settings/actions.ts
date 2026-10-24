@@ -100,6 +100,16 @@ export async function saveAiAction(raw: z.input<typeof aiSchema>) {
   });
 }
 
+const helpersSchema = z.object({ dailyBrief: z.boolean(), weeklyReview: z.boolean(), partnerCheck: z.boolean() }).partial();
+
+/** Each scheduled helper on or off; "Şimdi hazırla" on Özetler still works when one is off. */
+export async function saveScheduledHelpersAction(raw: z.input<typeof helpersSchema>) {
+  return act(async () => {
+    await patchSetting("scheduledHelpers", helpersSchema.parse(raw));
+    return null;
+  });
+}
+
 const filesSchema = z.object({ namingRule: z.string().trim().max(200), applyNamingRule: z.boolean() }).partial();
 
 export async function saveFilesAction(raw: z.input<typeof filesSchema>) {

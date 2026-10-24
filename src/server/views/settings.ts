@@ -2,6 +2,7 @@ import "server-only";
 import { and, count, desc, eq, gte, isNotNull, isNull, sql } from "drizzle-orm";
 import { todayStr } from "@/lib/dates";
 import { aiStatus, monthStart } from "@/server/ai/client";
+import { listRecipes } from "@/server/ai/helpers";
 import { HELPERS, MODELS, type HelperKey } from "@/server/ai/models";
 import { listPasskeys, listSessions } from "@/server/auth/account";
 import { remainingRecoveryCodes } from "@/server/auth/webauthn";
@@ -9,6 +10,7 @@ import type { CurrentUser } from "@/server/auth/session";
 import { getDb } from "@/server/db/client";
 import { aiRuns, documents, folders } from "@/server/db/schema";
 import { countSubscriptions } from "@/server/notifications/push";
+import { lastBriefDays } from "@/server/services/briefs";
 import { listDocTypes } from "@/server/services/documents";
 import { ensureProjectPeriods, ipttTable, listPeriods } from "@/server/services/indicators";
 import { getSettings } from "@/server/services/settings";
@@ -51,10 +53,10 @@ async function aiOffPlaces() {
 export async function loadSettings(user: CurrentUser) {
   await ensureProjectPeriods();
   const today = todayStr();
-  const settings = await getSettings(["profile", "workingHours", "notifications", "ai", "files", "archive"]);
+  const settings = await getSettings(["profile", "workingHours", "notifications", "ai", "files", "archive", "scheduledHelpers"]);
   const from = `${settings.profile.startYear}-01-01`;
   const to = `${settings.profile.endYear}-12-31`;
-  const [ai, spend, docTypes, usage, tags, seasons, holidays, periods, table, templates, aiOff, passkeys, sessions, recoveryLeft, devices, trash] = await Promise.all([
+  const [ai, spend, docTypes, usage, tags, seasons, holidays, periods, table, templates, aiOff, passkeys, sessions, recoveryLeft, devices, trash, recipes, lastBriefs] = await Promise.all([
     aiStatus(),
     aiSpendByHelper(),
     listDocTypes(),
@@ -71,6 +73,8 @@ export async function loadSettings(user: CurrentUser) {
     remainingRecoveryCodes(),
     countSubscriptions(),
     listTrash().then((items) => items.length),
+    listRecipes(),
+    lastBriefDays(),
   ]);
   return {
     today,
@@ -97,13 +101,27 @@ export async function loadSettings(user: CurrentUser) {
       models: Object.values(MODELS) as string[],
       aiOff,
     },
+    helpers: {
+      scheduled: settings.scheduledHelpers,
+      last: lastBriefs,
+      recipes: recipes.map((r) => ({
+        id: r.id,
+        name: r.name,
+        instructions: r.instructions,
+        model: r.model,
+        schedule: r.schedule as "daily_0800" | "friday_1600" | "monthly_first_workday" | null,
+        builtin: Boolean(r.builtinKey),
+        lastRunAt: r.lastRunAt?.toISOString() ?? null,
+      })),
+      models: [MODELS.haiku, MODELS.sonnet, MODELS.opus] as string[],
+    },
     docTypes: docTypes.map((d) => ({ ...d, used: usage[d.key] ?? 0 })),
     tags: tags.map((t) => ({ id: t.id, name: t.name, slug: t.slug, count: t.count ?? 0 })),
     seasons: seasons.map((s) => ({ id: s.id, name: s.name, crop: s.crop, provinces: s.provinces, startMonth: s.startMonth, startDay: s.startDay, endMonth: s.endMonth, endDay: s.endDay, active: s.active })),
     holidays: holidays.map((h) => ({ id: h.id, date: h.date, nameTr: h.nameTr, nameEn: h.nameEn, kind: h.kind, halfDay: h.halfDay })),
     periods: periods.map((p) => ({ id: p.id, label: p.label, kind: p.kind, startDate: p.startDate, endDate: p.endDate })),
     periodsLocked: table.rows.some((r) => r.cells.some((c) => c.actual !== null || c.proposed > 0)),
-    templates: templates.map((t) => ({ id: t.id, kind: t.kind, name: t.name, description: t.description ?? null, builtin: t.builtin })),
+    templates: templates.map((t) => ({ id: t.id, kind: t.kind, name: t.name, description: t.description ?? null, builtin: t.builtin, taskCount: t.content.tasks?.length ?? null })),
     account: { passkeys, sessions, recoveryLeft },
     trash,
   };

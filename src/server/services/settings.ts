@@ -62,6 +62,10 @@ export const SETTINGS = {
       briefReady: true,
       lateReports: true,
     }),
+  /** The scheduled helpers, each one switchable (Notion Custom Agents). */
+  scheduledHelpers: z
+    .object({ dailyBrief: z.boolean().default(true), weeklyReview: z.boolean().default(true), partnerCheck: z.boolean().default(true) })
+    .default({ dailyBrief: true, weeklyReview: true, partnerCheck: true }),
   archive: z
     .object({ readOnly: z.boolean().default(false), archivedAt: z.string().nullable().default(null) })
     .default({ readOnly: false, archivedAt: null }),

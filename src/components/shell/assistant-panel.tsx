@@ -8,6 +8,7 @@ import {
   History,
   Loader2,
   Pencil,
+  Play,
   Plus,
   Search,
   Sparkles,
@@ -18,6 +19,7 @@ import {
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { listRecipesAction, runRecipeAction } from "@/app/actions/recipes";
 import {
   deleteConversationAction,
   deleteGlossaryTermAction,
@@ -54,6 +56,8 @@ type Item =
       error: string | null;
       stopped: boolean;
       streaming: boolean;
+      /** A saved instruction's result also lives on Özetler. */
+      link?: { href: string; label: string };
     };
 
 type AssistantItem = Extract<Item, { kind: "assistant" }>;
@@ -313,6 +317,34 @@ export function AssistantPanel({
 
   useEffect(() => () => abortRef.current?.abort(), []);
 
+  // Her saved instructions, offered on an empty chat (Granola Recipes).
+  const [recipes, setRecipes] = useState<{ id: string; name: string }[]>([]);
+  useEffect(() => {
+    if (!shell.aiConfigured || shell.readOnly) return;
+    let alive = true;
+    void runAction(listRecipesAction(), { silent: true }).then((list) => alive && list && setRecipes(list.map((r) => ({ id: r.id, name: r.name }))));
+    return () => {
+      alive = false;
+    };
+  }, [shell.aiConfigured, shell.readOnly]);
+
+  const runRecipeHere = async (r: { id: string; name: string }) => {
+    if (busy) return;
+    const itemId = rid();
+    setView("chat");
+    setItems((prev) => [
+      ...prev,
+      { kind: "user", id: rid(), text: t("recipes.ran", { name: r.name }) },
+      { kind: "assistant", id: itemId, text: "", steps: [t("recipes.running")], proposals: [], sources: [], error: null, stopped: false, streaming: true },
+    ]);
+    stickRef.current = true;
+    setBusy(true);
+    const on = screen?.id && RECORD_KINDS.has(screen.kind) ? { type: screen.kind, id: screen.id } : null;
+    const res = await runAction(runRecipeAction(r.id, on), { silent: true });
+    setBusy(false);
+    patch(itemId, res ? { text: res.content, streaming: false, link: { href: `/briefs/${res.id}`, label: t("recipes.saved") } } : { error: t("errors.failed"), streaming: false });
+  };
+
   const newChat = () => {
     abortRef.current?.abort();
     setItems([]);
@@ -432,6 +464,8 @@ export function AssistantPanel({
                 quickKind={quickKind}
                 record={record}
                 onPick={(q) => void send(q)}
+                recipes={recipes}
+                onRecipe={(r) => void runRecipeHere(r)}
               />
             ) : (
               <ol className="flex flex-col gap-5" role="log" aria-live="polite" aria-label={t("title")}>
@@ -516,12 +550,16 @@ function Welcome({
   quickKind,
   record,
   onPick,
+  recipes,
+  onRecipe,
 }: {
   aiConfigured: boolean;
   readOnly: boolean;
   quickKind: string;
   record: ScreenContext | null;
   onPick: (q: string) => void;
+  recipes: { id: string; name: string }[];
+  onRecipe: (r: { id: string; name: string }) => void;
 }) {
   const t = useTranslations("ai.assistant");
   if (!aiConfigured) {
@@ -555,6 +593,31 @@ function Welcome({
           </button>
         ))}
       </div>
+      {recipes.length ? (
+        <div className="flex flex-col gap-2" data-testid="assistant-recipes">
+          <p className="label-caps">{t("recipes.title")}</p>
+          <div className="flex flex-wrap gap-1.5">
+            {recipes.map((r) => (
+              <button
+                key={r.id}
+                type="button"
+                onClick={() => onRecipe(r)}
+                className="inline-flex h-9 items-center gap-1.5 rounded-full border border-line px-3.5 text-[14px] transition-colors hover:border-ink"
+                data-testid="assistant-recipe"
+              >
+                <Play size={13} className="shrink-0 text-muted" />
+                {r.name}
+              </button>
+            ))}
+          </div>
+          <p className="text-[12px] text-muted">
+            {record ? t("recipes.onRecord", { title: record.title }) : t("recipes.hint")}{" "}
+            <Link href="/settings#helpers" className="underline-offset-2 hover:text-ink hover:underline">
+              {t("recipes.manage")}
+            </Link>
+          </p>
+        </div>
+      ) : null}
       <p className="text-[13px] text-muted">{readOnly ? t("welcomeReadOnly") : t("welcomeNote")}</p>
     </div>
   );
@@ -585,6 +648,11 @@ function AssistantReply({ it, readOnly, onNavigate }: { it: AssistantItem; readO
         </p>
       ) : null}
       {it.text ? <ChatMarkdown text={it.text} onNavigate={onNavigate} /> : null}
+      {it.link && !it.streaming ? (
+        <Link href={it.link.href} onClick={onNavigate} className="inline-flex items-center gap-1.5 self-start text-[13px] text-muted hover:text-ink" data-testid="assistant-brief-link">
+          {it.link.label} →
+        </Link>
+      ) : null}
       {it.proposals.map((p) => {
         const done = decided[p.id] ?? (p.status && p.status !== "pending" ? (p.status === "rejected" ? "rejected" : "accepted") : null);
         if (done) {

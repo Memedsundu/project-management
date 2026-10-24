@@ -68,6 +68,15 @@ export function formatDay(dayStr: string, locale: Locale | string, withYear = fa
   return format(parseDay(dayStr), withYear ? "d MMM yyyy" : "d MMM", { locale: dfLocale(locale) });
 }
 
+/** "19–25 Ekim" / "28 Eylül – 4 Ekim": a week or any short span of days. */
+export function formatDayRange(startStr: string, endStr: string, locale: Locale | string) {
+  const a = parseDay(startStr);
+  const b = parseDay(endStr);
+  const loc = { locale: dfLocale(locale) };
+  if (a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth()) return `${format(a, "d", loc)}–${format(b, "d MMMM", loc)}`;
+  return `${format(a, "d MMMM", loc)} – ${format(b, "d MMMM", loc)}`;
+}
+
 export function formatDateTime(value: Date | string, locale: Locale | string) {
   const d = new TZDate(typeof value === "string" ? new Date(value) : value, APP_TZ);
   return format(d, "d MMM yyyy, HH:mm", { locale: dfLocale(locale) });

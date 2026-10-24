@@ -12,12 +12,13 @@ import type { SettingsData } from "@/server/views/settings";
 import { AccountSection } from "./account-section";
 import { AiSection } from "./ai-section";
 import { HoursSection, LookSection } from "./general-sections";
+import { HelpersSection } from "./helpers-section";
 import { ListsSection } from "./lists-section";
 import { InstallSection, NotificationsSection } from "./notifications-section";
 import { Row, SettingsSection } from "./parts";
 import { ProjectSection } from "./project-section";
 
-const SECTIONS = ["project", "look", "hours", "notifications", "install", "ai", "lists", "account", "data"] as const;
+const SECTIONS = ["project", "look", "hours", "notifications", "install", "ai", "helpers", "lists", "account", "data"] as const;
 type SectionId = (typeof SECTIONS)[number];
 
 /**
@@ -90,6 +91,7 @@ export function SettingsScreen({ data }: { data: SettingsData }) {
           <NotificationsSection data={data} />
           <InstallSection />
           <AiSection data={data} />
+          <HelpersSection data={data} />
           <ListsSection data={data} />
           <AccountSection data={data} />
           <DataSection data={data} />

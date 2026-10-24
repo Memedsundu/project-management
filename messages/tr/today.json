@@ -12,7 +12,11 @@
     "refresh": "Yeniden yaz",
     "makeNow": "Şimdi hazırla",
     "none": "Özet her iş günü 08:00'de hazırlanır. İstersen şimdi hazırlatabilirsin.",
-    "plain": "Bu özet yapay zekâ olmadan, yalnızca kayıtlardan hazırlandı."
+    "plain": "Bu özet yapay zekâ olmadan, yalnızca kayıtlardan hazırlandı.",
+    "all": "Tüm özetler",
+    "off": "Günün özeti kapalı. Ayarlar › Yardımcılar'dan açabilir ya da şimdi hazırlatabilirsin.",
+    "alsoReady": "Okumadığın:",
+    "more": "+{count} daha"
   },
   "overbooked": {
     "title": "Bugün için fazla iş var.",

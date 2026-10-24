@@ -1,6 +1,6 @@
 "use client";
 
-import { CalendarDays, CheckCheck, Flag, Trash2, X } from "lucide-react";
+import { CalendarDays, CheckCheck, Flag, ListChecks, Trash2, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
@@ -12,6 +12,7 @@ import { runAction } from "@/lib/client/run-action";
 import { cn } from "@/lib/utils";
 import { DatePanel } from "./date-menu";
 import { priorityTone, TaskRow } from "./task-row";
+import { SaveTaskSetDialog } from "./task-set-dialogs";
 import type { TaskItem } from "./types";
 import { useTaskOps } from "./use-task-ops";
 
@@ -50,6 +51,7 @@ export function TaskList({
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [doneLocal, setDoneLocal] = useState<Record<string, boolean>>({});
   const [dateFor, setDateFor] = useState<string[] | null>(null);
+  const [setFrom, setSetFrom] = useState<TaskItem[] | null>(null);
 
   // Forget local state for rows that left the list after a refresh.
   const idsKey = flat.map((x) => x.id).join(",");
@@ -208,7 +210,23 @@ export function TaskList({
         );
       })}
 
-      {selIds.length ? <BulkBar ids={selIds} onClear={() => setSelected(new Set())} onDate={() => setDateFor(selIds)} onPriority={(p) => setPriority(selIds, p)} /> : null}
+      {selIds.length ? (
+        <BulkBar
+          ids={selIds}
+          onClear={() => setSelected(new Set())}
+          onDate={() => setDateFor(selIds)}
+          onPriority={(p) => setPriority(selIds, p)}
+          onSaveSet={() => setSetFrom(flat.filter((x) => selected.has(x.id)))}
+        />
+      ) : null}
+      <SaveTaskSetDialog
+        tasks={setFrom}
+        onOpenChange={(v) => !v && setSetFrom(null)}
+        onSaved={() => {
+          setSetFrom(null);
+          setSelected(new Set());
+        }}
+      />
 
       <Dialog open={Boolean(dateFor)} onOpenChange={(v) => !v && setDateFor(null)}>
         {dateFor ? (
@@ -229,7 +247,7 @@ export function TaskList({
   );
 }
 
-function BulkBar({ ids, onClear, onDate, onPriority }: { ids: string[]; onClear: () => void; onDate: () => void; onPriority: (p: number) => void }) {
+function BulkBar({ ids, onClear, onDate, onPriority, onSaveSet }: { ids: string[]; onClear: () => void; onDate: () => void; onPriority: (p: number) => void; onSaveSet: () => void }) {
   const t = useTranslations("tasks");
   const tc = useTranslations("common");
   return (
@@ -266,6 +284,10 @@ function BulkBar({ ids, onClear, onDate, onPriority }: { ids: string[]; onClear:
         >
           <CheckCheck size={15} />
           {t("bulk.complete")}
+        </Button>
+        <Button variant="ghost" size="sm" onClick={onSaveSet} data-testid="bulk-save-set">
+          <ListChecks size={15} />
+          {t("bulk.saveSet")}
         </Button>
         <Button
           variant="ghost"

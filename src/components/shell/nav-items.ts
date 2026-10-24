@@ -8,6 +8,7 @@ import {
   Inbox,
   Layers,
   NotebookPen,
+  ScrollText,
   Settings,
   Sun,
   Trash2,
@@ -66,7 +67,10 @@ export const NAV: NavGroup[] = [
   },
 ];
 
-export const ALL_NAV_ITEMS = NAV.flatMap((g) => g.items);
+/** Pages reached from Bugün and ⌘K rather than the menu. */
+const MORE_PAGES: NavItem[] = [{ key: "briefs", href: "/briefs", labelKey: "briefs", icon: ScrollText, shortcut: "z" }];
+
+export const ALL_NAV_ITEMS = [...NAV.flatMap((g) => g.items), ...MORE_PAGES];
 
 export function activeNavKey(pathname: string) {
   const item = ALL_NAV_ITEMS.find((i) => pathname === i.href || pathname.startsWith(i.href + "/"));

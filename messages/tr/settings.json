@@ -28,7 +28,10 @@
     "lateBody": "{label} raporu {days} gündür bekleniyor.",
     "briefTitle": "Günlük özetin hazır",
     "testTitle": "Bildirimler açık",
-    "testBody": "Hatırlatmalar bu cihaza böyle gelecek."
+    "testBody": "Hatırlatmalar bu cihaza böyle gelecek.",
+    "weeklyTitle": "Haftalık değerlendirmen hazır",
+    "weeklyBody": "Bu hafta {done} iş bitti, {slipped} iş kaydı.",
+    "recipeTitle": "{name} hazır"
   },
   "notifications": {
     "enabled": "Bu cihazda bildirimler açık.",
@@ -230,7 +233,7 @@
         "note": "Notlar",
         "meeting": "Toplantılar",
         "report": "Raporlar",
-        "task_set": "Görev listeleri"
+        "task_set": "Görev setleri"
       },
       "saved": "Şablon kaydedildi",
       "name": "Adı",
@@ -238,7 +241,7 @@
       "builtin": "Hazır",
       "rename": "{name} şablonunu düzenle",
       "delete": "{name} şablonunu sil",
-      "howToAdd": "Yeni şablon eklemek için bir notu aç ve menüsünden Şablon olarak kaydet'i seç."
+      "howToAdd": "Not şablonu için bir notun menüsünden Şablon olarak kaydet'i seç. Görev seti için Görevler'de görevleri seç ve Görev seti olarak kaydet'e bas."
     }
   },
   "account": {
@@ -290,5 +293,57 @@
     "trash": "Çöp kutusu",
     "trashHint": "{count, plural, =0 {Boş.} other {# öğe.}} Silinenler 30 gün sonra kendiliğinden gider.",
     "openTrash": "Çöp kutusunu aç"
+  },
+  "helpers": {
+    "title": "Yardımcılar",
+    "hint": "Claude'un kendiliğinden yazdıkları ve senin kayıtlı talimatların. Hepsi Özetler sayfasında durur; bir değişiklik önerirlerse Gelen kutusuna gelir.",
+    "dailyBrief": "Günün özeti",
+    "dailyBriefHint": "Her iş günü 08:00'de Bugün'ün başına üç satır.",
+    "weeklyReview": "Haftalık değerlendirme",
+    "weeklyReviewHint": "Cuma 16:00'da biten ve kayan işler, gelecek hafta ve üç odak önerisi.",
+    "partnerCheck": "Aylık ortak raporu kontrolü",
+    "partnerCheckHint": "Ayın ilk iş gününde geciken ortak raporlarını bulur, takip görevi önerir.",
+    "last": "Son: {date}.",
+    "saved": "Kaydedildi",
+    "briefs": "Özetler",
+    "briefsHint": "Yardımcıların ve talimatlarının bütün yazdıkları.",
+    "openBriefs": "Özetleri aç",
+    "recipes": "Kayıtlı talimatlar",
+    "recipesHint": "Asistan panelinde tek dokunuşla çalışan talimatlar. Bir ortak ya da toplantı sayfasındayken o sayfanın bilgisiyle çalışırlar; istersen belli saatlerde kendiliğinden de çalışırlar.",
+    "newRecipe": "Yeni talimat",
+    "aiOff": "Claude bağlı değil ya da kapalı; talimatlar şimdilik çalışmaz.",
+    "builtin": "Hazır",
+    "schedules": {
+      "none": "İstediğinde",
+      "daily_0800": "Her iş günü 08:00",
+      "friday_1600": "Cuma 16:00",
+      "monthly_first_workday": "Ayın ilk iş günü"
+    },
+    "lastRun": "Son: {date}",
+    "never": "Henüz çalışmadı",
+    "run": "Çalıştır",
+    "running": "Çalışıyor…",
+    "ran": "{name} hazır.",
+    "open": "Aç",
+    "edit": "Düzenle",
+    "editName": "{name} talimatını düzenle",
+    "delete": "Sil",
+    "deleteName": "{name} talimatını sil",
+    "deleted": "Talimat silindi",
+    "dialog": {
+      "newTitle": "Yeni talimat",
+      "editTitle": "Talimatı düzenle",
+      "description": "Claude bu talimatı her çalıştırışta aynen uygular. Sonuç Özetler'de saklanır.",
+      "name": "Adı",
+      "namePlaceholder": "Örn. Donöre aylık not",
+      "instructions": "Talimat",
+      "instructionsHint": "Ne yazmasını, hangi dilde ve ne uzunlukta yazmasını istediğini söyle. Claude günün kayıtlarını ve çalıştırdığın sayfayı okur.",
+      "instructionsPlaceholder": "Örn. Bu ortakla açık işleri, onlardan beklediklerimizi ve son kararları Türkçe, madde madde özetle.",
+      "model": "Model",
+      "modelHint": "Haiku hızlı ve ucuz; Sonnet daha dikkatli; Opus en güçlüsü ve en pahalısı.",
+      "schedule": "Ne zaman",
+      "scheduleHint": "Zamanlanmış çalışmada bir sayfa yoktur; Claude günün kayıtlarıyla çalışır.",
+      "saved": "Talimat kaydedildi"
+    }
   }
 }

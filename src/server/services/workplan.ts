@@ -417,6 +417,16 @@ export async function nextWorkingDay(day: string) {
   return day;
 }
 
+/** The last working day on or before a date. */
+export async function previousWorkingDay(day: string) {
+  let d = day;
+  for (let i = 0; i < 20; i++) {
+    if (await isWorkingDay(d)) return d;
+    d = addDaysStr(d, -1);
+  }
+  return day;
+}
+
 /** Seasons as dated bands within a range of years, for the Gantt background. */
 export function seasonBands(list: { id: string; name: string; startMonth: number; startDay: number; endMonth: number; endDay: number; active: boolean }[], fromYear: number, toYear: number) {
   const out: { id: string; name: string; start: string; end: string }[] = [];

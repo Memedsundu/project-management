@@ -1,7 +1,8 @@
 import "server-only";
-import { and, asc, eq, isNull } from "drizzle-orm";
+import { and, asc, eq, inArray, isNull } from "drizzle-orm";
+import { addDaysStr, daysBetween } from "@/lib/dates";
 import { getDb } from "@/server/db/client";
-import { templates } from "@/server/db/schema";
+import { tasks, templates } from "@/server/db/schema";
 import { logActivity } from "./activity";
 
 /**
@@ -11,6 +12,12 @@ import { logActivity } from "./activity";
 
 export type TemplateKind = "note" | "meeting" | "report" | "task_set";
 
+/** The day a task set is dated from: tasks sit so many days before or after it. */
+export const TASK_SET_ANCHORS = ["deadline", "start", "visit", "meeting", "period_end"] as const;
+export type TaskSetAnchor = (typeof TASK_SET_ANCHORS)[number];
+
+export type TaskSetItem = { title: string; offsetDays: number | null; priority?: number; ownerName?: string | null; notes?: string | null };
+
 export type TemplateContent = {
   /** note: Markdown body. */
   markdown?: string;
@@ -18,8 +25,9 @@ export type TemplateContent = {
   agenda?: string[];
   /** report: sections with guidance and word limits. */
   sections?: { heading: string; guidance?: string; wordLimit?: number | null }[];
-  /** task_set: tasks with day offsets from a start date (Things project templates). */
-  tasks?: { title: string; offsetDays: number; ownerName?: string | null; notes?: string | null }[];
+  /** task_set: tasks with day offsets from one date (Asana and Todoist templates); null leaves a task undated. */
+  tasks?: TaskSetItem[];
+  anchor?: TaskSetAnchor;
 };
 
 export type TemplateItem = { id: string; kind: TemplateKind; name: string; description: string | null; builtin: boolean; content: TemplateContent };
@@ -141,12 +149,32 @@ export const BUILTIN_TEMPLATES: TemplateItem[] = [
     },
   },
   {
+    id: B("quarterly-report-tasks"),
+    kind: "task_set",
+    name: "Çeyrek raporu",
+    description: "Donör raporunun teslim tarihinden geriye doğru dizilen işler.",
+    builtin: true,
+    content: {
+      anchor: "deadline",
+      tasks: [
+        { title: "Ortaklardan çeyrek verilerini ve raporlarını iste", offsetDays: -21, priority: 2 },
+        { title: "Ortak verilerini kontrol et, IPTT'ye gir", offsetDays: -14, priority: 2 },
+        { title: "Rapor taslağını yaz", offsetDays: -10, priority: 2 },
+        { title: "Grafikleri ve tek sayfalık özeti hazırla", offsetDays: -7, priority: 3 },
+        { title: "Taslağı iç gözden geçirmeye gönder", offsetDays: -5, priority: 2 },
+        { title: "Yorumları işle, sayıları son kez IPTT ile karşılaştır", offsetDays: -2, priority: 1 },
+        { title: "Raporu donöre gönder", offsetDays: 0, priority: 1 },
+      ],
+    },
+  },
+  {
     id: B("partner-report-cycle"),
     kind: "task_set",
     name: "Ortak raporu döngüsü",
     description: "Dönem sonu ortak raporlarını toplamak için işler.",
     builtin: true,
     content: {
+      anchor: "period_end",
       tasks: [
         { title: "Ortaklara rapor hatırlatması gönder", offsetDays: -7 },
         { title: "Ortak raporlarını topla", offsetDays: 10 },
@@ -163,12 +191,31 @@ export const BUILTIN_TEMPLATES: TemplateItem[] = [
     description: "Ziyaret öncesi ve sonrası işler.",
     builtin: true,
     content: {
+      anchor: "visit",
       tasks: [
         { title: "Ziyaret planını ortakla paylaş", offsetDays: -10 },
         { title: "Ulaşım ve konaklama", offsetDays: -7 },
         { title: "Güvenlik ve koruma kontrol listesi", offsetDays: -3 },
         { title: "Ziyaret notunu yaz", offsetDays: 1 },
         { title: "Takip işlerini paylaş", offsetDays: 3 },
+      ],
+    },
+  },
+  {
+    id: B("steering-prep"),
+    kind: "task_set",
+    name: "Yönlendirme komitesi",
+    description: "Toplantıdan önce ve sonra yapılacaklar.",
+    builtin: true,
+    content: {
+      anchor: "meeting",
+      tasks: [
+        { title: "Tarihi ve katılımcıları netleştir, daveti gönder", offsetDays: -21, priority: 2 },
+        { title: "Gündem taslağını ortaklarla paylaş", offsetDays: -10 },
+        { title: "İlerleme ve gösterge özetini hazırla", offsetDays: -5, priority: 2 },
+        { title: "Sunumu son haline getir", offsetDays: -2, priority: 2 },
+        { title: "Toplantı notlarını ve kararları paylaş", offsetDays: 2, priority: 2 },
+        { title: "Kararlar için takip görevlerini aç", offsetDays: 5 },
       ],
     },
   },
@@ -214,24 +261,74 @@ export async function saveTemplate(input: { id?: string; kind: TemplateKind; nam
   return row!;
 }
 
-/** Apply a task set: every task dated from the start day she picks. */
-export async function applyTaskSet(templateId: string, startDay: string, extra: { orgIds?: string[]; links?: { type: string; id: string }[] } = {}) {
-  const tpl = await getTemplate(templateId);
-  if (!tpl?.tasks?.length) return [];
-  const { addDaysStr } = await import("@/lib/dates");
+/* --------------------------------- Task sets --------------------------------- */
+
+export type TaskSetPreviewItem = { index: number; title: string; offsetDays: number | null; date: string | null; moved: boolean; priority: number; notes: string | null };
+
+/**
+ * The tasks of a set dated from the day she picks. A date that falls on a
+ * weekend or holiday moves to a working day: earlier for work before the
+ * day, later for follow-ups after it, so nothing lands after a deadline.
+ */
+export async function previewTaskSet(templateId: string, anchorDay: string) {
+  const tpl = await getTemplateItem(templateId);
+  if (!tpl || tpl.kind !== "task_set" || !tpl.content.tasks?.length) return null;
+  const { ensureHolidays, nextWorkingDay, previousWorkingDay } = await import("./workplan");
+  await ensureHolidays();
+  const items: TaskSetPreviewItem[] = [];
+  for (const [index, t] of tpl.content.tasks.entries()) {
+    let date: string | null = null;
+    let moved = false;
+    if (t.offsetDays !== null && t.offsetDays !== undefined) {
+      const raw = addDaysStr(anchorDay, t.offsetDays);
+      date = t.offsetDays > 0 ? await nextWorkingDay(raw) : await previousWorkingDay(raw);
+      moved = date !== raw;
+    }
+    items.push({ index, title: t.title, offsetDays: t.offsetDays ?? null, date, moved, priority: t.priority ?? 4, notes: t.notes ?? null });
+  }
+  return { id: tpl.id, name: tpl.name, anchor: tpl.content.anchor ?? "deadline", items };
+}
+
+/** Apply a task set: the tasks she kept, dated from her day and linked to a partner if she chose one. */
+export async function applyTaskSet(templateId: string, anchorDay: string, opts: { orgId?: string | null; skip?: number[] } = {}) {
+  const preview = await previewTaskSet(templateId, anchorDay);
+  if (!preview) return [];
   const { createTask } = await import("./tasks");
+  const skip = new Set(opts.skip ?? []);
   const ids: string[] = [];
-  for (const t of tpl.tasks) {
+  for (const item of preview.items) {
+    if (skip.has(item.index)) continue;
     const task = await createTask({
-      title: t.title,
-      dueDate: addDaysStr(startDay, t.offsetDays),
-      ownerName: t.ownerName ?? null,
-      notes: t.notes ?? null,
-      orgIds: extra.orgIds,
-      links: extra.links,
+      title: item.title,
+      dueDate: item.date,
+      priority: item.priority,
+      notes: item.notes,
+      orgIds: opts.orgId ? [opts.orgId] : undefined,
       templateId: templateId.startsWith("builtin:") ? null : templateId,
     });
     ids.push(task.id);
   }
   return ids;
+}
+
+/**
+ * Selected tasks as a set of her own: dates become days before (or after)
+ * the latest date among them, so the set can be dated again next time.
+ */
+export async function taskSetFromTasks(taskIds: string[], input: { name: string; description?: string | null; anchor: TaskSetAnchor }) {
+  const db = await getDb();
+  const rows = await db.select().from(tasks).where(and(inArray(tasks.id, taskIds), isNull(tasks.deletedAt)));
+  if (!rows.length) return null;
+  const order = new Map(taskIds.map((id, i) => [id, i]));
+  const dated = rows.filter((r) => r.dueDate);
+  const anchorDay = dated.map((r) => r.dueDate!).sort().at(-1) ?? null;
+  const items: TaskSetItem[] = rows
+    .sort((a, b) => (a.dueDate ?? "9999").localeCompare(b.dueDate ?? "9999") || (order.get(a.id)! - order.get(b.id)!))
+    .map((r) => ({
+      title: r.title,
+      offsetDays: anchorDay && r.dueDate ? daysBetween(anchorDay, r.dueDate) : null,
+      priority: r.priority,
+      notes: r.notes,
+    }));
+  return saveTemplate({ kind: "task_set", name: input.name, description: input.description ?? null, content: { anchor: input.anchor, tasks: items } });
 }

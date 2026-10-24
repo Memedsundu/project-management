@@ -28,7 +28,10 @@
     "lateBody": "The {label} report has been due for {days, plural, one {# day} other {# days}}.",
     "briefTitle": "Your daily brief is ready",
     "testTitle": "Notifications are on",
-    "testBody": "Reminders will reach this device like this."
+    "testBody": "Reminders will reach this device like this.",
+    "weeklyTitle": "Your weekly review is ready",
+    "weeklyBody": "This week {done} done, {slipped} slipped.",
+    "recipeTitle": "{name} is ready"
   },
   "notifications": {
     "enabled": "Notifications are on for this device.",
@@ -230,7 +233,7 @@
         "note": "Notes",
         "meeting": "Meetings",
         "report": "Reports",
-        "task_set": "Task lists"
+        "task_set": "Task sets"
       },
       "saved": "Template saved",
       "name": "Name",
@@ -238,7 +241,7 @@
       "builtin": "Built in",
       "rename": "Edit {name}",
       "delete": "Delete {name}",
-      "howToAdd": "To add a template, open a note and choose Save as template from its menu."
+      "howToAdd": "For a page template, choose Save as template in a note's menu. For a task set, select tasks in Tasks and press Save as task set."
     }
   },
   "account": {
@@ -290,5 +293,57 @@
     "trash": "Trash",
     "trashHint": "{count, plural, =0 {Empty.} one {# item.} other {# items.}} Deleted things go for good after 30 days.",
     "openTrash": "Open the trash"
+  },
+  "helpers": {
+    "title": "Helpers",
+    "hint": "What Claude writes on its own, and your saved instructions. Everything is kept on Briefs; anything they suggest to change arrives in the Inbox.",
+    "dailyBrief": "Daily brief",
+    "dailyBriefHint": "Three lines at the top of Today at 08:00 on working days.",
+    "weeklyReview": "Weekly review",
+    "weeklyReviewHint": "Friday at 16:00: what was done and what slipped, next week and three suggested objectives.",
+    "partnerCheck": "Monthly partner report check",
+    "partnerCheckHint": "On the first working day of the month, finds late partner reports and suggests follow-up tasks.",
+    "last": "Last: {date}.",
+    "saved": "Saved",
+    "briefs": "Briefs",
+    "briefsHint": "Everything your helpers and instructions wrote.",
+    "openBriefs": "Open briefs",
+    "recipes": "Saved instructions",
+    "recipesHint": "Instructions that run with one tap in the assistant panel. On a partner or meeting page they use that page; they can also run on their own at set times.",
+    "newRecipe": "New instruction",
+    "aiOff": "Claude is not connected or is switched off; instructions cannot run for now.",
+    "builtin": "Built-in",
+    "schedules": {
+      "none": "On demand",
+      "daily_0800": "Every working day 08:00",
+      "friday_1600": "Friday 16:00",
+      "monthly_first_workday": "First working day of the month"
+    },
+    "lastRun": "Last: {date}",
+    "never": "Not run yet",
+    "run": "Run",
+    "running": "Running…",
+    "ran": "{name} is ready.",
+    "open": "Open",
+    "edit": "Edit",
+    "editName": "Edit {name}",
+    "delete": "Delete",
+    "deleteName": "Delete {name}",
+    "deleted": "Instruction deleted",
+    "dialog": {
+      "newTitle": "New instruction",
+      "editTitle": "Edit instruction",
+      "description": "Claude follows this instruction as written every time it runs. The result is kept on Briefs.",
+      "name": "Name",
+      "namePlaceholder": "e.g. Monthly note to the donor",
+      "instructions": "Instruction",
+      "instructionsHint": "Say what to write, in which language and how long. Claude reads the day's records and the page you run it on.",
+      "instructionsPlaceholder": "e.g. Summarise open tasks with this partner, what we wait for from them and the latest decisions, in bullet points.",
+      "model": "Model",
+      "modelHint": "Haiku is quick and cheap; Sonnet is more careful; Opus is the strongest and the most expensive.",
+      "schedule": "When",
+      "scheduleHint": "A scheduled run has no page; Claude works from the day's records.",
+      "saved": "Instruction saved"
+    }
   }
 }

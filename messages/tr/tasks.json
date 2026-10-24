@@ -78,7 +78,8 @@
     "complete": "Tamamla",
     "delete": "Sil",
     "clear": "Seçimi kaldır",
-    "updated": "{count} görev güncellendi"
+    "updated": "{count} görev güncellendi",
+    "saveSet": "Görev seti olarak kaydet"
   },
   "filters": {
     "owner": "Sorumlu",
@@ -156,5 +157,48 @@
   "completedNamed": "“{title}” tamamlandı",
   "keyboardHint": "Kısayollar: J/K gez, X seç, Enter aç, E tamamla, D tarih, 1–4 öncelik. Tümü için ?",
   "moveTo": "Taşı",
-  "boardEmpty": "Buraya sürükle"
+  "boardEmpty": "Buraya sürükle",
+  "sets": {
+    "apply": "Görev seti",
+    "applyTitle": "Görev seti ekle",
+    "applyHint": "Bir seti seç, gününü ver; görevler o güne göre tarihlenir.",
+    "count": "{count} görev",
+    "anchors": {
+      "deadline": "Teslim tarihi",
+      "start": "Başlangıç tarihi",
+      "visit": "Ziyaret günü",
+      "meeting": "Toplantı günü",
+      "period_end": "Dönem sonu"
+    },
+    "otherSet": "Başka bir set",
+    "dayHint": "Hafta sonuna ya da tatile denk gelen işler bir iş gününe kayar.",
+    "partner": "Ortak",
+    "partnerHint": "İsteğe bağlı; görevler bu ortağa bağlanır.",
+    "noPartner": "Ortak yok",
+    "preview": "Eklenecek görevler",
+    "previewNoDay": "Görevler (tarih seçince tarihlenir)",
+    "past": "geçmiş tarih",
+    "moved": "iş gününe kaydırıldı",
+    "add": "{count} görev ekle",
+    "added": "{count} görev eklendi",
+    "undated": "tarihsiz",
+    "sameDay": "aynı gün",
+    "before": "{count} gün önce",
+    "after": "{count} gün sonra",
+    "saveTitle": "Görev seti olarak kaydet",
+    "saveHint": "Seçtiğin görevler bir sete dönüşür. Tarihleri, en geç tarihe göre kaç gün önce olduklarıyla saklanır; seti başka bir tarihe uygulayabilirsin.",
+    "name": "Adı",
+    "namePlaceholder": "Örn. Yıllık rapor",
+    "about": "Ne için? (isteğe bağlı)",
+    "anchor": "En geç tarih neyin günü?",
+    "anchorHint": "Seti uygularken bu gün sorulur.",
+    "saved": "Görev seti kaydedildi",
+    "anchorsFrom": {
+      "deadline": "Teslim tarihine göre",
+      "start": "Başlangıç tarihine göre",
+      "visit": "Ziyaret gününe göre",
+      "meeting": "Toplantı gününe göre",
+      "period_end": "Dönem sonuna göre"
+    }
+  }
 }

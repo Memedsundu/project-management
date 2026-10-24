@@ -1,7 +1,8 @@
 import "server-only";
 import { and, asc, eq, gte, isNull, sql } from "drizzle-orm";
 import { z } from "zod";
-import { addDaysStr, formatLongDay, istanbulInstant, todayStr, weekRange } from "@/lib/dates";
+import { addDaysStr, formatDay, formatDayRange, formatLongDay, istanbulInstant, todayStr, weekRange } from "@/lib/dates";
+import { UserError } from "@/server/action";
 import { getDb } from "@/server/db/client";
 import { briefs, decisions, recipes, tasks } from "@/server/db/schema";
 import { isEntityType } from "@/server/entities";
@@ -128,10 +129,10 @@ export async function weeklyReviewJob(payload: Record<string, unknown> = {}) {
     done.length ? done.slice(0, 20).map((t) => `- ${t.title}`).join("\n") : "- Tamamlanan görev yok.",
     "",
     "## Kayan işler",
-    slipped.length ? slipped.slice(0, 15).map((t) => `- ${t.title} (son tarih ${t.dueDate})`).join("\n") : "- Kayan iş yok.",
+    slipped.length ? slipped.slice(0, 15).map((t) => `- ${t.title} (son tarih ${t.dueDate ? formatDay(t.dueDate, "tr") : "yok"})`).join("\n") : "- Kayan iş yok.",
     "",
     "## Gelecek hafta",
-    [...nextMeetings.map((m) => `- Toplantı: ${m.title}`), ...nextDeadlines.map((t) => `- ${t.day}: ${t.title}`)].join("\n") || "- Henüz bir şey planlı değil.",
+    [...nextMeetings.map((m) => `- Toplantı: ${m.title}`), ...nextDeadlines.map((t) => `- ${formatDay(t.day, "tr")}: ${t.title}`)].join("\n") || "- Henüz bir şey planlı değil.",
   ].join("\n");
   let model: string | null = null;
   if (await aiUsable()) {
@@ -152,7 +153,11 @@ export async function weeklyReviewJob(payload: Record<string, unknown> = {}) {
       // Plain review stays.
     }
   }
-  return saveBrief({ kind: "weekly", day, title: `Haftalık değerlendirme · ${week.start}`, content, data: { done: done.length, slipped: slipped.length }, model });
+  const brief = await saveBrief({ kind: "weekly", day, title: `Haftalık değerlendirme · ${formatDayRange(week.start, week.end, "tr")}`, content, data: { done: done.length, slipped: slipped.length }, model });
+  if (payload.notify !== false && (await getSetting("notifications")).briefReady) {
+    await sendPush(`weekly:${day}`, (tr) => ({ title: tr("weeklyTitle"), body: tr("weeklyBody", { done: done.length, slipped: slipped.length }), url: `/briefs/${brief.id}`, tag: "weekly" }));
+  }
+  return brief;
 }
 
 /* --------------------------- Monthly partner report check --------------------------- */
@@ -163,7 +168,7 @@ export async function partnerReportCheckJob(payload: Record<string, unknown> = {
   const late = await latePartnerReports(day);
   const db = await getDb();
   const content = late.length
-    ? late.map((r) => `- **${r.orgName}**: ${r.label} raporu ${r.due} tarihinde bekleniyordu (${r.daysLate} gün gecikme).`).join("\n")
+    ? late.map((r) => `- **${r.orgName}**: ${r.label} raporu ${formatDay(r.due, "tr", true)} tarihinde bekleniyordu (${r.daysLate} gün gecikme).`).join("\n")
     : "Bütün ortak raporları zamanında ya da henüz vakti gelmedi.";
   // Suggest one waiting-on task per late report, unless one is already open or proposed.
   const open = await db
@@ -176,7 +181,7 @@ export async function partnerReportCheckJob(payload: Record<string, unknown> = {
   for (const r of late) {
     const title = `${r.orgName} ${r.label} raporu`;
     const exists = open.some((t) => t.ownerOrgId === r.orgId && t.title.includes(r.label)) || pendingTitles.has(title);
-    if (!exists) proposals.push({ title, ownerOrgId: r.orgId, dueDate: r.due, priority: 2, notes: `Rapor ${r.due} tarihinde bekleniyordu.` });
+    if (!exists) proposals.push({ title, ownerOrgId: r.orgId, dueDate: r.due, priority: 2, notes: `Rapor ${formatDay(r.due, "tr", true)} tarihinde bekleniyordu.` });
   }
   if (proposals.length) {
     await createSuggestion({ kind: "tasks", title: "Geciken ortak raporları için takip", summary: `${proposals.length} ortak raporu gecikmede.`, payload: { tasks: proposals } });
@@ -284,10 +289,48 @@ export async function runRecipeJob(payload: Record<string, unknown>) {
   const recipeId = String(payload.recipeId ?? "");
   if (!(await aiUsable())) throw new PermanentJobError("AI unavailable");
   const entity = payload.entity as { type: string; id: string } | undefined;
-  await runRecipe(recipeId, entity ?? null);
+  const brief = await runRecipe(recipeId, entity ?? null);
+  if ((await getSetting("notifications")).briefReady) {
+    await sendPush(`recipe:${brief.id}`, (tr) => ({ title: tr("recipeTitle", { name: brief.title }), body: plainLine(brief.content), url: `/briefs/${brief.id}`, tag: `recipe:${recipeId}` }));
+  }
 }
 
-/** Open tasks, waiting items, last meetings and decisions for one partner. */
+const plainLine = (markdown: string) =>
+  markdown
+    .replace(/^#{1,6}\s+.*$/gm, "")
+    .replace(/[*_`>]+/g, "")
+    .split("\n")
+    .map((l) => l.replace(/^\s*[-•]\s+/, "").trim())
+    .find(Boolean)
+    ?.slice(0, 160) ?? "";
+
+/** "Şimdi hazırla" on Özetler: a helper's brief for today, written now. */
+export async function makeBriefNow(kind: "daily" | "weekly" | "partner_check") {
+  const day = todayStr();
+  if (kind === "daily") return dailyBriefJob({ day, notify: false });
+  if (kind === "weekly") return weeklyReviewJob({ day, notify: false });
+  return partnerReportCheckJob({ day });
+}
+
+/** "Yeniden hazırla": the same helper again for the same day; a recipe runs again on the same page and replaces its result. */
+export async function remakeBrief(id: string) {
+  const db = await getDb();
+  const [b] = await db.select().from(briefs).where(eq(briefs.id, id)).limit(1);
+  if (!b) throw new UserError("Özet bulunamadı.");
+  if (b.kind === "daily") {
+    if (b.day !== todayStr()) throw new UserError("Geçmiş bir günün özeti yeniden yazılamaz.");
+    return dailyBriefJob({ day: b.day, notify: false });
+  }
+  if (b.kind === "weekly") return weeklyReviewJob({ day: b.day, notify: false });
+  if (b.kind === "partner_check") return partnerReportCheckJob({ day: b.day });
+  const [r] = b.recipeId ? await db.select({ id: recipes.id }).from(recipes).where(eq(recipes.id, b.recipeId)).limit(1) : [];
+  if (!r) throw new UserError("Bu sonucu yazan hazır talimat silinmiş.");
+  const entity = (b.data as { entity?: { type: string; id: string } } | null)?.entity ?? null;
+  const fresh = await runRecipe(r.id, entity);
+  await db.delete(briefs).where(eq(briefs.id, b.id));
+  return fresh;
+}
+
 /* --------------------------------- Scheduling --------------------------------- */
 
 /** Days the brief and helpers run: her working days, skipping public holidays. */

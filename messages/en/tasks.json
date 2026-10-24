@@ -78,7 +78,8 @@
     "complete": "Complete",
     "delete": "Delete",
     "clear": "Clear selection",
-    "updated": "{count} tasks updated"
+    "updated": "{count} tasks updated",
+    "saveSet": "Save as task set"
   },
   "filters": {
     "owner": "Owner",
@@ -156,5 +157,48 @@
   "completedNamed": "“{title}” completed",
   "keyboardHint": "Shortcuts: J/K to move, X to select, Enter to open, E to complete, D for a date, 1–4 for priority. Press ? for all.",
   "moveTo": "Move to",
-  "boardEmpty": "Drag here"
+  "boardEmpty": "Drag here",
+  "sets": {
+    "apply": "Task set",
+    "applyTitle": "Add a task set",
+    "applyHint": "Pick a set and its day; the tasks are dated from that day.",
+    "count": "{count, plural, one {# task} other {# tasks}}",
+    "anchors": {
+      "deadline": "Due date",
+      "start": "Start date",
+      "visit": "Visit day",
+      "meeting": "Meeting day",
+      "period_end": "Period end"
+    },
+    "otherSet": "Another set",
+    "dayHint": "Work that falls on a weekend or holiday moves to a working day.",
+    "partner": "Partner",
+    "partnerHint": "Optional; the tasks are linked to this partner.",
+    "noPartner": "No partner",
+    "preview": "Tasks to add",
+    "previewNoDay": "Tasks (dated once you pick the day)",
+    "past": "in the past",
+    "moved": "moved to a working day",
+    "add": "{count, plural, one {Add # task} other {Add # tasks}}",
+    "added": "{count, plural, one {# task added} other {# tasks added}}",
+    "undated": "no date",
+    "sameDay": "same day",
+    "before": "{count, plural, one {# day before} other {# days before}}",
+    "after": "{count, plural, one {# day after} other {# days after}}",
+    "saveTitle": "Save as task set",
+    "saveHint": "The selected tasks become a set. Their dates are kept as days before the latest one, so you can apply the set to another date.",
+    "name": "Name",
+    "namePlaceholder": "e.g. Annual report",
+    "about": "What for? (optional)",
+    "anchor": "What is the latest date?",
+    "anchorHint": "You are asked for this day when you apply the set.",
+    "saved": "Task set saved",
+    "anchorsFrom": {
+      "deadline": "Dated from the due date",
+      "start": "Dated from the start date",
+      "visit": "Dated from the visit day",
+      "meeting": "Dated from the meeting day",
+      "period_end": "Dated from the period end"
+    }
+  }
 }

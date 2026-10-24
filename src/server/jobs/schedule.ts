@@ -19,6 +19,8 @@ export async function scheduleDue(now = nowTz()) {
   const { ensureHolidays, isWorkingDay } = await import("@/server/services/workplan");
   await ensureHolidays();
   const workday = await isWorkingDay(day);
+  const { getSetting } = await import("@/server/services/settings");
+  const on = await getSetting("scheduledHelpers");
   const queued: string[] = [];
 
   const hasBrief = async (kind: string, from: string) => {
@@ -30,16 +32,16 @@ export async function scheduleDue(now = nowTz()) {
     return rows.length > 0;
   };
 
-  if (workday && minutes >= 8 * 60 && minutes < 14 * 60 && !(await hasBrief("daily", day))) {
+  if (on.dailyBrief && workday && minutes >= 8 * 60 && minutes < 14 * 60 && !(await hasBrief("daily", day))) {
     await enqueue("daily_brief", { day }, { dedupeKey: `daily_brief:${day}` });
     queued.push("daily_brief");
   }
-  if (dow === 5 && minutes >= 16 * 60 && !(await hasBrief("weekly", day))) {
+  if (on.weeklyReview && dow === 5 && minutes >= 16 * 60 && !(await hasBrief("weekly", day))) {
     await enqueue("weekly_review", { day }, { dedupeKey: `weekly_review:${day}` });
     queued.push("weekly_review");
   }
   const monthStart = `${day.slice(0, 7)}-01`;
-  if (workday && minutes >= 9 * 60 && !(await hasBrief("partner_check", monthStart))) {
+  if (on.partnerCheck && workday && minutes >= 9 * 60 && !(await hasBrief("partner_check", monthStart))) {
     const { nextWorkingDay } = await import("@/server/services/workplan");
     if ((await nextWorkingDay(monthStart)) === day) {
       await enqueue("partner_report_check", { day }, { dedupeKey: `partner_report_check:${day.slice(0, 7)}` });

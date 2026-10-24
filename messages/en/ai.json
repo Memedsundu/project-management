@@ -159,6 +159,15 @@
       "updated": "Term updated.",
       "deleted": "Term deleted."
     },
-    "moreSources": "+{count} more"
+    "moreSources": "+{count} more",
+    "recipes": {
+      "title": "Your saved instructions",
+      "ran": "Instruction: {name}",
+      "running": "Running the instruction…",
+      "saved": "Kept on Briefs",
+      "onRecord": "Runs with what is on {title}.",
+      "hint": "Runs with the day's records.",
+      "manage": "Edit instructions"
+    }
   }
 }

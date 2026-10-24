@@ -216,3 +216,41 @@ follows.
   it from a period; the figures themselves always come from the IPTT.
 - On a phone the chart or page comes first and the settings follow; on a
   laptop the picture stays in view while she scrolls the settings.
+
+## Yardımcılar, kayıtlı talimatlar ve görev setleri (helpers, saved instructions and task sets)
+
+- Three scheduled helpers, as Notion's custom agents: the day's summary on
+  working days at 08:00, the Friday review at 16:00 (done, slipped, next week
+  and at most three objectives, as Sunsama's weekly objectives) and the
+  partner report check on the first working day of the month. Each one has
+  its own switch in Ayarlar › Yardımcılar. Weekends and the holidays in İş
+  planı › Tatiller are skipped.
+- Whatever they write is kept on Özetler, newest first, by month. Özetler is
+  not in the sidebar, to keep it short: it opens from Bugün ("Tüm özetler"),
+  from Ayarlar, from ⌘K and with G then Z. Bugün offers the ones she has not
+  opened yet; opening one marks it read. "Şimdi hazırla" writes one now.
+- A brief can be copied, kept as a note (linked to the page it was about),
+  written again or deleted. A past day's summary cannot be written again:
+  that day's records have moved on.
+- Helpers never change data. The partner report check suggests one follow-up
+  task per late report; the suggestion waits in Gelen kutusu for her approval
+  and is not repeated while one is open. Without AI (no key, switched off or
+  over the monthly cap) the day's summary, the review and the check are still
+  written from the records, plainly.
+- "Kayıtlı talimatlar" is the Turkish name for Granola's recipes and Notion's
+  skills: saved instructions she runs with one tap in the assistant panel. On
+  a partner or meeting page they run with that page's records. Each names its
+  own model (Haiku by default) and can run on a schedule (every working day
+  08:00, Friday 16:00, first working day of the month). Three come built in:
+  Ortak brifi, Haftalık güncelleme, Toplantıya hazırla; she can edit them but
+  not delete them. A result from a schedule arrives as a phone notification.
+- Task sets are Asana's and Todoist's templates with relative dates: a set's
+  tasks sit so many days before or after one day (the deadline, the start,
+  the visit, the meeting or the period end). Before anything is created she
+  sees every date, can leave tasks out and can link them to a partner.
+- A date that falls on a weekend or holiday moves to a working day: earlier
+  for work before the day, later for follow-ups after it, so nothing lands
+  after a deadline. A date already past is marked in amber.
+- Any group of tasks becomes a set: select them in Görevler and choose "Görev
+  seti olarak kaydet". The latest date among them becomes the set's day and
+  the others are kept as days before it; tasks without a date stay undated.
