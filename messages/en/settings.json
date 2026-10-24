@@ -1,0 +1,22 @@
+{
+  "title": "Settings",
+  "subtitle": "Look, language, lists and AI. Kept short; you set most of it once.",
+  "shortcuts": {
+    "title": "Keyboard shortcuts",
+    "general": "General",
+    "goTo": "Go to",
+    "lists": "In lists",
+    "search": "Ask or search",
+    "quickAdd": "Quick add",
+    "assistant": "Open or close the assistant",
+    "help": "This shortcut list",
+    "close": "Close",
+    "down": "Down",
+    "up": "Up",
+    "select": "Select",
+    "openItem": "Open",
+    "setDate": "Set a date",
+    "setPriority": "Set priority",
+    "complete": "Complete"
+  }
+}

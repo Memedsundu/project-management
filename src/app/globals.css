@@ -1,0 +1,201 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/*
+ * Peni design tokens. Mostly black and white; amber only when a colour is needed.
+ * Light is the default, dark mirrors it. Components use the Tailwind names below
+ * (bg-bg, text-ink, border-line, bg-accent-soft ...), never raw hex values.
+ */
+:root {
+  --bg: #ffffff;
+  --bg-subtle: #fafaf8;
+  --panel: #f5f5f2;
+  --panel-2: #f2f2ee;
+  --line: #e6e6e6;
+  --line-soft: #ecece8;
+  --line-strong: #e0e0dc;
+  --ink: #111111;
+  --ink-2: #444444;
+  --muted: #5c5c5c;
+  --faint: #8a8a85;
+  --accent: #b45309;
+  --accent-soft: #fdf3e1;
+  --accent-ink: #8a4b08;
+  --overdue: #9a4a07;
+  --on-ink: #ffffff;
+  --success: #2f6b3a;
+  --danger: #a1281f;
+  --shadow: 0 1px 2px rgb(17 17 17 / 0.04), 0 8px 24px rgb(17 17 17 / 0.08);
+  color-scheme: light;
+}
+
+.dark {
+  --bg: #141414;
+  --bg-subtle: #1b1b1a;
+  --panel: #1f1f1e;
+  --panel-2: #262624;
+  --line: #2e2e2c;
+  --line-soft: #262624;
+  --line-strong: #3a3a37;
+  --ink: #f2f2f0;
+  --ink-2: #d4d4cf;
+  --muted: #a8a8a3;
+  --faint: #7c7c77;
+  --accent: #f0b35a;
+  --accent-soft: #3a2a12;
+  --accent-ink: #f5c67a;
+  --overdue: #f0a95a;
+  --on-ink: #141414;
+  --success: #7fc28a;
+  --danger: #f08a80;
+  --shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 8px 24px rgb(0 0 0 / 0.4);
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-bg-subtle: var(--bg-subtle);
+  --color-panel: var(--panel);
+  --color-panel-2: var(--panel-2);
+  --color-line: var(--line);
+  --color-line-soft: var(--line-soft);
+  --color-line-strong: var(--line-strong);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-muted: var(--muted);
+  --color-faint: var(--faint);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-ink: var(--accent-ink);
+  --color-overdue: var(--overdue);
+  --color-on-ink: var(--on-ink);
+  --color-success: var(--success);
+  --color-danger: var(--danger);
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+  --font-serif: var(--font-instrument-serif), Georgia, serif;
+  --radius-card: 16px;
+  --radius-item: 10px;
+  --shadow-pop: var(--shadow);
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-rendering: optimizeLegibility;
+  }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    font-size: 15px;
+    line-height: 1.5;
+  }
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+  ::selection {
+    background: var(--accent-soft);
+    color: var(--ink);
+  }
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  input,
+  textarea,
+  select,
+  button {
+    font: inherit;
+    color: inherit;
+  }
+  [hidden] {
+    display: none !important;
+  }
+}
+
+@layer components {
+  .font-display {
+    font-family: var(--font-serif);
+    font-weight: 400;
+    letter-spacing: -0.01em;
+  }
+  .label-caps {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: var(--line-strong) transparent;
+  }
+  .prose-app {
+    font-size: 15px;
+    line-height: 1.65;
+  }
+  .prose-app h1,
+  .prose-app h2,
+  .prose-app h3 {
+    font-weight: 600;
+    line-height: 1.3;
+    margin: 1.2em 0 0.4em;
+  }
+  .prose-app h1 {
+    font-size: 1.5em;
+  }
+  .prose-app h2 {
+    font-size: 1.25em;
+  }
+  .prose-app h3 {
+    font-size: 1.1em;
+  }
+  .prose-app p {
+    margin: 0.5em 0;
+  }
+  .prose-app ul,
+  .prose-app ol {
+    padding-left: 1.4em;
+    margin: 0.5em 0;
+  }
+  .prose-app ul {
+    list-style: disc;
+  }
+  .prose-app ol {
+    list-style: decimal;
+  }
+  .prose-app table {
+    border-collapse: collapse;
+    margin: 0.75em 0;
+    font-size: 14px;
+  }
+  .prose-app td,
+  .prose-app th {
+    border: 1px solid var(--line);
+    padding: 6px 10px;
+    text-align: left;
+    vertical-align: top;
+  }
+  .prose-app a {
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .prose-app blockquote {
+    border-left: 3px solid var(--line-strong);
+    padding-left: 12px;
+    color: var(--muted);
+  }
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  body {
+    background: #fff;
+    color: #111;
+  }
+}

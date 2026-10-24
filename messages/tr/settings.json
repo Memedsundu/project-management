@@ -1,0 +1,22 @@
+{
+  "title": "Ayarlar",
+  "subtitle": "Görünüm, dil, listeler ve yapay zekâ. Kısa tutuldu; çoğunu bir kez ayarlarsın.",
+  "shortcuts": {
+    "title": "Klavye kısayolları",
+    "general": "Genel",
+    "goTo": "Git",
+    "lists": "Listelerde",
+    "search": "Sor ya da ara",
+    "quickAdd": "Hızlı ekle",
+    "assistant": "Asistanı aç ya da kapat",
+    "help": "Bu kısayol listesi",
+    "close": "Kapat",
+    "down": "Aşağı",
+    "up": "Yukarı",
+    "select": "Seç",
+    "openItem": "Aç",
+    "setDate": "Tarih ver",
+    "setPriority": "Öncelik ver",
+    "complete": "Tamamla"
+  }
+}
