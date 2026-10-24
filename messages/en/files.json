@@ -1,1 +1,20 @@
-{}
+{
+  "upload": {
+    "reading": "Reading…",
+    "uploading": "Uploading…",
+    "saving": "Saving…",
+    "offline": "You are offline. Try again when you are back online.",
+    "tooLarge": "{name} is too large (250 MB at most).",
+    "duplicate": "{name} is already in Files.",
+    "openExisting": "Open existing",
+    "uploadAnyway": "Upload anyway",
+    "storageNotReady": "File storage is not connected yet. Uploads work once Vercel Blob is added.",
+    "readOnly": "The project is archived; no new files can be added.",
+    "failed": "{name} could not be uploaded.",
+    "failedGeneric": "The upload stopped half way. Could you try again?",
+    "doneOne": "“{name}” uploaded. Claude will suggest where to file it.",
+    "doneMany": "{count} files uploaded. Claude will suggest where to file them.",
+    "versionDone": "New version uploaded.",
+    "open": "Open"
+  }
+}

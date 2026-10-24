@@ -199,3 +199,13 @@
     color: #111;
   }
 }
+
+/* ⌘K group headings (cmdk) */
+[cmdk-group-heading] {
+  padding: 10px 12px 4px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}

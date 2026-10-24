@@ -45,3 +45,41 @@ export function prefixTsQuery(query: string, mode: "and" | "or" = "and"): string
   if (terms.length === 0) return null;
   return terms.map((t) => `${t}:*`).join(mode === "and" ? " & " : " | ");
 }
+
+/** Common Turkish endings, already folded (ı→i, ü→u ...), longest first. */
+const SUFFIXES = [
+  "lerinden", "larindan", "lerinde", "larinda", "lerine", "larina", "lerini", "larini",
+  "lerin", "larin", "leri", "lari", "ler", "lar", "indan", "inden", "ndan", "nden",
+  "daki", "deki", "taki", "teki", "nin", "nun", "dan", "den", "tan", "ten",
+  "ini", "ina", "ine", "nda", "nde", "si", "su", "yi", "yu", "ya", "ye",
+  "da", "de", "ta", "te", "in", "un", "i", "u", "a", "e",
+];
+
+/**
+ * A light Turkish stemmer for search: "raporlarından" → "rapor",
+ * "sözleşmesi" → "sozlesme". It never cuts a word below four letters, so
+ * English words and short Turkish words are left alone.
+ */
+export function stemTerm(folded: string): string {
+  if (/\d/.test(folded)) return folded;
+  let word = folded;
+  for (let pass = 0; pass < 2; pass++) {
+    const suffix = SUFFIXES.find((s) => word.endsWith(s) && word.length - s.length >= 4);
+    if (!suffix) break;
+    word = word.slice(0, -suffix.length);
+  }
+  return word;
+}
+
+/** Prefix query on stems, so "raporları" also finds "rapor" and "raporlarımız". */
+export function stemmedTsQuery(query: string, mode: "and" | "or" = "and"): string | null {
+  const terms = queryTerms(query);
+  if (terms.length === 0) return null;
+  return uniqTerms(terms.map(stemTerm))
+    .map((t) => `${t}:*`)
+    .join(mode === "and" ? " & " : " | ");
+}
+
+function uniqTerms(terms: string[]) {
+  return Array.from(new Set(terms));
+}

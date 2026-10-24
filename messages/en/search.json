@@ -1,1 +1,17 @@
-{}
+{
+  "title": "Search",
+  "cmdNewTask": "New task",
+  "cmdNewNote": "New note",
+  "cmdUpload": "Upload a file",
+  "cmdNewMeeting": "New meeting",
+  "cmdNewReport": "New report",
+  "cmdDark": "Dark mode",
+  "cmdLight": "Light mode",
+  "askGroup": "Ask",
+  "askAi": "Ask the assistant",
+  "askWithSources": "Answer with sources (Ask page)",
+  "allResults": "See all results",
+  "commands": "Commands",
+  "goTo": "Go to",
+  "nothingFound": "Nothing found. Could you try another word?"
+}

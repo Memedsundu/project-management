@@ -1,1 +1,17 @@
-{}
+{
+  "title": "Ara",
+  "cmdNewTask": "Yeni görev",
+  "cmdNewNote": "Yeni not",
+  "cmdUpload": "Belge yükle",
+  "cmdNewMeeting": "Yeni toplantı",
+  "cmdNewReport": "Yeni rapor",
+  "cmdDark": "Karanlık mod",
+  "cmdLight": "Açık mod",
+  "askGroup": "Sor",
+  "askAi": "Asistana sor",
+  "askWithSources": "Kaynaklarıyla yanıtla (Sor sayfası)",
+  "allResults": "Tüm sonuçları gör",
+  "commands": "Komutlar",
+  "goTo": "Git",
+  "nothingFound": "Hiçbir şey bulunamadı. Başka bir kelime dener misin?"
+}

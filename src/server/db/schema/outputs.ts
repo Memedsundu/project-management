@@ -112,3 +112,21 @@ export const studioOutputs = pgTable("studio_outputs", {
   citations: jsonb("citations").$type<Citation[]>().notNull().default([]),
   createdAt: createdAt(),
 });
+
+/** What the scheduled helpers wrote: the daily brief, the weekly review, partner checks and recipe runs. */
+export const briefs = pgTable(
+  "briefs",
+  {
+    id: id(),
+    kind: text("kind").notNull(), // daily | weekly | partner_check | recipe
+    day: date("day", { mode: "string" }).notNull(),
+    title: text("title").notNull(),
+    content: text("content").notNull(), // markdown
+    data: jsonb("data"),
+    recipeId: uuid("recipe_id"),
+    model: text("model"),
+    readAt: timestamp("read_at", { withTimezone: true }),
+    createdAt: createdAt(),
+  },
+  (t) => [index("briefs_kind_day_idx").on(t.kind, t.day)],
+);

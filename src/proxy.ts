@@ -5,7 +5,7 @@ import { NextResponse, type NextRequest } from "next/server";
  * The real check (session in the database) runs in the app layout and in
  * every server action and route handler.
  */
-const PUBLIC = ["/sign-in", "/setup", "/pair", "/api/cron", "/api/health", "/offline"];
+const PUBLIC = ["/sign-in", "/setup", "/pair", "/api/cron", "/api/health", "/api/test", "/offline"];
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;

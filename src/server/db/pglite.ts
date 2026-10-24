@@ -6,13 +6,15 @@ import { unaccent } from "@electric-sql/pglite/contrib/unaccent";
 import { vector } from "@electric-sql/pglite-pgvector";
 import { drizzle } from "drizzle-orm/pglite";
 import { migrate } from "drizzle-orm/pglite/migrator";
+import { localDataDir } from "../local-data";
 import type { DB } from "./client";
 import * as schema from "./schema";
 
 export const MIGRATIONS_DIR = path.join(process.cwd(), "drizzle");
 
 /**
- * DATABASE_URL unset or "pglite:./.data/db" stores data on disk;
+ * DATABASE_URL unset stores data on disk outside the project folder
+ * (see local-data.ts); "pglite:<folder>" picks another folder;
  * "memory://" keeps everything in memory (tests).
  */
 export async function createPgliteDb(url?: string): Promise<DB> {
@@ -20,7 +22,7 @@ export async function createPgliteDb(url?: string): Promise<DB> {
   if (url === "memory://") {
     dataDir = undefined;
   } else {
-    dataDir = url?.startsWith("pglite:") ? url.slice("pglite:".length) : "./.data/db";
+    dataDir = url?.startsWith("pglite:") ? url.slice("pglite:".length) : path.join(localDataDir(), "db");
     mkdirSync(path.dirname(path.resolve(dataDir)), { recursive: true });
   }
   const client = await PGlite.create(dataDir, { extensions: { vector, pg_trgm, unaccent } });

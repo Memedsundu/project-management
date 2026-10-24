@@ -1,1 +1,20 @@
-{}
+{
+  "upload": {
+    "reading": "Okunuyor…",
+    "uploading": "Yükleniyor…",
+    "saving": "Kaydediliyor…",
+    "offline": "Çevrimdışısın. Bağlantı gelince tekrar dene.",
+    "tooLarge": "{name} çok büyük (en fazla 250 MB).",
+    "duplicate": "{name} zaten Belgeler'de var.",
+    "openExisting": "Var olanı aç",
+    "uploadAnyway": "Yine de yükle",
+    "storageNotReady": "Dosya deposu henüz bağlı değil. Vercel Blob eklenince yükleme çalışır.",
+    "readOnly": "Proje arşivlendi; yeni dosya eklenemez.",
+    "failed": "{name} yüklenemedi.",
+    "failedGeneric": "Yükleme yarıda kaldı. Tekrar dener misin?",
+    "doneOne": "“{name}” yüklendi. Claude dosyalamayı önerecek.",
+    "doneMany": "{count} dosya yüklendi. Claude dosyalamayı önerecek.",
+    "versionDone": "Yeni sürüm yüklendi.",
+    "open": "Aç"
+  }
+}

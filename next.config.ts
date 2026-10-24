@@ -18,7 +18,6 @@ const nextConfig: NextConfig = {
     "unpdf",
     "exceljs",
     "web-push",
-    "archiver",
   ],
   experimental: {
     serverActions: {
