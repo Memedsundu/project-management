@@ -57,19 +57,22 @@ export function PageHeader({
   actions,
   className,
   eyebrow,
+  compact,
 }: {
   title: React.ReactNode;
   subtitle?: React.ReactNode;
   actions?: React.ReactNode;
   className?: string;
   eyebrow?: React.ReactNode;
+  /** Smaller title for long record names (a file, a meeting). */
+  compact?: boolean;
 }) {
   return (
     <div className={cn("flex flex-wrap items-end justify-between gap-4", className)}>
       <div className="flex min-w-0 flex-col gap-1.5">
         {eyebrow ? <div className="text-[13px] text-muted">{eyebrow}</div> : null}
-        <h1 className="font-display text-[40px] leading-[1.05] md:text-[56px] md:leading-none">{title}</h1>
-        {subtitle ? <p className="max-w-[70ch] text-[16px] text-muted">{subtitle}</p> : null}
+        <h1 className={cn("font-display", compact ? "text-[30px] leading-[1.1] md:text-[38px]" : "text-[40px] leading-[1.05] md:text-[56px] md:leading-none")}>{title}</h1>
+        {subtitle ? <div className="max-w-[70ch] text-[16px] text-muted">{subtitle}</div> : null}
       </div>
       {actions ? <div className="flex flex-wrap items-center gap-2">{actions}</div> : null}
     </div>

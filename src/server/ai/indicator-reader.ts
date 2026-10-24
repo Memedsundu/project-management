@@ -106,7 +106,7 @@ export async function readIndicatorsJob(payload: Record<string, unknown>) {
     periodId: payload.periodId ? String(payload.periodId) : null,
     organisationId: payload.organisationId ? String(payload.organisationId) : null,
   });
-  await createSuggestion({
+  return createSuggestion({
     kind: "indicator_values",
     title: result.values.length ? `${result.values.length} gösterge değeri bulundu` : "Gösterge değeri bulunamadı",
     summary: result.notes || null,

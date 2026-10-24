@@ -343,11 +343,19 @@ export async function restoreDocumentVersion(documentId: string, versionId: stri
   const db = await getDb();
   const [ver] = await db.select().from(documentVersions).where(and(eq(documentVersions.id, versionId), eq(documentVersions.documentId, documentId))).limit(1);
   if (!ver) throw new UserError("Sürüm bulunamadı.");
-  await db
-    .update(documents)
-    .set({ currentVersionId: ver.id, filename: ver.filename, mime: ver.mime, size: ver.size, sha256: ver.sha256, updatedAt: new Date() })
-    .where(eq(documents.id, documentId));
+  const [doc] = await db.select().from(documents).where(eq(documents.id, documentId)).limit(1);
+  const set: Partial<typeof documents.$inferInsert> = { currentVersionId: ver.id, filename: ver.filename, mime: ver.mime, size: ver.size, sha256: ver.sha256, updatedAt: new Date() };
+  // An older version may hold what a cleaned copy removed: check it again before it becomes current.
+  const { checkForChildData, reasonText } = await import("@/server/files/child-guard");
+  const guard = checkForChildData({ text: ver.textContent ?? "" });
+  if (guard.flag && doc && !doc.childDataFlag && !(doc.meta as { childDataCleared?: boolean })?.childDataCleared) {
+    set.childDataFlag = true;
+    set.childDataReason = reasonText(guard.reasons);
+    set.classificationStatus = "flagged";
+  }
+  await db.update(documents).set(set).where(eq(documents.id, documentId));
   await logActivity({ action: "restore_version", entityType: "document", entityId: documentId, summary: `v${ver.version}` });
+  if (set.childDataFlag) await logActivity({ action: "flag", entityType: "document", entityId: documentId, title: doc?.title, summary: set.childDataReason, actor: "system" });
   await indexDocument(documentId);
 }
 

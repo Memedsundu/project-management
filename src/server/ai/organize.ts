@@ -130,8 +130,8 @@ export async function organizeFolderJob(payload: Record<string, unknown>) {
     items,
     duplicates: out.duplicates.filter((d) => d.documentIds.length > 1).slice(0, 20),
   };
-  if (!result.items.length && !result.duplicates.length) return;
-  await createSuggestion({
+  if (!result.items.length && !result.duplicates.length) return null;
+  return createSuggestion({
     kind: "organize",
     title: "Klasör düzenleme önerisi",
     summary: `${result.items.length} değişiklik${result.newFolders.length ? `, ${result.newFolders.length} yeni klasör` : ""}${result.duplicates.length ? `, ${result.duplicates.length} olası kopya` : ""}.`,

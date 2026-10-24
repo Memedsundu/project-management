@@ -278,7 +278,10 @@ export async function applyClassification(payload: unknown, decision: unknown, s
   let tasksCreated = 0;
   if (d.keyDateTasks && merged.keyDates?.length) {
     const { createTask } = await import("@/server/services/tasks");
-    for (const k of merged.keyDates) {
+    const { todayStr } = await import("@/lib/dates");
+    const today = todayStr();
+    // Only deadlines still ahead become tasks.
+    for (const k of merged.keyDates.filter((x) => x.date >= today)) {
       await createTask({ title: k.label, dueDate: k.date, sourceType: "document", sourceId: p.documentId, orgIds: merged.partnerIds }, "ai");
       tasksCreated++;
     }

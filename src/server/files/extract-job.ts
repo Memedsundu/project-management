@@ -88,13 +88,22 @@ export async function extractTextJob(payload: Record<string, unknown>) {
     set.childDataReason = reasonText(guard.reasons);
     set.classificationStatus = "flagged";
   }
+  // A cleaned copy uploaded as the new version lifts the hold the guard put on the file.
+  const lifted = isCurrent && !guard.flag && doc.childDataFlag && doc.classificationStatus === "flagged";
+  if (lifted) {
+    set.childDataFlag = false;
+    set.childDataReason = null;
+    set.classificationStatus = "pending";
+  }
   await db.update(documents).set(set).where(eq(documents.id, doc.id));
   if (set.childDataFlag) {
     await logActivity({ action: "flag", entityType: "document", entityId: doc.id, title: doc.title, summary: set.childDataReason, actor: "system" });
   }
+  if (lifted) await logActivity({ action: "unflag", entityType: "document", entityId: doc.id, title: doc.title, summary: `v${ver.version}`, actor: "system" });
   await indexDocument(doc.id);
 
-  if (isCurrent && !set.childDataFlag && payload.reclassify !== false && (doc.classificationStatus === "pending" || doc.classificationStatus === "failed")) {
+  const waiting = doc.classificationStatus === "pending" || doc.classificationStatus === "failed";
+  if (isCurrent && !set.childDataFlag && (lifted || (payload.reclassify !== false && waiting))) {
     await enqueue("classify_document", { documentId: doc.id }, { dedupeKey: `classify:${doc.id}` });
   }
   if (rows.length) await enqueue("embed_pending", {}, { dedupeKey: "embed_pending", runAt: new Date(Date.now() + 5_000) });

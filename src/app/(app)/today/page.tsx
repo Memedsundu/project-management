@@ -19,7 +19,8 @@ const HREF: Record<string, string> = { document: "/files/d/", note: "/notes/", m
 
 function suggestionHref(s: { kind: string; sourceType: string | null; sourceId: string | null; id: string }) {
   if (s.kind === "classification") return "/files/check";
-  if (s.kind === "organize" && s.sourceId) return `/files/f/${s.sourceId}?organize=${s.id}`;
+  if (s.kind === "organize") return s.sourceId ? `/files/f/${s.sourceId}?organize=${s.id}` : `/files?organize=${s.id}`;
+  if (s.kind === "indicator_values" && s.sourceId) return `/files/d/${s.sourceId}`;
   if (s.kind === "meeting_recap" && s.sourceId) return `/meetings/${s.sourceId}`;
   return `/inbox#s-${s.id}`;
 }

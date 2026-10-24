@@ -16,5 +16,253 @@
     "doneMany": "{count} dosya yüklendi. Claude dosyalamayı önerecek.",
     "versionDone": "Yeni sürüm yüklendi.",
     "open": "Aç"
-  }
+  },
+  "title": "Belgeler",
+  "subtitle": "Projenin bütün dosyaları. Yüklediğin her dosyayı Claude okur ve nereye konacağını önerir; sen onaylamadan hiçbir şey taşınmaz.",
+  "breadcrumb": "Klasör yolu",
+  "views": {
+    "folder": "Klasörler",
+    "recent": "Son kullanılanlar",
+    "starred": "Yıldızlılar",
+    "all": "Tüm belgeler",
+    "check": "Kontrol"
+  },
+  "newFolder": "Yeni klasör",
+  "uploadFiles": "Dosya yükle",
+  "uploadFolder": "Klasör yükle",
+  "folderMenu": "Klasör seçenekleri",
+  "organize": {
+    "action": "Claude bu klasörü düzenlesin",
+    "nothing": "Claude bu klasörde değiştirilecek bir şey bulmadı.",
+    "working": "Claude klasördeki dosyaları okuyor ve bir düzen öneriyor…",
+    "hide": "Öneriyi gizle"
+  },
+  "rename": "Yeniden adlandır",
+  "move": {
+    "action": "Taşı",
+    "folderTitle": "Klasörü taşı",
+    "title": "{count, plural, one {Dosyayı taşı} other {# dosyayı taşı}}",
+    "root": "Belgeler (en üst)",
+    "cancel": "Vazgeç",
+    "here": "Buraya taşı",
+    "collapse": "Daralt",
+    "expand": "Genişlet"
+  },
+  "aiOnDone": "Klasör yapay zekâya açıldı.",
+  "aiOffDone": "Klasör yapay zekâya kapatıldı. İçindeki dosyalar Claude'a gönderilmez.",
+  "allowAi": "Yapay zekâya aç",
+  "closeToAi": "Yapay zekâya kapat",
+  "deleteFolder": "Klasörü sil",
+  "flaggedBanner": "{count, plural, one {Bir dosya} other {# dosya}} çocuklara ait kişisel veri içerebilir; yapay zekâya gönderilmedi. Bakmak için dokun.",
+  "filterPlaceholder": "Ada göre filtrele",
+  "sort": {
+    "label": "Sırala",
+    "name": "Ad",
+    "updated": "Son değişiklik",
+    "created": "Eklenme tarihi",
+    "size": "Boyut",
+    "type": "Tür",
+    "asc": "Artan sıra",
+    "desc": "Azalan sıra"
+  },
+  "viewMode": "Görünüm",
+  "list": "Liste",
+  "grid": "Izgara",
+  "folders": "Klasörler",
+  "folderCounts": "{files, plural, =0 {dosya yok} one {# dosya} other {# dosya}}{folders, plural, =0 {} one {, # klasör} other {, # klasör}}",
+  "files": "Dosyalar",
+  "emptyFolder": {
+    "title": "Bu klasör boş",
+    "body": "Dosyaları buraya sürükle ya da yükle. Bir klasörü komple sürüklersen alt klasörleriyle birlikte gelir."
+  },
+  "empty": {
+    "title": "Henüz belge yok",
+    "body": "Proje önerisi, sözleşmeler, bütçe ve ortak raporlarıyla başla. Dosyaları bu sayfaya sürükleyebilirsin; Claude her birini okuyup türünü, dönemini ve klasörünü önerir."
+  },
+  "noMatch": "Bu filtrelerle eşleşen dosya yok.",
+  "columns": {
+    "name": "Ad",
+    "type": "Tür",
+    "partner": "Ortak",
+    "period": "Dönem",
+    "updated": "Değişiklik",
+    "size": "Boyut"
+  },
+  "starred": "Yıldızlı",
+  "flagged": "Yapay zekâya gönderilmedi",
+  "toCheck": "Kontrol et",
+  "star": "Yıldızla",
+  "unstar": "Yıldızı kaldır",
+  "clearSelection": "Seçimi temizle",
+  "folderName": "Klasör adı",
+  "fileName": "Dosya adı",
+  "moved": "Taşındı",
+  "fileMenu": "{title} için seçenekler",
+  "filters": {
+    "type": "Tür",
+    "partner": "Ortak",
+    "period": "Dönem",
+    "language": "Dil",
+    "format": "Biçim",
+    "clear": "Filtreleri temizle"
+  },
+  "languages": {
+    "tr": "Türkçe",
+    "en": "İngilizce",
+    "other": "Diğer"
+  },
+  "statuses": {
+    "draft": "Taslak",
+    "final": "Son hâli",
+    "signed": "İmzalı"
+  },
+  "formats": {
+    "pdf": "PDF",
+    "word": "Word",
+    "sheet": "Tablo",
+    "slides": "Sunum",
+    "image": "Görsel",
+    "email": "E-posta"
+  },
+  "drop": {
+    "title": "Bırak, yükleyelim",
+    "body": "Dosyalar ve klasörler bu klasöre eklenir.",
+    "creatingFolders": "Klasörler oluşturuluyor…"
+  },
+  "preview": {
+    "loading": "Önizleme hazırlanıyor…",
+    "none": "Bu dosyanın önizlemesi yok",
+    "noneBody": "İndirip kendi programında açabilirsin.",
+    "stillReading": "Dosya hâlâ okunuyor. Birkaç dakika sonra önizleme burada olur.",
+    "readFailed": "Dosyanın metni okunamadı. Taranmış bir belgeyse daha net bir kopya yüklemeyi dene.",
+    "download": "İndir",
+    "openNewTab": "Yeni sekmede aç",
+    "sheets": "Sayfalar",
+    "moreRows": "İlk 300 satır gösteriliyor. Tamamı için dosyayı indir.",
+    "textOnly": "Bu, dosyadan okunan metin. Biçimli hâli için dosyayı indir.",
+    "page": "Sayfa {page}"
+  },
+  "classify": {
+    "badge": "Dosyalama önerisi",
+    "sure": "Claude emin",
+    "unsure": "Gözden geçir",
+    "edit": "Düzenle",
+    "doneEditing": "Bitti",
+    "accept": "Dosyala",
+    "reject": "Reddet",
+    "filed": "Dosyalandı",
+    "rejected": "Öneri reddedildi; dosya olduğu gibi kaldı.",
+    "pickFolder": "Klasör seç",
+    "periodPlaceholder": "Örneğin 2026 Ç3",
+    "keyDates": "Dosyadaki önemli tarihler",
+    "keyDate": "Tarih",
+    "keyDateLabel": "Ne var?",
+    "addKeyDate": "Tarih ekle",
+    "keyDateTasks": "{count, plural, one {Yaklaşan tarih için görev oluştur} other {Yaklaşan # tarih için görev oluştur}}",
+    "fields": {
+      "title": "Başlık",
+      "type": "Tür",
+      "folder": "Klasör",
+      "partners": "Ortaklar",
+      "period": "Dönem",
+      "language": "Dil",
+      "status": "Durum",
+      "tags": "Etiketler",
+      "summary": "Özet"
+    }
+  },
+  "doc": {
+    "menu": "Dosya seçenekleri",
+    "pages": "{count, plural, one {# sayfa} other {# sayfa}}",
+    "updatedAt": "son değişiklik {when}",
+    "ask": "Bu belgeye sor",
+    "askPrompt": "“{title}” belgesine göre: ",
+    "newVersion": "Yeni sürüm yükle",
+    "extractTasks": "Görevleri çıkar",
+    "extractTitle": "{title}: önerilen görevler",
+    "readIndicators": "Gösterge değerlerini oku",
+    "readIndicatorsGo": "Oku",
+    "indicatorsHint": "Claude rapordaki sayıları göstergelerinle eşleştirir ve her değerin sayfasını gösterir. Sen onaylamadan hiçbir değer kaydedilmez.",
+    "periodAuto": "Boş bırakırsan Claude dönemi dosyadan bulur.",
+    "periodFromFile": "Dosyadan bul",
+    "reclassify": "Yeniden sınıflandır",
+    "classifyDone": "Claude yeni bir dosyalama önerisi hazırladı.",
+    "working": {
+      "extract": "Claude dosyadaki işleri ve tarihleri buluyor…",
+      "indicators": "Claude gösterge değerlerini okuyor…",
+      "classify": "Claude dosyayı yeniden okuyor…"
+    },
+    "hold": {
+      "title": "Bu dosya yapay zekâya gönderilmedi",
+      "body": "Dosyada çocuklara ait kişisel veri (ad, kimlik numarası, doğum tarihi gibi) olabilir. Arama ve önizleme çalışır; Claude dosyayı okumaz.",
+      "reason": "Neden: {reason}",
+      "upload": "Temizlenmiş sürüm yükle",
+      "clear": "Kontrol ettim, sorun yok",
+      "cleared": "Dosya yapay zekâya açıldı. Claude dosyalamayı önerecek."
+    },
+    "fields": {
+      "type": "Tür",
+      "status": "Durum",
+      "language": "Dil",
+      "period": "Dönem",
+      "folder": "Klasör",
+      "partners": "Ortaklar",
+      "partner": "Ortak",
+      "summary": "Özet"
+    },
+    "noType": "Tür seçilmedi",
+    "periodPlaceholder": "Örneğin 2026 Ç3",
+    "summaryPlaceholder": "Bu dosya ne anlatıyor? Bir iki cümle.",
+    "keyDates": "Önemli tarihler",
+    "noKeyDates": "Henüz tarih yok.",
+    "addKeyDate": "Tarih ekle",
+    "keyDate": "Tarih",
+    "keyDateLabel": "Ne var? Örneğin rapor teslimi",
+    "makeTask": "“{label}” için görev oluştur",
+    "taskMade": "Görev oluşturuldu",
+    "versions": "Sürümler",
+    "current": "Şu anki",
+    "view": "Görüntüle",
+    "makeCurrent": "Bu sürüme dön",
+    "restored": "v{version} yeniden şu anki sürüm",
+    "viewingVersion": "Eski bir sürüme bakıyorsun (v{version}).",
+    "backToCurrent": "Şu anki sürüme dön",
+    "filingConfirmed": "Onaylandı",
+    "info": {
+      "file": "Dosya",
+      "added": "Eklendi",
+      "text": "Metin",
+      "filing": "Dosyalama"
+    },
+    "textStatus": {
+      "pending": "Okunuyor…",
+      "done": "Okundu, aranabilir",
+      "partial": "Kısmen okundu",
+      "failed": "Okunamadı",
+      "none": "Metin yok"
+    }
+  },
+  "check": {
+    "title": "Kontrol",
+    "subtitle": "Claude'un dosyalama önerileri. Doğruysa dosyala, değilse düzelt ya da reddet.",
+    "hint": "Her öneride tür, klasör, ortak, dönem ve önemli tarihler var. “Düzenle” ile her alanı değiştirebilirsin.",
+    "acceptAll": "{count, plural, one {Dosyala} other {Hepsini dosyala (#)}}",
+    "allFiled": "{count, plural, one {Bir dosya dosyalandı.} other {# dosya dosyalandı.}}",
+    "tabs": {
+      "suggestions": "Öneriler",
+      "flagged": "Yapay zekâya kapalı"
+    },
+    "empty": {
+      "title": "Kontrol edilecek dosya yok",
+      "body": "Yeni dosya yüklediğinde Claude'un önerileri burada görünür.",
+      "noAi": "Yapay zekâ bağlanınca Claude her yeni dosyanın türünü, klasörünü ve dönemini önerecek. O zamana kadar dosyaları kendin düzenleyebilirsin."
+    },
+    "flaggedEmpty": {
+      "title": "Bekletilen dosya yok",
+      "body": "Çocuklara ait kişisel veri içerebilecek dosyalar burada bekletilir ve yapay zekâya gönderilmez."
+    },
+    "flaggedHint": "Bu dosyalarda çocuklara ait kişisel veri olabilir. Claude onları okumaz. Kişisel bilgileri çıkarılmış bir sürüm yükleyebilir, kontrol edip açabilir ya da silebilirsin.",
+    "look": "Dosyaya bak"
+  },
+  "uploadButton": "Yükle"
 }

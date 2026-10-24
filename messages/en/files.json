@@ -16,5 +16,253 @@
     "doneMany": "{count} files uploaded. Claude will suggest where to file them.",
     "versionDone": "New version uploaded.",
     "open": "Open"
-  }
+  },
+  "title": "Files",
+  "subtitle": "Every file of the project. Claude reads each file you upload and suggests where it goes; nothing moves until you approve.",
+  "breadcrumb": "Folder path",
+  "views": {
+    "folder": "Folders",
+    "recent": "Recent",
+    "starred": "Starred",
+    "all": "All files",
+    "check": "To check"
+  },
+  "newFolder": "New folder",
+  "uploadFiles": "Upload files",
+  "uploadFolder": "Upload a folder",
+  "folderMenu": "Folder options",
+  "organize": {
+    "action": "Let Claude organise this folder",
+    "nothing": "Claude found nothing to change in this folder.",
+    "working": "Claude is reading the files in this folder and proposing an order…",
+    "hide": "Hide the proposal"
+  },
+  "rename": "Rename",
+  "move": {
+    "action": "Move",
+    "folderTitle": "Move folder",
+    "title": "{count, plural, one {Move file} other {Move # files}}",
+    "root": "Files (top level)",
+    "cancel": "Cancel",
+    "here": "Move here",
+    "collapse": "Collapse",
+    "expand": "Expand"
+  },
+  "aiOnDone": "The folder is open to AI again.",
+  "aiOffDone": "The folder is closed to AI. Its files are never sent to Claude.",
+  "allowAi": "Open to AI",
+  "closeToAi": "Close to AI",
+  "deleteFolder": "Delete folder",
+  "flaggedBanner": "{count, plural, one {One file} other {# files}} may hold children's personal data and {count, plural, one {was} other {were}} not sent to AI. Tap to look.",
+  "filterPlaceholder": "Filter by name",
+  "sort": {
+    "label": "Sort",
+    "name": "Name",
+    "updated": "Last changed",
+    "created": "Date added",
+    "size": "Size",
+    "type": "Type",
+    "asc": "Ascending",
+    "desc": "Descending"
+  },
+  "viewMode": "View",
+  "list": "List",
+  "grid": "Grid",
+  "folders": "Folders",
+  "folderCounts": "{files, plural, =0 {no files} one {# file} other {# files}}{folders, plural, =0 {} one {, # folder} other {, # folders}}",
+  "files": "Files",
+  "emptyFolder": {
+    "title": "This folder is empty",
+    "body": "Drag files here or upload them. Drag a whole folder and its subfolders come too."
+  },
+  "empty": {
+    "title": "No files yet",
+    "body": "Start with the proposal, agreements, budget and partner reports. You can drag files onto this page; Claude reads each one and suggests its type, period and folder."
+  },
+  "noMatch": "No files match these filters.",
+  "columns": {
+    "name": "Name",
+    "type": "Type",
+    "partner": "Partner",
+    "period": "Period",
+    "updated": "Changed",
+    "size": "Size"
+  },
+  "starred": "Starred",
+  "flagged": "Not sent to AI",
+  "toCheck": "Check",
+  "star": "Star",
+  "unstar": "Remove star",
+  "clearSelection": "Clear selection",
+  "folderName": "Folder name",
+  "fileName": "File name",
+  "moved": "Moved",
+  "fileMenu": "Options for {title}",
+  "filters": {
+    "type": "Type",
+    "partner": "Partner",
+    "period": "Period",
+    "language": "Language",
+    "format": "Format",
+    "clear": "Clear filters"
+  },
+  "languages": {
+    "tr": "Turkish",
+    "en": "English",
+    "other": "Other"
+  },
+  "statuses": {
+    "draft": "Draft",
+    "final": "Final",
+    "signed": "Signed"
+  },
+  "formats": {
+    "pdf": "PDF",
+    "word": "Word",
+    "sheet": "Spreadsheet",
+    "slides": "Slides",
+    "image": "Image",
+    "email": "Email"
+  },
+  "drop": {
+    "title": "Drop to upload",
+    "body": "Files and folders go into this folder.",
+    "creatingFolders": "Creating folders…"
+  },
+  "preview": {
+    "loading": "Preparing the preview…",
+    "none": "No preview for this file",
+    "noneBody": "Download it and open it in its own program.",
+    "stillReading": "The file is still being read. The preview will be here in a few minutes.",
+    "readFailed": "The text of this file could not be read. If it is a scan, try a clearer copy.",
+    "download": "Download",
+    "openNewTab": "Open in a new tab",
+    "sheets": "Sheets",
+    "moreRows": "Showing the first 300 rows. Download the file for all of it.",
+    "textOnly": "This is the text read from the file. Download it for the formatted version.",
+    "page": "Page {page}"
+  },
+  "classify": {
+    "badge": "Filing suggestion",
+    "sure": "Claude is sure",
+    "unsure": "Please review",
+    "edit": "Edit",
+    "doneEditing": "Done",
+    "accept": "File it",
+    "reject": "Reject",
+    "filed": "Filed",
+    "rejected": "Suggestion rejected; the file stays as it is.",
+    "pickFolder": "Choose a folder",
+    "periodPlaceholder": "For example 2026 Q3",
+    "keyDates": "Key dates in the file",
+    "keyDate": "Date",
+    "keyDateLabel": "What happens?",
+    "addKeyDate": "Add date",
+    "keyDateTasks": "{count, plural, one {Create a task for the coming date} other {Create tasks for the # coming dates}}",
+    "fields": {
+      "title": "Title",
+      "type": "Type",
+      "folder": "Folder",
+      "partners": "Partners",
+      "period": "Period",
+      "language": "Language",
+      "status": "Status",
+      "tags": "Tags",
+      "summary": "Summary"
+    }
+  },
+  "doc": {
+    "menu": "File options",
+    "pages": "{count, plural, one {# page} other {# pages}}",
+    "updatedAt": "last changed {when}",
+    "ask": "Ask this file",
+    "askPrompt": "Based on “{title}”: ",
+    "newVersion": "Upload new version",
+    "extractTasks": "Extract tasks",
+    "extractTitle": "{title}: suggested tasks",
+    "readIndicators": "Read indicator values",
+    "readIndicatorsGo": "Read",
+    "indicatorsHint": "Claude matches the numbers in the report to your indicators and shows the page of each value. Nothing is saved until you approve.",
+    "periodAuto": "Leave it empty and Claude finds the period in the file.",
+    "periodFromFile": "Find it in the file",
+    "reclassify": "Classify again",
+    "classifyDone": "Claude prepared a new filing suggestion.",
+    "working": {
+      "extract": "Claude is finding the work and dates in the file…",
+      "indicators": "Claude is reading the indicator values…",
+      "classify": "Claude is reading the file again…"
+    },
+    "hold": {
+      "title": "This file was not sent to AI",
+      "body": "It may hold children's personal data (names, ID numbers, dates of birth). Search and preview work; Claude does not read it.",
+      "reason": "Why: {reason}",
+      "upload": "Upload a cleaned version",
+      "clear": "I checked, it is fine",
+      "cleared": "The file is open to AI. Claude will suggest its filing."
+    },
+    "fields": {
+      "type": "Type",
+      "status": "Status",
+      "language": "Language",
+      "period": "Period",
+      "folder": "Folder",
+      "partners": "Partners",
+      "partner": "Partner",
+      "summary": "Summary"
+    },
+    "noType": "No type",
+    "periodPlaceholder": "For example 2026 Q3",
+    "summaryPlaceholder": "What is this file about? A sentence or two.",
+    "keyDates": "Key dates",
+    "noKeyDates": "No dates yet.",
+    "addKeyDate": "Add date",
+    "keyDate": "Date",
+    "keyDateLabel": "What happens? For example report due",
+    "makeTask": "Create a task for “{label}”",
+    "taskMade": "Task created",
+    "versions": "Versions",
+    "current": "Current",
+    "view": "View",
+    "makeCurrent": "Make current",
+    "restored": "v{version} is the current version again",
+    "viewingVersion": "You are looking at an older version (v{version}).",
+    "backToCurrent": "Back to the current version",
+    "filingConfirmed": "Confirmed",
+    "info": {
+      "file": "File",
+      "added": "Added",
+      "text": "Text",
+      "filing": "Filing"
+    },
+    "textStatus": {
+      "pending": "Reading…",
+      "done": "Read, searchable",
+      "partial": "Partly read",
+      "failed": "Could not be read",
+      "none": "No text"
+    }
+  },
+  "check": {
+    "title": "To check",
+    "subtitle": "Claude's filing suggestions. File them if they are right, otherwise fix or reject them.",
+    "hint": "Each suggestion has a type, folder, partner, period and key dates. Use “Edit” to change any field.",
+    "acceptAll": "{count, plural, one {File it} other {File all (#)}}",
+    "allFiled": "{count, plural, one {One file filed.} other {# files filed.}}",
+    "tabs": {
+      "suggestions": "Suggestions",
+      "flagged": "Closed to AI"
+    },
+    "empty": {
+      "title": "Nothing to check",
+      "body": "When you upload new files, Claude's suggestions appear here.",
+      "noAi": "Once AI is connected, Claude will suggest the type, folder and period of each new file. Until then you can organise files yourself."
+    },
+    "flaggedEmpty": {
+      "title": "No files on hold",
+      "body": "Files that may hold children's personal data wait here and are never sent to AI."
+    },
+    "flaggedHint": "These files may hold children's personal data. Claude does not read them. You can upload a version with the personal details removed, check one and open it, or delete it.",
+    "look": "Look at the file"
+  },
+  "uploadButton": "Upload"
 }

@@ -128,6 +128,17 @@ export async function rejectSuggestion(id: string) {
     .set({ status: "rejected", decidedAt: new Date() })
     .where(and(eq(aiSuggestions.id, id), eq(aiSuggestions.status, "pending")))
     .returning();
+  if (row?.kind === "classification") {
+    // She turned the filing down: the file leaves Kontrol and keeps its current details.
+    const documentId = String((row.payload as { documentId?: string }).documentId ?? "");
+    if (documentId) {
+      const { documents } = await import("@/server/db/schema");
+      await db
+        .update(documents)
+        .set({ classificationStatus: "skipped" })
+        .where(and(eq(documents.id, documentId), eq(documents.classificationStatus, "suggested")));
+    }
+  }
   if (row) {
     await logActivity({
       action: "reject",
