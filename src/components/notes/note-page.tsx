@@ -329,7 +329,7 @@ export function NotePage({ data }: { data: NotePageData }) {
 
       <NoteEditor
         key={editorKey}
-        noteId={note.id}
+        owner={{ type: "note", id: note.id }}
         initialContent={content}
         readOnly={readOnly}
         aiOff={note.aiOff || !shell.aiConfigured}

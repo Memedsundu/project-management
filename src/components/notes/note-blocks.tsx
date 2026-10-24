@@ -17,7 +17,7 @@ import { cn } from "@/lib/utils";
 export type TaskState = { title: string; status: string; dueDate: string | null; deleted: boolean };
 
 type EditorEnv = {
-  noteId: string;
+  owner: { type: "note" | "meeting"; id: string };
   today: string;
   partners: PartnerRef[];
   readOnly: boolean;
@@ -122,7 +122,7 @@ function TaskBlockView({
       setBusy(true);
       const parsed = parseTaskInput(text, { today: env.today, partners: env.partners });
       const input = parsedToInput(parsed, { locale });
-      const res = await runAction(createTaskAction({ ...input, links: [{ type: "note", id: env.noteId }] }));
+      const res = await runAction(createTaskAction({ ...input, links: [{ type: env.owner.type, id: env.owner.id }] }));
       setBusy(false);
       if (!res) return;
       env.setTask(res.id, { title: res.title, status: "todo", dueDate: input.dueDate ?? null, deleted: false });

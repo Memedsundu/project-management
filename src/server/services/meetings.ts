@@ -118,7 +118,8 @@ export async function updateMeeting(id: string, raw: MeetingPatch, actor: Actor 
   const ref: EntityRef = { type: "meeting", id };
   if (patch.orgIds) await setLinks(ref, "partner", patch.orgIds.map((o) => ({ type: "organisation" as const, id: o })));
   if (patch.contactIds) await setLinks(ref, "attendee", patch.contactIds.map((c) => ({ type: "contact" as const, id: c })));
-  const quiet = patch.notesContent !== undefined && Object.keys(patch).length === 1;
+  // Typing in the notes or ticking the agenda would flood the history.
+  const quiet = Object.keys(patch).every((k) => k === "notesContent" || k === "agenda");
   if (!quiet) {
     await logActivity({
       action: patch.status === "done" && before.status !== "done" ? "complete" : "update",
@@ -165,6 +166,15 @@ export async function createSeries(input: { title: string; recurrence?: string |
   await logActivity({ action: "create", entityType: "series", entityId: row!.id, title: row!.title });
   await indexSeries(row!.id);
   return row!;
+}
+
+export async function updateSeries(id: string, patch: { title?: string; recurrence?: string | null; recurrenceLabel?: string | null; organisationId?: string | null }) {
+  const db = await getDb();
+  const [row] = await db.update(meetingSeries).set({ ...patch, updatedAt: new Date() }).where(eq(meetingSeries.id, id)).returning();
+  if (!row) return null;
+  await logActivity({ action: "update", entityType: "series", entityId: id, title: row.title, summary: Object.keys(patch).join(", ") });
+  await indexSeries(id);
+  return row;
 }
 
 /** "Sonraki toplantıyı oluştur": the next date from the series rule, agenda carried over. */
@@ -274,9 +284,9 @@ export async function getMeeting(id: string) {
   };
 }
 
-export type MeetingListItem = { id: string; title: string; kind: string; startsAt: Date; endsAt: Date | null; status: string; location: string | null; seriesId: string | null; orgIds: string[]; hasNotes: boolean; hasRecap: boolean };
+export type MeetingListItem = { id: string; title: string; kind: string; startsAt: Date; endsAt: Date | null; status: string; location: string | null; onlineUrl: string | null; seriesId: string | null; orgIds: string[]; hasNotes: boolean; hasRecap: boolean };
 
-export async function listMeetings(opts: { from?: Date; to?: Date; orgId?: string; kind?: string; status?: string; limit?: number; order?: "asc" | "desc" } = {}): Promise<MeetingListItem[]> {
+export async function listMeetings(opts: { from?: Date; to?: Date; orgId?: string; seriesId?: string; kind?: string; status?: string; limit?: number; order?: "asc" | "desc" } = {}): Promise<MeetingListItem[]> {
   const db = await getDb();
   const rows = await db
     .select({
@@ -287,6 +297,7 @@ export async function listMeetings(opts: { from?: Date; to?: Date; orgId?: strin
       endsAt: meetings.endsAt,
       status: meetings.status,
       location: meetings.location,
+      onlineUrl: meetings.onlineUrl,
       seriesId: meetings.seriesId,
       notesText: meetings.notesText,
       recap: meetings.recap,
@@ -299,6 +310,7 @@ export async function listMeetings(opts: { from?: Date; to?: Date; orgId?: strin
         opts.to ? lt(meetings.startsAt, opts.to) : undefined,
         opts.kind ? eq(meetings.kind, opts.kind) : undefined,
         opts.status ? eq(meetings.status, opts.status) : undefined,
+        opts.seriesId ? eq(meetings.seriesId, opts.seriesId) : undefined,
         opts.orgId
           ? sql`exists (select 1 from links l where l.from_type = 'meeting' and l.from_id = ${meetings.id} and l.to_type = 'organisation' and l.to_id = ${opts.orgId}::uuid)`
           : undefined,
@@ -321,6 +333,7 @@ export async function listMeetings(opts: { from?: Date; to?: Date; orgId?: strin
     endsAt: r.endsAt,
     status: r.status,
     location: r.location,
+    onlineUrl: r.onlineUrl,
     seriesId: r.seriesId,
     orgIds: byMeeting.get(r.id) ?? [],
     hasNotes: Boolean(r.notesText?.trim()),
@@ -388,14 +401,23 @@ export async function applyMeetingRecap(payload: unknown, decision: unknown, sou
   const keptDecisions = Array.isArray(d.decisions)
     ? d.decisions.map((x) => (typeof x === "number" ? recap.decisions[x] : x)).filter((x): x is string => Boolean(x))
     : recap.decisions;
-  const finalRecap: MeetingRecap = { ...recap, summary: d.summary ?? recap.summary, decisions: keptDecisions };
+  const tasks = (d.tasks ?? (Array.isArray(d.actions) ? d.actions.map((i) => proposedTasks[i]).filter(Boolean) : proposedTasks)) as NonNullable<RecapDecision["tasks"]>;
+  // The stored recap lists what she kept, with partner names for the follow-up email.
+  const { listOrganisationsLite } = await import("./partners-lite");
+  const orgs = await listOrganisationsLite();
+  const orgName = (id: string | null | undefined) => (id ? (orgs.find((o) => o.id === id)?.shortName ?? orgs.find((o) => o.id === id)?.name ?? null) : null);
+  const finalRecap: MeetingRecap = {
+    ...recap,
+    summary: d.summary?.trim() || recap.summary,
+    decisions: keptDecisions,
+    actions: tasks.filter((t) => t?.title?.trim()).map((t) => ({ title: t.title, owner: orgName(t.ownerOrgId) ?? t.ownerName ?? null, dueDate: t.dueDate ?? null })),
+  };
   await updateMeeting(meetingId, { recap: finalRecap, status: "done" }, "user");
   const orgIds = await linkedIds({ type: "meeting", id: meetingId }, "organisation", "partner");
   for (const text of keptDecisions) await addDecision({ meetingId, text, organisationId: orgIds.length === 1 ? orgIds[0] : null }, "ai");
   const { createTask } = await import("./tasks");
-  const tasks = d.tasks ?? (Array.isArray(d.actions) ? d.actions.map((i) => proposedTasks[i]).filter(Boolean) : proposedTasks);
   let created = 0;
-  for (const t of tasks as NonNullable<RecapDecision["tasks"]>) {
+  for (const t of tasks) {
     if (!t?.title?.trim()) continue;
     await createTask({ title: t.title, dueDate: t.dueDate ?? null, ownerOrgId: t.ownerOrgId ?? null, ownerName: t.ownerOrgId ? null : (t.ownerName ?? null), sourceType: "meeting", sourceId: meetingId, orgIds }, "ai");
     created++;
@@ -422,7 +444,7 @@ function icsDate(d: Date) {
   return d.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
 }
 function icsText(s: string) {
-  return s.replace(/\\/g, "\\\\").replace(/\n/g, "\\n").replace(/,/g, "\\,").replace(/;/g, "\;");
+  return s.replace(/\\/g, "\\\\").replace(/\n/g, "\\n").replace(/,/g, "\\,").replace(/;/g, "\\;");
 }
 
 /** One meeting (or many) as an .ics file for Outlook or Google Calendar. */

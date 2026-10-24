@@ -3,7 +3,6 @@
 import { z } from "zod";
 import { act, UserError } from "@/server/action";
 import { blocksToMarkdown, type Block } from "@/lib/blocks";
-import { addLink } from "@/server/services/links";
 import {
   createNote,
   getNote,
@@ -131,24 +130,14 @@ export async function saveNoteAsTemplateAction(id: string, name: string) {
 }
 
 /** Images and files dropped into a page are stored in Belgeler and linked to the page. */
-export async function attachToNoteAction(noteId: string, documentId: string) {
-  return act(
-    async () => {
-      await addLink({ type: "note", id: z.string().uuid().parse(noteId) }, { type: "document", id: z.string().uuid().parse(documentId) }, "attachment");
-      return null;
-    },
-    { refresh: false },
-  );
-}
-
 /** Notion AI on a selection. The answer is shown to her first; nothing changes on its own. */
-export async function writingToolAction(input: { noteId: string; op: string; text: string; context?: string; target?: "tr" | "en" | null; prompt?: string | null }) {
+export async function writingToolAction(input: { owner: { type: "note" | "meeting"; id: string }; op: string; text: string; context?: string; target?: "tr" | "en" | null; prompt?: string | null }) {
   return act(
     async () => {
       const { runWritingTool, WRITING_OPS } = await import("@/server/ai/writing");
       const parsed = z
         .object({
-          noteId: z.string().uuid(),
+          owner: z.object({ type: z.enum(["note", "meeting"]), id: z.string().uuid() }),
           op: z.enum(WRITING_OPS),
           text: z.string().max(40_000),
           context: z.string().max(20_000).optional(),
@@ -156,10 +145,18 @@ export async function writingToolAction(input: { noteId: string; op: string; tex
           prompt: z.string().max(500).nullish(),
         })
         .parse(input);
-      const note = await getNote(parsed.noteId);
-      if (!note) throw new UserError("Sayfa bulunamadı.");
-      if (note.aiOff) throw new UserError("Bu sayfa yapay zekâya kapalı.");
-      const text = await runWritingTool({ ...parsed, entity: { type: "note", id: note.id } });
+      if (parsed.owner.type === "note") {
+        const note = await getNote(parsed.owner.id);
+        if (!note) throw new UserError("Sayfa bulunamadı.");
+        if (note.aiOff) throw new UserError("Bu sayfa yapay zekâya kapalı.");
+      } else {
+        const { getMeeting } = await import("@/server/services/meetings");
+        const m = await getMeeting(parsed.owner.id);
+        if (!m) throw new UserError("Toplantı bulunamadı.");
+        if (m.aiOff) throw new UserError("Bu toplantı yapay zekâya kapalı.");
+      }
+      const { owner, ...rest } = parsed;
+      const text = await runWritingTool({ ...rest, entity: owner });
       return { text };
     },
     { write: false },

@@ -80,6 +80,17 @@ export async function removeLinkAction(from: { type: EntityType; id: string }, t
   });
 }
 
+/** A file dropped into a page or meeting notes: linked as an attachment, without reloading the screen. */
+export async function attachFileAction(owner: { type: EntityType; id: string }, documentId: string) {
+  return act(
+    async () => {
+      await addLink(refSchema.parse(owner), { type: "document", id: z.string().uuid().parse(documentId) }, "attachment");
+      return null;
+    },
+    { refresh: false },
+  );
+}
+
 export async function linksOfAction(ref: { type: EntityType; id: string }) {
   return act(async () => listLinks(refSchema.parse(ref)), { write: false });
 }

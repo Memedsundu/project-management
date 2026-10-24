@@ -9,9 +9,12 @@ export async function HistoryList({ type, id, limit = 12 }: { type: EntityType; 
   const t = await getTranslations("common");
   const ta = await getTranslations("common.actions");
   const tf = await getTranslations("common.fields");
+  const tk = await getTranslations("inbox.kinds");
   // Updates log the names of the changed fields; show them as words.
-  const summaryText = (summary: string) =>
-    /^[a-zA-Z]+(, [a-zA-Z]+)*$/.test(summary)
+  const summaryText = (summary: string, action: string) =>
+    ["suggest", "accept", "reject"].includes(action) && tk.has(summary as "tasks")
+      ? tk(summary as "tasks")
+      : /^[a-zA-Z]+(, [a-zA-Z]+)*$/.test(summary)
       ? [...new Set(summary.split(", ").map((k) => (tf.has(k as "title") ? tf(k as "title") : k)))].join(", ")
       : summary;
   const locale = await getLocale();
@@ -27,7 +30,7 @@ export async function HistoryList({ type, id, limit = 12 }: { type: EntityType; 
             <li key={r.id} className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5 border-b border-line-soft py-1.5 text-[13px] last:border-0">
               <span className="text-faint">{formatDateTime(r.at, locale)}</span>
               <span>{ta.has(r.action as "create") ? ta(r.action as "create") : r.action}</span>
-              {r.summary ? <span className="text-muted">· {summaryText(r.summary)}</span> : null}
+              {r.summary ? <span className="text-muted">· {summaryText(r.summary, r.action)}</span> : null}
               {r.actor === "ai" ? (
                 <Badge variant="ai" size="sm">
                   {t("aiBadge")}

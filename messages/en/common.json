@@ -156,7 +156,9 @@
     "status": "Status changed",
     "restore_version": "Earlier version restored",
     "flag": "Child data warning",
-    "value": "Value entered"
+    "value": "Value entered",
+    "merge_transcript": "Transcript merged into notes",
+    "suggest": "AI proposed"
   },
   "fields": {
     "title": "title",
@@ -196,6 +198,18 @@
     "endsAt": "end",
     "location": "place",
     "inbox": "inbox",
-    "orgIds": "partners"
+    "orgIds": "partners",
+    "kind": "type",
+    "onlineUrl": "online link",
+    "agenda": "agenda",
+    "transcript": "transcript",
+    "prepBrief": "prep brief",
+    "followupEmail": "follow-up email",
+    "recap": "recap",
+    "contactIds": "attendees",
+    "seriesId": "series",
+    "text": "text",
+    "decidedOn": "decision date",
+    "organisationId": "partner"
   }
 }

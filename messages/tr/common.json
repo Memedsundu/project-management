@@ -156,7 +156,9 @@
     "status": "Durum değişti",
     "restore_version": "Eski sürüm geri yüklendi",
     "flag": "Çocuk verisi uyarısı",
-    "value": "Değer girildi"
+    "value": "Değer girildi",
+    "merge_transcript": "Döküm notlarla birleştirildi",
+    "suggest": "Yapay zekâ önerdi"
   },
   "fields": {
     "title": "başlık",
@@ -196,6 +198,18 @@
     "endsAt": "bitiş",
     "location": "yer",
     "inbox": "gelen kutusu",
-    "orgIds": "ortaklar"
+    "orgIds": "ortaklar",
+    "kind": "tür",
+    "onlineUrl": "çevrim içi bağlantı",
+    "agenda": "gündem",
+    "transcript": "döküm",
+    "prepBrief": "hazırlık notu",
+    "followupEmail": "takip e-postası",
+    "recap": "özet",
+    "contactIds": "katılımcılar",
+    "seriesId": "seri",
+    "text": "metin",
+    "decidedOn": "karar tarihi",
+    "organisationId": "ortak"
   }
 }

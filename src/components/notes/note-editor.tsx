@@ -18,8 +18,9 @@ import { CheckSquare, FilePlus2, FileText, CalendarClock, Sparkles, CalendarDays
 import { useLocale, useTranslations } from "next-intl";
 import { useTheme } from "next-themes";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { searchEntitiesAction } from "@/app/actions/common";
-import { attachToNoteAction, createPageAction, saveNoteAction } from "@/app/(app)/notes/actions";
+import { attachFileAction, searchEntitiesAction } from "@/app/actions/common";
+import { saveMeetingNotesAction } from "@/app/(app)/meetings/actions";
+import { createPageAction, saveNoteAction } from "@/app/(app)/notes/actions";
 import { EntityIcon } from "@/components/common/entity-icon";
 import { PickerBody } from "@/components/common/entity-picker";
 import { Dialog, DialogContent } from "@/components/ui/overlay";
@@ -37,12 +38,15 @@ export type SaveState = "saved" | "saving" | "error";
 
 const MENTION_TYPES: EntityType[] = ["organisation", "contact", "task", "document", "meeting", "note", "indicator", "activity", "decision", "report", "collection"];
 
+export type EditorOwner = { type: "note" | "meeting"; id: string };
+
 /**
  * The page body: Notion-style blocks with a Turkish "/" menu, "@" links to
  * any record, real task blocks and file cards. Saves itself as she types.
+ * Pages and meeting notes share it; `owner` says where the blocks are saved.
  */
 export function NoteEditor({
-  noteId,
+  owner,
   initialContent,
   readOnly,
   aiOff,
@@ -53,7 +57,7 @@ export function NoteEditor({
   onSubPage,
   onReady,
 }: {
-  noteId: string;
+  owner: EditorOwner;
   initialContent: Block[];
   readOnly: boolean;
   aiOff: boolean;
@@ -80,11 +84,11 @@ export function NoteEditor({
         const out = await uploadOne(file, { folderId: null });
         const id = out.ok ? out.id : "duplicate" in out ? out.duplicate.id : null;
         if (!id) throw new Error(out.ok ? "failed" : "error" in out ? out.error : "failed");
-        await runAction(attachToNoteAction(noteId, id), { silent: true });
+        await runAction(attachFileAction(owner, id), { silent: true });
         return `/api/files/${id}/content`;
       },
     },
-    [noteId],
+    [owner.type, owner.id],
   );
 
   useEffect(() => {
@@ -100,9 +104,10 @@ export function NoteEditor({
     if (!pending.current) return;
     pending.current = false;
     onSaveState?.("saving");
-    const res = await runAction(saveNoteAction(noteId, { content: editor.document as unknown as Block[] }), { silent: true });
+    const content = editor.document as unknown as Block[];
+    const res = await runAction(owner.type === "meeting" ? saveMeetingNotesAction(owner.id, content) : saveNoteAction(owner.id, { content }), { silent: true });
     onSaveState?.(res === undefined ? "error" : "saved");
-  }, [editor, noteId, onSaveState]);
+  }, [editor, owner.type, owner.id, onSaveState]);
 
   const onChange = useCallback(() => {
     if (readOnly) return;
@@ -144,20 +149,24 @@ export function NoteEditor({
           icon: <CheckSquare size={18} />,
           onItemClick: () => insertOrUpdateBlockForSlashMenu(ed, { type: "task" }),
         },
-        {
-          title: t("slash.subPage"),
-          subtext: t("slash.subPageHint"),
-          aliases: ["sayfa", "alt", "page", "subpage"],
-          group,
-          icon: <FilePlus2 size={18} />,
-          onItemClick: async () => {
-            const cursor = ed.getTextCursorPosition().block;
-            const res = await runAction(createPageAction({ parentId: noteId, title: "" }));
-            if (!res) return;
-            ed.insertBlocks([{ type: "entityCard", props: { kind: "note", id: res.id, title: t("untitledPage") } }], cursor, "after");
-            onSubPage?.();
-          },
-        },
+        ...(owner.type === "note"
+          ? [
+              {
+                title: t("slash.subPage"),
+                subtext: t("slash.subPageHint"),
+                aliases: ["sayfa", "alt", "page", "subpage"],
+                group,
+                icon: <FilePlus2 size={18} />,
+                onItemClick: async () => {
+                  const cursor = ed.getTextCursorPosition().block;
+                  const res = await runAction(createPageAction({ parentId: owner.id, title: "" }));
+                  if (!res) return;
+                  ed.insertBlocks([{ type: "entityCard", props: { kind: "note", id: res.id, title: t("untitledPage") } }], cursor, "after");
+                  onSubPage?.();
+                },
+              },
+            ]
+          : []),
         {
           title: t("slash.file"),
           subtext: t("slash.fileHint"),
@@ -199,7 +208,7 @@ export function NoteEditor({
       const defaults = getDefaultReactSlashMenuItems(ed).filter((i) => !["Video", "Audio", "Ses", "Emoji"].includes(i.title));
       return [...own, ...defaults];
     },
-    [aiOff, locale, noteId, onSubPage, t, today],
+    [aiOff, locale, owner.type, owner.id, onSubPage, t, today],
   );
 
   // "/Belge kartı" and "/Toplantı kartı" open a search, then place a card after the cursor.
@@ -210,7 +219,7 @@ export function NoteEditor({
     async (query: string): Promise<DefaultReactSuggestionItem[]> => {
       const res = await runAction(searchEntitiesAction(query, MENTION_TYPES), { silent: true });
       return (res ?? [])
-        .filter((r) => !(r.type === "note" && r.id === noteId))
+        .filter((r) => !(r.type === owner.type && r.id === owner.id))
         .slice(0, 10)
         .map((r) => ({
           title: r.title || "—",
@@ -219,19 +228,19 @@ export function NoteEditor({
           onItemClick: () => editor.insertInlineContent([{ type: "mention", props: { kind: r.type, id: r.id, title: r.title } }, " "]),
         }));
     },
-    [editor, noteId, tk],
+    [editor, owner.type, owner.id, tk],
   );
 
   const env = useMemo(
     () => ({
-      noteId,
+      owner,
       today,
       partners,
       readOnly,
       tasks,
       setTask: (id: string, s: TaskState) => setTasks((m) => ({ ...m, [id]: s })),
     }),
-    [noteId, today, partners, readOnly, tasks],
+    [owner, today, partners, readOnly, tasks],
   );
 
   return (
@@ -283,7 +292,7 @@ export function NoteEditor({
       </Dialog>
       {writing ? (
         <WritingPanel
-          noteId={noteId}
+          owner={owner}
           request={writing}
           onClose={() => setWriting(null)}
           onApply={(markdown, mode) => {

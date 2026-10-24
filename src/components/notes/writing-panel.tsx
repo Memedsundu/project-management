@@ -17,12 +17,12 @@ type Op = "shorten" | "clarify" | "formal" | "bullets" | "continue" | "translate
 
 /** Notion AI's bar: pick what to do with the selection, read the answer, then decide where it goes. */
 export function WritingPanel({
-  noteId,
+  owner,
   request,
   onClose,
   onApply,
 }: {
-  noteId: string;
+  owner: { type: "note" | "meeting"; id: string };
   request: WritingRequest;
   onClose: () => void;
   onApply: (markdown: string, mode: "replace" | "below") => void;
@@ -40,7 +40,7 @@ export function WritingPanel({
     setLast({ op, target });
     const res = await runAction(
       writingToolAction({
-        noteId,
+        owner,
         op,
         text: request.text || request.context,
         context: hasSelection ? request.context : undefined,
